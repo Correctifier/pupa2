@@ -30,7 +30,9 @@ The virtual target listens on `127.0.0.1:8765` and prints its pseudo-terminal
 path at startup. Its ImGui window controls DCR, inductance, parallel parasitic
 capacitance, and measurement noise.
 Pass `--headless` to run the transport/model without opening a window (useful
-for CI), or pass a numeric argument to select a different TCP port.
+for CI), or pass a numeric argument to select a different TCP port. On Linux,
+the GUI prefers X11/XWayland for reliable minimize/restore behavior; pass
+`--wayland` to explicitly use GLFW's native Wayland backend.
 
 In another terminal, launch the client directly. The TCP client uses only the
 Python standard library, so a virtual environment and package installation are
@@ -57,6 +59,9 @@ be retained as overlays, saved together as versioned JSON, and loaded later.
 Magnitude uses logarithmic axes and supports automatic or user-selected
 vertical limits. Phase is fixed at -180 to 180 degrees. Nyquist plots maintain
 equal ohms-per-pixel scaling on their real and imaginary axes.
+Live acquisition is coalesced to the GUI refresh rate, and displayed traces are
+pixel-aware decimated while full-resolution samples remain available for saved
+files. This keeps multi-thousand-point sweeps responsive.
 
 ## STM32 status
 

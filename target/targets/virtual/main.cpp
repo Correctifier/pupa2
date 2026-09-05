@@ -17,9 +17,12 @@
 int main(int argc, char** argv) try {
   std::uint16_t port = 8765;
   bool headless = false;
+  bool prefer_wayland = false;
   for (int i = 1; i < argc; ++i) {
     if (std::string_view(argv[i]) == "--headless") {
       headless = true;
+    } else if (std::string_view(argv[i]) == "--wayland") {
+      prefer_wayland = true;
     } else {
       port = static_cast<std::uint16_t>(std::stoi(argv[i]));
     }
@@ -39,6 +42,14 @@ int main(int argc, char** argv) try {
     }
   }
 
+#if defined(__linux__)
+  // Native Wayland does not provide applications with reliable minimize/
+  // restore control. Prefer X11/XWayland when it is available so desktop
+  // taskbar restoration behaves consistently. --wayland opts back in.
+  if (!prefer_wayland && std::getenv("DISPLAY") != nullptr) {
+    glfwInitHint(GLFW_PLATFORM, GLFW_PLATFORM_X11);
+  }
+#endif
   if (!glfwInit()) throw std::runtime_error("GLFW initialization failed");
   GLFWwindow* window = glfwCreateWindow(520, 330, "Pickup virtual target", nullptr, nullptr);
   if (!window) throw std::runtime_error("window creation failed");

@@ -19,6 +19,9 @@ class AnalyzerGui:
         self.transport: Transport | None = None
         self.transaction_id = 0
         self.events: queue.Queue[tuple[str, object]] = queue.Queue()
+        self.progress_lock = threading.Lock()
+        self.latest_progress: tuple[int, int, list[SweepPoint], bool] | None = None
+        self.latest_complete: Sweep | None = None
         self.stop_requested = threading.Event()
         self.worker: threading.Thread | None = None
         self.current_sweep: Sweep | None = None
@@ -167,11 +170,21 @@ class AnalyzerGui:
                     if response.get("type") == "error":
                         raise RuntimeError(response.get("payload", {}).get("message", "target error"))
                     payload = response["payload"]
-                    points.append(SweepPoint(float(payload["frequency_hz"]), float(payload["real_ohm"]),
-                                             float(payload["imaginary_ohm"])))
-                    self.events.put(("progress", (index, len(frequencies), points[-1], continuous)))
+                    point = SweepPoint(float(payload["frequency_hz"]), float(payload["real_ohm"]),
+                                       float(payload["imaginary_ohm"]))
+                    # The UI consumes only the newest snapshot at its own frame rate.
+                    # This prevents thousands of redraw events from accumulating.
+                    with self.progress_lock:
+                        points.append(point)
+                        self.latest_progress = (index, len(frequencies), points, continuous)
                 if len(points) == len(frequencies):
-                    self.events.put(("complete", Sweep(datetime.now().strftime("Sweep %Y-%m-%d %H:%M:%S"), points)))
+                    with self.progress_lock:
+                        self.latest_progress = None
+                        # Completion is state, not an event: a fast simulator may
+                        # finish many passes between GUI frames. Only the newest
+                        # complete pass is useful as the scope back buffer.
+                        self.latest_complete = Sweep(
+                            datetime.now().strftime("Sweep %Y-%m-%d %H:%M:%S"), points)
                 if not continuous:
                     break
         except Exception as error:
@@ -193,30 +206,37 @@ class AnalyzerGui:
         try:
             while True:
                 event, value = self.events.get_nowait()
-                if event == "progress":
-                    index, total, point, continuous = value
-                    if index == 0:
-                        if continuous and self.current_sweep and len(self.current_sweep.points) == total:
-                            self.live_points = self.current_sweep.points.copy()
-                        else:
-                            self.live_points = []
-                    if index < len(self.live_points):
-                        self.live_points[index] = point
-                    else:
-                        self.live_points.append(point)
-                    self.current_sweep = Sweep("Live", self.live_points.copy())
-                    self.status.set(f"Measuring point {index + 1} of {total}")
-                    self.refresh_plots()
-                elif event == "complete":
-                    self.current_sweep = value
-                    self.status.set(f"Completed {value.name}: {len(value.points)} points")
-                    self.refresh_plots()
-                elif event == "error":
+                if event == "error":
                     messagebox.showerror("Sweep failed", str(value))
                 elif event == "stopped":
                     self._set_running(False)
         except queue.Empty:
             pass
+        with self.progress_lock:
+            complete = self.latest_complete
+            self.latest_complete = None
+            if self.latest_progress is None:
+                progress = None
+            else:
+                index, total, measured, continuous = self.latest_progress
+                progress = (index, total, measured.copy(), continuous)
+        needs_redraw = False
+        if complete is not None:
+            self.current_sweep = complete
+            self.status.set(f"Completed {complete.name}: {len(complete.points)} points")
+            needs_redraw = True
+        if progress is not None:
+            index, total, measured, continuous = progress
+            if continuous and self.current_sweep and len(self.current_sweep.points) == total:
+                live_points = self.current_sweep.points.copy()
+                live_points[:len(measured)] = measured
+            else:
+                live_points = measured
+            self.current_sweep = Sweep("Live", live_points)
+            self.status.set(f"Measuring point {index + 1} of {total}")
+            needs_redraw = True
+        if needs_redraw:
+            self.refresh_plots()
         self.root.after(50, self.poll_events)
 
     def refresh_plots(self) -> None:

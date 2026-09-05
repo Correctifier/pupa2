@@ -22,6 +22,7 @@ class SweepPlot(tk.Canvas):
         self.y_range, self.equal_units = y_range, equal_units
         self.sweeps: list[Sweep] = []
         self.bind("<Configure>", lambda _event: self.redraw())
+        self.bind("<Map>", lambda _event: self.redraw())
 
     def set_sweeps(self, sweeps: list[Sweep]) -> None:
         self.sweeps = sweeps
@@ -41,6 +42,10 @@ class SweepPlot(tk.Canvas):
 
     def redraw(self) -> None:
         self.delete("all")
+        # Notebook tabs that are not visible retain their data and redraw when
+        # Tk maps/configures them, avoiding four full renders per live update.
+        if not self.winfo_ismapped():
+            return
         width, height = self.winfo_width(), self.winfo_height()
         if width < 150 or height < 120:
             return
@@ -101,12 +106,35 @@ class SweepPlot(tk.Canvas):
         for label, color, points in series:
             valid = [screen(x, y) for x, y in points
                      if (x > 0 or not self.log_x) and (y > 0 or not self.log_y)]
+            # Keep moderately dense traces exact. For very large sweeps, cap
+            # geometry while preserving the extrema within each screen bucket.
+            valid = self._decimate(valid, max(2, int((right - left) * 4)))
             if len(valid) >= 2:
                 self.create_line(*[v for point in valid for v in point], fill=color, width=2)
             self.create_line(right - 145, legend_y, right - 125, legend_y, fill=color, width=2)
             self.create_text(right - 120, legend_y, text=label, fill="#d7dce2", anchor="w",
                              font=("TkDefaultFont", 8))
             legend_y += 15
+
+    @staticmethod
+    def _decimate(points: list[tuple[float, float]], pixel_width: int) -> list[tuple[float, float]]:
+        """Bound canvas work while preserving vertical extrema in each pixel bucket."""
+        if len(points) <= pixel_width * 2:
+            return points
+        result: list[tuple[float, float]] = [points[0]]
+        bucket_size = (len(points) - 2) / pixel_width
+        for bucket in range(pixel_width):
+            start = 1 + int(bucket * bucket_size)
+            stop = min(len(points) - 1, 1 + int((bucket + 1) * bucket_size))
+            if stop <= start:
+                continue
+            segment = points[start:stop]
+            low_index = min(range(len(segment)), key=lambda index: segment[index][1])
+            high_index = max(range(len(segment)), key=lambda index: segment[index][1])
+            for index in sorted({low_index, high_index}):
+                result.append(segment[index])
+        result.append(points[-1])
+        return result
 
 
 def magnitude_series(sweep: Sweep, color: str) -> list[Series]:
