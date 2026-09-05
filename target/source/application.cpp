@@ -6,39 +6,51 @@
 #include <cmath>
 
 namespace pickup {
+namespace {
+
+void send_message(bsp::Transport& transport, std::uint32_t endpoint,
+                  const protocol::EncodedMessage& message) {
+  if (message.size != 0) {
+    transport.send(endpoint, message.view());
+  }
+}
+
+}  // namespace
 
 Application::Application(ApplicationDependencies dependencies) : dependencies_(dependencies) {}
 
 void Application::tick() {
   while (auto line = dependencies_.transport.receive()) {
-    std::string code;
-    std::string message;
-    const auto request = protocol::parse_request(line->text, code, message);
+    std::string_view code;
+    std::string_view message;
+    const auto request = protocol::parse_request(line->view(), code, message);
 
     if (!request) {
-      dependencies_.transport.send(
-          line->endpoint, protocol::error_response(0, "", "", code, message));
+      send_message(dependencies_.transport, line->endpoint,
+                   protocol::error_response(0, protocol::Object::unknown,
+                                            protocol::Action::unknown, code, message));
       continue;
     }
 
     const auto fail = [&](std::string_view error_code, std::string_view error_message) {
-      dependencies_.transport.send(
-          line->endpoint,
-          protocol::error_response(request->id, request->object, request->action,
-                                   error_code, error_message));
+      send_message(dependencies_.transport, line->endpoint,
+                   protocol::error_response(request->id, request->object, request->action,
+                                            error_code, error_message));
     };
 
-    if (request->object == "device" && request->action == "info") {
-      dependencies_.transport.send(
-          line->endpoint,
-          protocol::device_info_response(
-              *request, dependencies_.device.target_name, dependencies_.device.application_name,
-              dependencies_.device.application_version));
-    } else if (request->object == "generator" && request->action == "set") {
+    if (request->object == protocol::Object::device && request->action == protocol::Action::info) {
+      send_message(dependencies_.transport, line->endpoint,
+                   protocol::device_info_response(
+                       *request, dependencies_.device.target_name,
+                       dependencies_.device.application_name,
+                       dependencies_.device.application_version));
+    } else if (request->object == protocol::Object::generator &&
+               request->action == protocol::Action::set) {
       control_amplitude_v_ = request->amplitude;
       dependencies_.analyzer.set_control(request->frequency, control_amplitude_v_);
-      dependencies_.transport.send(line->endpoint, protocol::response(*request));
-    } else if (request->object == "sweep" && request->action == "start") {
+      send_message(dependencies_.transport, line->endpoint, protocol::response(*request));
+    } else if (request->object == protocol::Object::sweep &&
+               request->action == protocol::Action::start) {
       if (sweep_) {
         fail("busy", "a sweep is already running");
       } else {
@@ -47,27 +59,30 @@ void Application::tick() {
         sweep_->start_hz = request->f_start;
         sweep_->stop_hz = request->f_stop;
         sweep_->points = request->points;
-        dependencies_.transport.send(line->endpoint, protocol::response(*request));
+        send_message(dependencies_.transport, line->endpoint, protocol::response(*request));
       }
-    } else if (request->object == "sweep" && request->action == "stop") {
+    } else if (request->object == protocol::Object::sweep &&
+               request->action == protocol::Action::stop) {
       sweep_.reset();
-      dependencies_.transport.send(line->endpoint, protocol::response(*request));
-    } else if (request->object == "range" && request->action == "set") {
+      send_message(dependencies_.transport, line->endpoint, protocol::response(*request));
+    } else if (request->object == protocol::Object::range &&
+               request->action == protocol::Action::set) {
       bool range_valid = true;
-      if (request->mode == "auto") {
+      if (request->mode == protocol::RangeMode::automatic) {
         dependencies_.analyzer.set_range_auto();
       } else {
         range_valid = dependencies_.analyzer.set_range_manual(request->range);
       }
 
       if (range_valid) {
-        dependencies_.transport.send(line->endpoint, protocol::response(*request));
+        send_message(dependencies_.transport, line->endpoint, protocol::response(*request));
       } else {
         fail("invalid_params", "range index is not available");
       }
-    } else if (request->object == "calibration" && request->action == "run") {
+    } else if (request->object == protocol::Object::calibration &&
+               request->action == protocol::Action::run) {
       dependencies_.analyzer.calibrate();
-      dependencies_.transport.send(line->endpoint, protocol::response(*request));
+      send_message(dependencies_.transport, line->endpoint, protocol::response(*request));
     } else {
       fail("unsupported_operation", "unsupported object/action combination");
     }
@@ -118,13 +133,21 @@ void Application::process_sweep() {
 
   const auto result = sweep.processor.finish(dependencies_.analyzer.range_index(),
                                              dependencies_.analyzer.sense_resistor_ohm());
-  dependencies_.transport.send(sweep.endpoint, protocol::measurement_event(result));
+  if (!result) {
+    send_message(dependencies_.transport, sweep.endpoint,
+                 protocol::error_response(0, protocol::Object::measurement,
+                                          protocol::Action::acquire, "invalid_signal",
+                                          "acquisition produced no valid sense signal"));
+    sweep_.reset();
+    return;
+  }
+  send_message(dependencies_.transport, sweep.endpoint, protocol::measurement_event(*result));
   ++sweep.index;
   sweep.acquisition_started = false;
 
   if (sweep.index == sweep.points) {
-    dependencies_.transport.send(sweep.endpoint,
-                                 protocol::sweep_event("complete", sweep.points));
+    send_message(dependencies_.transport, sweep.endpoint,
+                 protocol::sweep_event(protocol::Action::complete, sweep.points));
     sweep_.reset();
   }
 }

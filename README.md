@@ -24,6 +24,9 @@ forming `Z = Rsense * Vdut / Vsense`.
 Target-side control and DSP use single-precision `float` and
 `std::complex<float>` to use the STM32G4 hardware FPU efficiently. Desktop-only
 plotting and nonlinear fitting retain Python's double-precision arithmetic.
+The shared target code follows a heap-free embedded C++ policy documented in
+`docs/embedded-cpp.md`; enable `PICKUP_BUILD_STM32_TARGET` only with the
+board-specific ARM toolchain and linker inputs.
 
 ## Get started
 

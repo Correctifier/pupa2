@@ -1,15 +1,20 @@
 #pragma once
 
 #include <cstdint>
+#include <array>
+#include <cstddef>
 #include <optional>
-#include <string>
 #include <string_view>
 
 namespace pickup::bsp {
 
 struct ReceivedLine {
+  static constexpr std::size_t capacity = 1024;
   std::uint32_t endpoint{};
-  std::string text;
+  std::array<char, capacity> text{};
+  std::size_t size{};
+
+  std::string_view view() const { return {text.data(), size}; }
 };
 
 class Transport {
@@ -20,4 +25,3 @@ class Transport {
 };
 
 }  // namespace pickup::bsp
-

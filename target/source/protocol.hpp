@@ -1,31 +1,49 @@
 #pragma once
 #include "signal_processing.hpp"
+
+#include <array>
+#include <cstddef>
 #include <cstdint>
 #include <optional>
-#include <string>
 #include <string_view>
 
 namespace pickup::protocol {
+
+enum class Object { unknown, device, generator, sweep, range, calibration, measurement };
+enum class Action { unknown, info, set, start, stop, run, acquire, complete };
+enum class RangeMode { unspecified, automatic, manual };
+
 struct Request {
   std::uint64_t id{};
-  std::string object;
-  std::string action;
+  Object object{Object::unknown};
+  Action action{Action::unknown};
   float frequency{};
   float amplitude{};
   float f_start{};
   float f_stop{};
   std::uint32_t points{};
-  std::string mode;
+  RangeMode mode{RangeMode::unspecified};
   std::uint32_t range{};
 };
-std::optional<Request> parse_request(std::string_view, std::string& code, std::string& error);
-std::string response(const Request&, std::string_view data_key = {},
-                     std::string_view data_value = {});
-std::string device_info_response(const Request&, std::string_view target_name,
-                                 std::string_view application_name,
-                                 std::string_view application_version);
-std::string error_response(std::uint64_t id, std::string_view object, std::string_view action,
-                           std::string_view code, std::string_view message);
-std::string measurement_event(const ProcessedMeasurement&);
-std::string sweep_event(std::string_view action, std::uint32_t points);
-}
+
+struct EncodedMessage {
+  static constexpr std::size_t capacity = 1024;
+  std::array<char, capacity> bytes{};
+  std::size_t size{};
+
+  std::string_view view() const { return {bytes.data(), size}; }
+};
+
+std::string_view to_string(Object value);
+std::string_view to_string(Action value);
+std::optional<Request> parse_request(std::string_view, std::string_view& code,
+                                     std::string_view& error);
+EncodedMessage response(const Request&);
+EncodedMessage device_info_response(const Request&, std::string_view target_name,
+                                    std::string_view application_name,
+                                    std::string_view application_version);
+EncodedMessage error_response(std::uint64_t id, Object object, Action action,
+                              std::string_view code, std::string_view message);
+EncodedMessage measurement_event(const ProcessedMeasurement&);
+EncodedMessage sweep_event(Action action, std::uint32_t points);
+}  // namespace pickup::protocol

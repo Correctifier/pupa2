@@ -1,5 +1,6 @@
 #include "posix_transport.hpp"
 
+#include <algorithm>
 #include <arpa/inet.h>
 #include <cerrno>
 #include <cstring>
@@ -75,7 +76,11 @@ void PosixTransport::read_endpoints() {
         buffer.append(chunk, static_cast<std::size_t>(count));
         auto newline = buffer.find('\n');
         while (newline != std::string::npos) {
-          received_.push_back({endpoint, buffer.substr(0, newline)});
+          ReceivedLine line;
+          line.endpoint = endpoint;
+          line.size = std::min(newline, ReceivedLine::capacity);
+          std::copy_n(buffer.data(), line.size, line.text.data());
+          received_.push_back(line);
           buffer.erase(0, newline + 1);
           newline = buffer.find('\n');
         }

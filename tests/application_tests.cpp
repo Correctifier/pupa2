@@ -4,6 +4,7 @@
 #include <cassert>
 #include <cmath>
 #include <complex>
+#include <cstring>
 #include <deque>
 #include <string>
 
@@ -19,6 +20,13 @@ class FakeTransport final : public pickup::bsp::Transport {
   void send(std::uint32_t endpoint, std::string_view line) override {
     output_endpoint = endpoint;
     output = line;
+  }
+  void enqueue(std::uint32_t endpoint, std::string_view text) {
+    pickup::bsp::ReceivedLine line;
+    line.endpoint = endpoint;
+    line.size = text.size();
+    std::memcpy(line.text.data(), text.data(), text.size());
+    input.push_back(line);
   }
   std::deque<pickup::bsp::ReceivedLine> input;
   std::uint32_t output_endpoint{};
@@ -44,8 +52,8 @@ int main() {
   FakeTransport transport;
   FakeFrontend frontend;
   pickup::Application app({transport, frontend, {"test-target", "test-app", "0.0.0"}});
-  transport.input.push_back(
-      {42, R"({"type":"request","object":"device","action":"info","id":7})"});
+  transport.enqueue(42,
+                    R"({"type":"request","object":"device","action":"info","id":7})");
   app.tick();
   assert(transport.output_endpoint == 42);
   assert(transport.output.find("\"id\":7") != std::string::npos);
@@ -75,7 +83,8 @@ int main() {
   processor.begin(frequency, sample_rate);
   processor.process(samples.data(), samples.size());
   const auto measurement = processor.finish(2, 10000.0);
-  assert(std::abs(measurement.v - expected_v) < 0.002);
-  assert(std::abs(measurement.vsense - expected_sense) < 0.002);
+  assert(measurement);
+  assert(std::abs(measurement->v - expected_v) < 0.002);
+  assert(std::abs(measurement->vsense - expected_sense) < 0.002);
   return 0;
 }

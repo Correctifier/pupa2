@@ -3,7 +3,7 @@
 #include <complex>
 #include <cstddef>
 #include <cstdint>
-#include <deque>
+#include <optional>
 
 namespace pickup {
 
@@ -22,12 +22,19 @@ struct ProcessedMeasurement {
 
 class FourthOrderMovingAverage {
  public:
-  explicit FourthOrderMovingAverage(std::size_t window_size = 32);
   std::complex<float> process(std::complex<float> input);
   void reset();
+
  private:
-  struct Stage { std::deque<std::complex<float>> values; std::complex<float> sum{}; };
-  std::size_t window_size_;
+  static constexpr std::size_t window_size_ = 32;
+
+  struct Stage {
+    std::array<std::complex<float>, window_size_> values{};
+    std::complex<float> sum{};
+    std::size_t next_index{};
+    std::size_t count{};
+  };
+
   std::array<Stage, 4> stages_;
 };
 
@@ -35,7 +42,9 @@ class AcquisitionProcessor {
  public:
   void begin(float frequency_hz, float sample_rate_hz, float adc_full_scale_v = 3.3F);
   void process(const std::uint16_t* interleaved, std::size_t count);
-  ProcessedMeasurement finish(std::uint32_t range_index, float sense_resistor_ohm) const;
+  std::optional<ProcessedMeasurement> finish(std::uint32_t range_index,
+                                             float sense_resistor_ohm) const;
+
  private:
   float frequency_hz_{};
   float sample_rate_hz_{};

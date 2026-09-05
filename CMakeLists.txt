@@ -7,6 +7,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 option(PICKUP_BUILD_VIRTUAL_TARGET "Build the desktop virtual target" ON)
 option(PICKUP_BUILD_TESTS "Build unit tests" ON)
+option(PICKUP_BUILD_STM32_TARGET "Build the STM32G4 target using the selected toolchain" OFF)
 
 if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/external/ArduinoJson/CMakeLists.txt")
   message(FATAL_ERROR "Missing submodules. Run: git submodule update --init --recursive")
@@ -21,6 +22,16 @@ add_library(pickup_application
 target_include_directories(pickup_application PUBLIC target/source)
 target_link_libraries(pickup_application PUBLIC ArduinoJson)
 target_compile_options(pickup_application PRIVATE -Wall -Wextra -Wpedantic)
+
+if(PICKUP_BUILD_STM32_TARGET)
+  target_compile_options(pickup_application PRIVATE
+    -fno-exceptions
+    -fno-rtti
+    -ffunction-sections
+    -fdata-sections
+  )
+  add_subdirectory(target/targets/stm32g4)
+endif()
 
 if(PICKUP_BUILD_VIRTUAL_TARGET)
   add_subdirectory(target/targets/virtual)

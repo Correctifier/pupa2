@@ -2,24 +2,23 @@
 
 #include <algorithm>
 #include <cmath>
-#include <stdexcept>
 
 namespace pickup {
-
-FourthOrderMovingAverage::FourthOrderMovingAverage(std::size_t window_size)
-    : window_size_(window_size) {}
 
 void FourthOrderMovingAverage::reset() { stages_ = {}; }
 
 std::complex<float> FourthOrderMovingAverage::process(std::complex<float> input) {
   for (auto& stage : stages_) {
-    stage.values.push_back(input);
-    stage.sum += input;
-    if (stage.values.size() > window_size_) {
-      stage.sum -= stage.values.front();
-      stage.values.pop_front();
+    if (stage.count == window_size_) {
+      stage.sum -= stage.values[stage.next_index];
+    } else {
+      ++stage.count;
     }
-    input = stage.sum / static_cast<float>(stage.values.size());
+
+    stage.values[stage.next_index] = input;
+    stage.sum += input;
+    stage.next_index = (stage.next_index + 1) % window_size_;
+    input = stage.sum / static_cast<float>(stage.count);
   }
   return input;
 }
@@ -61,9 +60,10 @@ void AcquisitionProcessor::process(const std::uint16_t* data, std::size_t count)
   }
 }
 
-ProcessedMeasurement AcquisitionProcessor::finish(std::uint32_t range, float rsense) const {
+std::optional<ProcessedMeasurement> AcquisitionProcessor::finish(std::uint32_t range,
+                                                                 float rsense) const {
   if (sample_index_ == 0 || std::abs(vsense_result_) < 1e-15F) {
-    throw std::runtime_error("acquisition produced no valid signal");
+    return std::nullopt;
   }
 
   ProcessedMeasurement result{frequency_hz_, range,      rsense,     v_result_,
