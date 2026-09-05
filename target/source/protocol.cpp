@@ -71,13 +71,13 @@ std::string error_response(std::uint64_t id, std::string_view object, std::strin
   JsonDocument d; d["type"]="error"; d["object"]=object; d["action"]=action; d["id"]=id;
   d["status"]="error"; d["error"]["code"]=code; d["error"]["message"]=message; return encode(d);
 }
-std::string measurement_event(const bsp::ImpedanceSample& s) {
+std::string measurement_event(const ProcessedMeasurement& s) {
   JsonDocument d; d["type"]="event"; d["object"]="measurement"; auto data=d["data"].to<JsonObject>();
   data["f"]=s.frequency_hz; data["range"]=s.range_index; data["rsense"]=s.sense_resistor_ohm;
-  data["v"]["re"]=s.v_real; data["v"]["im"]=s.v_imaginary;
-  data["vsense"]["re"]=s.vsense_real; data["vsense"]["im"]=s.vsense_imaginary;
+  data["v"]["re"]=s.v.real(); data["v"]["im"]=s.v.imag();
+  data["vsense"]["re"]=s.vsense.real(); data["vsense"]["im"]=s.vsense.imag();
   data["v_min"]=s.v_min; data["v_max"]=s.v_max; data["vsense_min"]=s.vsense_min; data["vsense_max"]=s.vsense_max;
-  data["z"]["re"]=s.real_ohm; data["z"]["im"]=s.imaginary_ohm; return encode(d);
+  data["z"]["re"]=s.impedance.real(); data["z"]["im"]=s.impedance.imag(); return encode(d);
 }
 std::string sweep_event(std::string_view action, std::uint32_t points) {
   JsonDocument d; d["type"]="event"; d["object"]="sweep"; d["action"]=action; d["data"]["points"]=points; return encode(d);

@@ -16,6 +16,15 @@ The pickup model is a series DCR/inductance branch shunted by parasitic
 capacitance, with independent Gaussian noise added to the real and imaginary
 measurements.
 
+The target BSP exposes float DAC frequency/amplitude control and asynchronous
+DMA-style acquisition into a caller-owned interleaved ADC buffer. Application
+logic streams newly clean samples through complex demodulation and four
+cascaded moving-average stages in `target/source/signal_processing.*` before
+forming `Z = Rsense * Vdut / Vsense`.
+Target-side control and DSP use single-precision `float` and
+`std::complex<float>` to use the STM32G4 hardware FPU efficiently. Desktop-only
+plotting and nonlinear fitting retain Python's double-precision arithmetic.
+
 ## Get started
 
 ```sh

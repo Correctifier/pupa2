@@ -16,6 +16,7 @@ add_subdirectory(external/ArduinoJson)
 add_library(pickup_application
   target/source/application.cpp
   target/source/protocol.cpp
+  target/source/signal_processing.cpp
 )
 target_include_directories(pickup_application PUBLIC target/source)
 target_link_libraries(pickup_application PUBLIC ArduinoJson)
@@ -29,4 +30,3 @@ if(PICKUP_BUILD_TESTS)
   enable_testing()
   add_subdirectory(tests)
 endif()
-

@@ -1,7 +1,8 @@
 #pragma once
 
-#include "interfaces/impedance_frontend.hpp"
+#include "interfaces/impedance_analyzer.hpp"
 
+#include <complex>
 #include <random>
 
 namespace pickup::bsp::pc {
@@ -13,22 +14,35 @@ struct PickupParameters {
   double noise_percent{0.15};
 };
 
-class SimulatedPickup final : public ImpedanceFrontend {
+class SimulatedPickup final : public ImpedanceAnalyzer {
  public:
   PickupParameters& parameters() { return parameters_; }
-  ImpedanceSample measure(double frequency_hz) override;
-  void set_generator(double frequency_hz, double amplitude_v) override;
+  void set_control(float frequency_hz, float amplitude_v) override;
+  bool start_acquisition(std::uint16_t* buffer, std::size_t buffer_count) override;
+  std::size_t clean_data_count() const override;
+  bool acquisition_finished() const override;
+  float sample_rate_hz() const override { return sample_rate_hz_; }
   void set_range_auto() override { automatic_range_ = true; }
   bool set_range_manual(std::uint32_t range_index) override;
+  std::uint32_t range_index() const override { return range_index_; }
+  float sense_resistor_ohm() const override;
   void calibrate() override {}
 
  private:
   PickupParameters parameters_;
-  double generator_frequency_hz_{1000.0};
-  double generator_amplitude_v_{0.25};
+  void advance_dma() const;
+  float generator_frequency_hz_{1000.0F};
+  float generator_amplitude_v_{0.25F};
+  float sample_rate_hz_{192000.0F};
   bool automatic_range_{true};
   std::uint32_t range_index_{2};
-  std::mt19937 generator_{std::random_device{}()};
+  mutable std::mt19937 generator_{std::random_device{}()};
+  mutable std::uint16_t* dma_buffer_{};
+  mutable std::size_t dma_buffer_count_{};
+  mutable std::size_t clean_count_{};
+  mutable bool acquisition_active_{};
+  mutable std::complex<double> v_signal_{};
+  mutable std::complex<double> vsense_signal_{};
 };
 
 }  // namespace pickup::bsp::pc

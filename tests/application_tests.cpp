@@ -1,6 +1,9 @@
 #include "application.hpp"
+#include "signal_processing.hpp"
 
 #include <cassert>
+#include <cmath>
+#include <complex>
 #include <deque>
 #include <string>
 
@@ -22,15 +25,17 @@ class FakeTransport final : public pickup::bsp::Transport {
   std::string output;
 };
 
-class FakeFrontend final : public pickup::bsp::ImpedanceFrontend {
+class FakeFrontend final : public pickup::bsp::ImpedanceAnalyzer {
  public:
-  pickup::bsp::ImpedanceSample measure(double frequency) override {
-    return {frequency, 2, 10000.0, 0.2, 0.0, 0.04, -0.01,
-            1000, 3000, 1500, 2500, 123.0, 456.0};
-  }
-  void set_generator(double, double) override {}
+  void set_control(float, float) override {}
+  bool start_acquisition(std::uint16_t*, std::size_t) override { return false; }
+  std::size_t clean_data_count() const override { return 0; }
+  bool acquisition_finished() const override { return false; }
+  float sample_rate_hz() const override { return 192000; }
   void set_range_auto() override {}
   bool set_range_manual(std::uint32_t) override { return true; }
+  std::uint32_t range_index() const override { return 0; }
+  float sense_resistor_ohm() const override { return 100; }
   void calibrate() override {}
 };
 }  // namespace
@@ -48,5 +53,28 @@ int main() {
   assert(transport.output.find("\"target_name\":\"test-target\"") != std::string::npos);
   assert(transport.output.find("\"application_version\":\"0.0.0\"") != std::string::npos);
   assert(transport.output.find("\"protocol_version\":1") != std::string::npos);
+
+  constexpr double pi = 3.14159265358979323846;
+  constexpr double sample_rate = 64000.0;
+  constexpr double frequency = 2000.0;
+  constexpr std::size_t frames = 2048;
+  std::array<std::uint16_t, frames * 2> samples{};
+  const std::complex<float> expected_v(0.2F, 0.05F);
+  const std::complex<float> expected_sense(0.04F, -0.01F);
+  for (std::size_t index = 0; index < frames; ++index) {
+    const std::complex<float> carrier(static_cast<float>(std::cos(2 * pi * frequency * index / sample_rate)),
+                                      static_cast<float>(std::sin(2 * pi * frequency * index / sample_rate)));
+    const auto adc = [](double volts) {
+      return static_cast<std::uint16_t>(std::lround(2048.0 + volts * 4095.0 / 3.3));
+    };
+    samples[index * 2] = adc(std::real(expected_v * carrier));
+    samples[index * 2 + 1] = adc(std::real(expected_sense * carrier));
+  }
+  pickup::AcquisitionProcessor processor;
+  processor.begin(frequency, sample_rate);
+  processor.process(samples.data(), samples.size());
+  const auto measurement = processor.finish(2, 10000.0);
+  assert(std::abs(measurement.v - expected_v) < 0.002);
+  assert(std::abs(measurement.vsense - expected_sense) < 0.002);
   return 0;
 }
