@@ -66,6 +66,11 @@ vertical limits. Phase is fixed at -180 to 180 degrees. Nyquist plots maintain
 equal ohms-per-pixel scaling on their real and imaginary axes.
 The Console tab shows timestamped transmitted and received NDJSON messages and
 keeps a bounded 2,000-line history during long or continuous sweeps.
+After connecting, the connection block displays target identity, application
+name and version, protocol version, and advertised capabilities from the
+`device/info` response.
+See `pc/examples/analyzer_client_example.py` for the same `AnalyzerClient`
+running over either TCP or serial.
 Live acquisition is coalesced to the GUI refresh rate, and displayed traces are
 pixel-aware decimated while full-resolution samples remain available for saved
 files. This keeps multi-thousand-point sweeps responsive.

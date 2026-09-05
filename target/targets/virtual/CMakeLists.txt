@@ -30,4 +30,6 @@ add_executable(pickup_virtual_target
 )
 target_include_directories(pickup_virtual_target PRIVATE ../../bsp/pc)
 target_link_libraries(pickup_virtual_target PRIVATE pickup_application imgui)
+target_compile_definitions(pickup_virtual_target PRIVATE
+  PICKUP_APPLICATION_VERSION="${PROJECT_VERSION}")
 target_compile_options(pickup_virtual_target PRIVATE -Wall -Wextra -Wpedantic)

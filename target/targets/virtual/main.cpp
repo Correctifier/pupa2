@@ -29,7 +29,9 @@ int main(int argc, char** argv) try {
   }
   pickup::bsp::pc::PosixTransport transport(port);
   pickup::bsp::pc::SimulatedPickup frontend;
-  pickup::Application app({transport, frontend});
+  pickup::Application app({transport, frontend,
+                           {"PC virtual target", "Guitar Pickup Impedance Analyzer",
+                            PICKUP_APPLICATION_VERSION}});
 
   std::cout << "TCP: 127.0.0.1:" << port << '\n';
   std::cout << "Virtual serial: "

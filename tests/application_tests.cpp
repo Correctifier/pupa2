@@ -25,21 +25,28 @@ class FakeTransport final : public pickup::bsp::Transport {
 class FakeFrontend final : public pickup::bsp::ImpedanceFrontend {
  public:
   pickup::bsp::ImpedanceSample measure(double frequency) override {
-    return {frequency, 123.0, 456.0};
+    return {frequency, 2, 10000.0, 0.2, 0.0, 0.04, -0.01,
+            1000, 3000, 1500, 2500, 123.0, 456.0};
   }
+  void set_generator(double, double) override {}
+  void set_range_auto() override {}
+  bool set_range_manual(std::uint32_t) override { return true; }
+  void calibrate() override {}
 };
 }  // namespace
 
 int main() {
   FakeTransport transport;
   FakeFrontend frontend;
-  pickup::Application app({transport, frontend});
+  pickup::Application app({transport, frontend, {"test-target", "test-app", "0.0.0"}});
   transport.input.push_back(
-      {42, R"({"type":"measure_impedance","direction":"request","transaction_id":7,"payload":{"frequency_hz":1000}})"});
+      {42, R"({"type":"request","object":"device","action":"info","id":7})"});
   app.tick();
   assert(transport.output_endpoint == 42);
-  assert(transport.output.find("\"transaction_id\":7") != std::string::npos);
-  assert(transport.output.find("\"real_ohm\":123") != std::string::npos);
+  assert(transport.output.find("\"id\":7") != std::string::npos);
+  assert(transport.output.find("\"status\":\"ok\"") != std::string::npos);
+  assert(transport.output.find("\"target_name\":\"test-target\"") != std::string::npos);
+  assert(transport.output.find("\"application_version\":\"0.0.0\"") != std::string::npos);
+  assert(transport.output.find("\"protocol_version\":1") != std::string::npos);
   return 0;
 }
-

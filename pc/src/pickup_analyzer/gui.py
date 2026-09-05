@@ -9,6 +9,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from tkinter import filedialog, messagebox, ttk
 
+from .client import AnalyzerClient
 from .fitting import RlcFit, fit_rlc
 from .plot import SweepPlot, components_series, magnitude_series, nyquist_series, phase_series
 from .sweep import Sweep, SweepPoint, load_sweeps, logarithmic_frequencies, save_sweeps
@@ -30,7 +31,7 @@ class AnalyzerGui:
         root.geometry("1050x780")
         root.minsize(950, 700)
         self.transport: Transport | None = None
-        self.transaction_id = 0
+        self.client: AnalyzerClient | None = None
         self.events: queue.Queue[tuple[str, object]] = queue.Queue()
         self.progress_lock = threading.Lock()
         self.latest_progress: tuple[int, int, list[SweepPoint], bool] | None = None
@@ -77,6 +78,9 @@ class AnalyzerGui:
         ttk.Entry(frame, textvariable=self.endpoint, width=20).grid(row=0, column=1, padx=5)
         self.connect_button = ttk.Button(frame, text="Connect", command=self.connect)
         self.connect_button.grid(row=0, column=2)
+        self.device_info_text = tk.StringVar(value="Not connected")
+        ttk.Label(frame, textvariable=self.device_info_text, justify="left").grid(
+            row=1, column=0, columnspan=3, sticky="w", pady=(6, 0))
 
     def _sweep_controls(self, parent: ttk.Frame) -> None:
         frame = ttk.LabelFrame(parent, text="Log sweep", padding=8)
@@ -206,20 +210,31 @@ class AnalyzerGui:
             return
         try:
             if self.transport:
-                self.transport.close()
+                self.client.close()
             if self.mode.get() == "TCP":
                 host, port = self.endpoint.get().rsplit(":", 1)
                 self.transport = TcpTransport(host, int(port))
             else:
                 self.transport = SerialTransport(self.endpoint.get())
+            self.client = AnalyzerClient(self.transport, self._log_message)
+            info = self.client.device_info()
+            capabilities = ", ".join(info.get("capabilities", []))
+            self.device_info_text.set(
+                f"Target: {info.get('target_name', 'unknown')}\n"
+                f"Application: {info.get('application_name', 'unknown')} "
+                f"v{info.get('application_version', 'unknown')}\n"
+                f"Protocol: v{info.get('protocol_version', 'unknown')}\n"
+                f"Capabilities: {capabilities or 'not reported'}")
             self.status.set(f"Connected via {self.mode.get()} to {self.endpoint.get()}")
             self.connect_button.configure(text="Reconnect")
         except Exception as error:
             self.transport = None
+            self.client = None
+            self.device_info_text.set("Not connected")
             messagebox.showerror("Connection failed", str(error))
 
     def start_sweep(self, continuous: bool) -> None:
-        if not self.transport:
+        if not self.client:
             messagebox.showinfo("Not connected", "Connect to a target first.")
             return
         if self.worker and self.worker.is_alive():
@@ -242,21 +257,19 @@ class AnalyzerGui:
         try:
             while not self.stop_requested.is_set():
                 points: list[SweepPoint] = []
-                for index, frequency in enumerate(frequencies):
+                self.client.start_sweep(frequencies[0], frequencies[-1], len(frequencies))
+                while True:
                     if self.stop_requested.is_set():
+                        self.client.stop_sweep()
                         break
-                    self.transaction_id += 1
-                    request = {"type": "measure_impedance", "direction": "request",
-                               "transaction_id": self.transaction_id,
-                               "payload": {"frequency_hz": frequency}}
-                    self._log_message("TX", request)
-                    response = self.transport.transact(request)
-                    self._log_message("RX", response)
-                    if response.get("type") == "error":
-                        raise RuntimeError(response.get("payload", {}).get("message", "target error"))
-                    payload = response["payload"]
-                    point = SweepPoint(float(payload["frequency_hz"]), float(payload["real_ohm"]),
-                                       float(payload["imaginary_ohm"]))
+                    event = self.client.next_event(timeout=10.0)
+                    if event.get("object") == "sweep" and event.get("action") == "complete":
+                        break
+                    if event.get("object") != "measurement":
+                        continue
+                    data = event["data"]
+                    point = SweepPoint(float(data["f"]), float(data["z"]["re"]), float(data["z"]["im"]))
+                    index = len(points)
                     # The UI consumes only the newest snapshot at its own frame rate.
                     # This prevents thousands of redraw events from accumulating.
                     with self.progress_lock:
@@ -464,8 +477,8 @@ class AnalyzerGui:
 
     def close(self) -> None:
         self.stop_requested.set()
-        if self.transport:
-            self.transport.close()
+        if self.client:
+            self.client.close()
         self.root.destroy()
 
 

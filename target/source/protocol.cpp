@@ -1,78 +1,85 @@
 #include "protocol.hpp"
-
 #include <ArduinoJson.h>
 
 namespace pickup::protocol {
 namespace {
-std::string serialize(JsonDocument& document) {
-  std::string result;
-  serializeJson(document, result);
-  result.push_back('\n');
-  return result;
+std::string encode(JsonDocument& document) {
+  std::string text; serializeJson(document, text); text.push_back('\n'); return text;
+}
 }
 
-JsonDocument response_base(std::string_view type, std::uint64_t id) {
+std::optional<Request> parse_request(std::string_view line, std::string& code, std::string& error) {
   JsonDocument document;
-  document["type"] = type;
-  document["direction"] = "response";
-  document["transaction_id"] = id;
-  return document;
-}
-}  // namespace
-
-std::optional<Request> parse_request(std::string_view line, std::string& error) {
-  JsonDocument document;
-  const auto result = deserializeJson(document, line);
-  if (result) {
-    error = result.c_str();
+  if (const auto result = deserializeJson(document, line); result) {
+    code = "malformed_json"; error = result.c_str(); return std::nullopt;
+  }
+  if (document["type"] != "request" || !document["object"].is<const char*>() ||
+      !document["action"].is<const char*>() || !document["id"].is<std::uint64_t>()) {
+    code = "invalid_envelope"; error = "request requires type, object, action, and unsigned id";
     return std::nullopt;
   }
-  if (document["direction"] != "request" || !document["type"].is<const char*>() ||
-      !document["transaction_id"].is<std::uint64_t>()) {
-    error = "required fields: type, direction=request, transaction_id";
-    return std::nullopt;
-  }
-
   Request request;
-  request.type = document["type"].as<std::string>();
-  request.transaction_id = document["transaction_id"].as<std::uint64_t>();
-  if (request.type == "measure_impedance") {
-    if (!document["payload"]["frequency_hz"].is<double>()) {
-      error = "payload.frequency_hz must be a number";
-      return std::nullopt;
+  request.id=document["id"].as<std::uint64_t>();
+  request.object=document["object"].as<std::string>();
+  request.action=document["action"].as<std::string>();
+  auto params = document["params"];
+  if (request.object == "generator" && request.action == "set") {
+    if (!params["frequency"].is<double>() || !params["amplitude"].is<double>()) {
+      code="invalid_params"; error="generator requires numeric frequency and amplitude"; return std::nullopt;
     }
-    request.frequency_hz = document["payload"]["frequency_hz"].as<double>();
-    if (request.frequency_hz <= 0.0) {
-      error = "frequency_hz must be positive";
-      return std::nullopt;
+    request.frequency=params["frequency"]; request.amplitude=params["amplitude"];
+    if (request.frequency <= 0 || request.amplitude <= 0) { code="invalid_params"; error="generator values must be positive"; return std::nullopt; }
+  } else if (request.object == "sweep" && request.action == "start") {
+    if (!params["f_start"].is<double>() || !params["f_stop"].is<double>() || !params["points"].is<std::uint32_t>()) {
+      code="invalid_params"; error="sweep requires f_start, f_stop, and points"; return std::nullopt;
     }
+    request.f_start=params["f_start"]; request.f_stop=params["f_stop"]; request.points=params["points"];
+    if (request.f_start <= 0 || request.f_stop <= request.f_start || request.points < 2 || request.points > 100000) {
+      code="invalid_params"; error="require 0 < f_start < f_stop and 2..100000 points"; return std::nullopt;
+    }
+  } else if (request.object == "range" && request.action == "set") {
+    if (!params["mode"].is<const char*>()) { code="invalid_params"; error="range requires mode"; return std::nullopt; }
+    request.mode=params["mode"].as<std::string>();
+    if (request.mode == "manual") {
+      if (!params["range"].is<std::uint32_t>()) { code="invalid_params"; error="manual mode requires range"; return std::nullopt; }
+      request.range=params["range"];
+    } else if (request.mode != "auto") { code="invalid_params"; error="mode must be auto or manual"; return std::nullopt; }
   }
   return request;
 }
 
-std::string make_measurement_response(std::uint64_t id,
-                                      const bsp::ImpedanceSample& sample) {
-  auto document = response_base("measure_impedance", id);
-  auto payload = document["payload"].to<JsonObject>();
-  payload["frequency_hz"] = sample.frequency_hz;
-  payload["real_ohm"] = sample.real_ohm;
-  payload["imaginary_ohm"] = sample.imaginary_ohm;
-  return serialize(document);
+std::string response(const Request& request, std::string_view data_key, std::string_view data_value) {
+  JsonDocument d; d["type"]="response"; d["object"]=request.object; d["action"]=request.action;
+  d["id"]=request.id; d["status"]="ok";
+  if (!data_key.empty()) d["data"][data_key]=data_value;
+  return encode(d);
 }
-
-std::string make_info_response(std::uint64_t id) {
-  auto document = response_base("get_info", id);
-  auto payload = document["payload"].to<JsonObject>();
-  payload["device"] = "pickup-analyzer";
-  payload["protocol_version"] = 1;
-  payload["capabilities"].to<JsonArray>().add("measure_impedance");
-  return serialize(document);
+std::string device_info_response(const Request& request, std::string_view target_name,
+                                 std::string_view application_name,
+                                 std::string_view application_version) {
+  JsonDocument d; d["type"]="response"; d["object"]=request.object; d["action"]=request.action;
+  d["id"]=request.id; d["status"]="ok"; auto data=d["data"].to<JsonObject>();
+  data["target_name"]=target_name; data["application_name"]=application_name;
+  data["application_version"]=application_version; data["protocol_version"]=1;
+  auto capabilities=data["capabilities"].to<JsonArray>();
+  capabilities.add("generator"); capabilities.add("sweep"); capabilities.add("range");
+  capabilities.add("calibration"); capabilities.add("measurement_events");
+  return encode(d);
 }
-
-std::string make_error_response(std::uint64_t id, std::string_view error) {
-  auto document = response_base("error", id);
-  document["payload"]["message"] = error;
-  return serialize(document);
+std::string error_response(std::uint64_t id, std::string_view object, std::string_view action,
+                           std::string_view code, std::string_view message) {
+  JsonDocument d; d["type"]="error"; d["object"]=object; d["action"]=action; d["id"]=id;
+  d["status"]="error"; d["error"]["code"]=code; d["error"]["message"]=message; return encode(d);
 }
-}  // namespace pickup::protocol
-
+std::string measurement_event(const bsp::ImpedanceSample& s) {
+  JsonDocument d; d["type"]="event"; d["object"]="measurement"; auto data=d["data"].to<JsonObject>();
+  data["f"]=s.frequency_hz; data["range"]=s.range_index; data["rsense"]=s.sense_resistor_ohm;
+  data["v"]["re"]=s.v_real; data["v"]["im"]=s.v_imaginary;
+  data["vsense"]["re"]=s.vsense_real; data["vsense"]["im"]=s.vsense_imaginary;
+  data["v_min"]=s.v_min; data["v_max"]=s.v_max; data["vsense_min"]=s.vsense_min; data["vsense_max"]=s.vsense_max;
+  data["z"]["re"]=s.real_ohm; data["z"]["im"]=s.imaginary_ohm; return encode(d);
+}
+std::string sweep_event(std::string_view action, std::uint32_t points) {
+  JsonDocument d; d["type"]="event"; d["object"]="sweep"; d["action"]=action; d["data"]["points"]=points; return encode(d);
+}
+}
