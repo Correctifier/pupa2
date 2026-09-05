@@ -30,6 +30,21 @@ board-specific ARM toolchain and linker inputs.
 
 ## Get started
 
+To build and launch both the virtual target and PC app together:
+
+```sh
+./scripts/run_virtual.sh
+```
+
+In the PC app, choose TCP and connect to `127.0.0.1:8765`. Closing either app
+or pressing Ctrl+C in the terminal stops both. The launcher works from any
+directory and forwards arguments to the virtual target, for example
+`./scripts/run_virtual.sh --headless` to open only the PC window, or
+`./scripts/run_virtual.sh 9000` to use a different port (enter that port in the
+PC app too). It requires the submodules and build dependencies described below.
+
+To build and run the components separately:
+
 ```sh
 git submodule update --init --recursive
 cmake -S . -B build
