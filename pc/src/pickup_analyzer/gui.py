@@ -5,12 +5,22 @@ import queue
 import threading
 import tkinter as tk
 from collections import deque
+from dataclasses import dataclass
 from datetime import datetime
 from tkinter import filedialog, messagebox, ttk
 
+from .fitting import RlcFit, fit_rlc
 from .plot import SweepPlot, components_series, magnitude_series, nyquist_series, phase_series
 from .sweep import Sweep, SweepPoint, load_sweeps, logarithmic_frequencies, save_sweeps
 from .transport import SerialTransport, TcpTransport, Transport
+
+
+@dataclass
+class SweepEntry:
+    sweep: Sweep
+    visible: bool = True
+    fit: RlcFit | None = None
+    show_fit: bool = False
 
 
 class AnalyzerGui:
@@ -31,13 +41,15 @@ class AnalyzerGui:
         self.stop_requested = threading.Event()
         self.worker: threading.Thread | None = None
         self.current_sweep: Sweep | None = None
-        self.overlays: list[Sweep] = []
+        self.sweep_entries: list[SweepEntry] = []
+        self.active_entry: SweepEntry | None = None
         controls = ttk.Frame(root, padding=8)
         controls.pack(fill="x")
         self._connection_controls(controls)
         self._sweep_controls(controls)
         self._file_controls(controls)
         self._magnitude_axis_controls(root)
+        self._sweep_manager(root)
         notebook = ttk.Notebook(root)
         notebook.pack(fill="both", expand=True, padx=8, pady=(0, 8))
         self.plots = [
@@ -85,10 +97,8 @@ class AnalyzerGui:
     def _file_controls(self, parent: ttk.Frame) -> None:
         frame = ttk.LabelFrame(parent, text="Sweeps", padding=8)
         frame.pack(side="left", fill="y", padx=(6, 0))
-        ttk.Button(frame, text="Keep overlay", command=self.keep_overlay).grid(row=0, column=0, padx=2)
-        ttk.Button(frame, text="Clear overlays", command=self.clear_overlays).grid(row=0, column=1, padx=2)
-        ttk.Button(frame, text="Save…", command=self.save).grid(row=1, column=0, pady=(6, 0))
-        ttk.Button(frame, text="Load…", command=self.load).grid(row=1, column=1, pady=(6, 0))
+        ttk.Button(frame, text="Save all…", command=self.save).grid(row=0, column=0, padx=2)
+        ttk.Button(frame, text="Load…", command=self.load).grid(row=0, column=1, padx=2)
 
     def _magnitude_axis_controls(self, parent) -> None:
         frame = ttk.Frame(parent, padding=(10, 0, 10, 6))
@@ -104,6 +114,33 @@ class AnalyzerGui:
         self.magnitude_max = tk.DoubleVar(value=1000000.0)
         ttk.Entry(frame, textvariable=self.magnitude_max, width=10).pack(side="left", padx=4)
         ttk.Button(frame, text="Apply", command=self.apply_magnitude_axis).pack(side="left", padx=6)
+
+    def _sweep_manager(self, parent) -> None:
+        frame = ttk.LabelFrame(parent, text="Loaded sweeps", padding=6)
+        frame.pack(fill="x", padx=8, pady=(0, 6))
+        table_frame = ttk.Frame(frame)
+        table_frame.pack(side="left", fill="x", expand=True)
+        columns = ("visible", "fit", "resistance", "inductance", "capacitance", "r2", "sigma")
+        self.sweep_table = ttk.Treeview(table_frame, columns=columns, show="tree headings", height=5)
+        self.sweep_table.heading("#0", text="Name")
+        headings = {"visible": "Sweep", "fit": "Fit", "resistance": "R (Ω)",
+                    "inductance": "L (H)", "capacitance": "C (pF)",
+                    "r2": "R²", "sigma": "σ (Ω)"}
+        for column, heading in headings.items():
+            self.sweep_table.heading(column, text=heading)
+        self.sweep_table.column("#0", width=250, stretch=True)
+        self.sweep_table.column("visible", width=55, anchor="center", stretch=False)
+        self.sweep_table.column("fit", width=45, anchor="center", stretch=False)
+        for column in ("resistance", "inductance", "capacitance", "r2", "sigma"):
+            self.sweep_table.column(column, width=92, anchor="e", stretch=False)
+        scrollbar = ttk.Scrollbar(table_frame, orient="horizontal", command=self.sweep_table.xview)
+        self.sweep_table.configure(xscrollcommand=scrollbar.set)
+        self.sweep_table.pack(fill="x", expand=True)
+        scrollbar.pack(fill="x")
+        self.sweep_table.bind("<Button-1>", self._sweep_table_click)
+        buttons = ttk.Frame(frame)
+        buttons.pack(side="left", padx=(8, 0), anchor="n")
+        ttk.Button(buttons, text="Delete", command=self.delete_selected).pack(fill="x", pady=3)
 
     def _console_tab(self, notebook: ttk.Notebook) -> None:
         frame = ttk.Frame(notebook, padding=6)
@@ -193,6 +230,10 @@ class AnalyzerGui:
             messagebox.showerror("Invalid sweep", str(error))
             return
         self.stop_requested.clear()
+        self.current_sweep = Sweep("Live acquisition", [])
+        self.active_entry = SweepEntry(self.current_sweep)
+        self.sweep_entries.append(self.active_entry)
+        self._refresh_sweep_table(select=self.active_entry)
         self._set_running(True)
         self.worker = threading.Thread(target=self._sweep_worker, args=(frequencies, continuous), daemon=True)
         self.worker.start()
@@ -267,7 +308,11 @@ class AnalyzerGui:
         needs_redraw = False
         if complete is not None:
             self.current_sweep = complete
+            if self.active_entry is not None:
+                self.active_entry.sweep = complete
+                self._fit_entry(self.active_entry)
             self.status.set(f"Completed {complete.name}: {len(complete.points)} points")
+            self._refresh_sweep_table(select=self.active_entry)
             needs_redraw = True
         if progress is not None:
             index, total, measured, continuous = progress
@@ -277,6 +322,8 @@ class AnalyzerGui:
             else:
                 live_points = measured
             self.current_sweep = Sweep("Live", live_points)
+            if self.active_entry is not None:
+                self.active_entry.sweep = self.current_sweep
             self.status.set(f"Measuring point {index + 1} of {total}")
             needs_redraw = True
         if needs_redraw:
@@ -303,24 +350,89 @@ class AnalyzerGui:
         self.console.configure(state="disabled")
 
     def refresh_plots(self) -> None:
-        sweeps = self.overlays + ([self.current_sweep] if self.current_sweep else [])
+        sweeps: list[Sweep] = []
+        for entry in self.sweep_entries:
+            if entry.visible:
+                sweeps.append(entry.sweep)
+            if entry.show_fit and entry.fit is not None:
+                sweeps.append(entry.fit.as_sweep(entry.sweep))
         for plot in self.plots:
             plot.set_sweeps(sweeps)
 
-    def keep_overlay(self) -> None:
-        if not self.current_sweep or not self.current_sweep.points:
-            messagebox.showinfo("No sweep", "Run or load a sweep first.")
+    def _selected_entry(self) -> SweepEntry | None:
+        selection = self.sweep_table.selection()
+        if not selection:
+            messagebox.showinfo("No selection", "Select a sweep from the list first.")
+            return None
+        index = int(selection[0])
+        return self.sweep_entries[index] if index < len(self.sweep_entries) else None
+
+    def _refresh_sweep_table(self, select: SweepEntry | None = None) -> None:
+        selected = select or self._selected_entry_quiet()
+        self.sweep_table.delete(*self.sweep_table.get_children())
+        selected_id = None
+        for index, entry in enumerate(self.sweep_entries):
+            item_id = str(index)
+            fit = entry.fit
+            fit_values = ((f"{fit.resistance_ohm:.6g}", f"{fit.inductance_h:.6g}",
+                           f"{fit.capacitance_f * 1e12:.6g}", f"{fit.r_squared:.6f}",
+                           f"{fit.standard_deviation_ohm:.6g}") if fit else ("—",) * 5)
+            self.sweep_table.insert("", "end", iid=item_id, text=entry.sweep.name,
+                                    values=("☑" if entry.visible else "☐",
+                                            "☑" if entry.show_fit else "☐", *fit_values))
+            if entry is selected:
+                selected_id = item_id
+        if selected_id is not None:
+            self.sweep_table.selection_set(selected_id)
+
+    def _selected_entry_quiet(self) -> SweepEntry | None:
+        selection = self.sweep_table.selection()
+        if not selection:
+            return None
+        index = int(selection[0])
+        return self.sweep_entries[index] if index < len(self.sweep_entries) else None
+
+    def _sweep_table_click(self, event) -> str | None:
+        row = self.sweep_table.identify_row(event.y)
+        column = self.sweep_table.identify_column(event.x)
+        if not row:
+            return None
+        self.sweep_table.selection_set(row)
+        entry = self.sweep_entries[int(row)]
+        if column == "#1":
+            entry.visible = not entry.visible
+        elif column == "#2" and entry.fit is not None:
+            entry.show_fit = not entry.show_fit
+        else:
+            return None
+        self._refresh_sweep_table(select=entry)
+        self.refresh_plots()
+        return "break"
+
+    def delete_selected(self) -> None:
+        entry = self._selected_entry()
+        if not entry:
             return
-        self.overlays.append(Sweep(self.current_sweep.name, self.current_sweep.points.copy()))
-        self.status.set(f"Kept {self.current_sweep.name} as overlay")
+        if entry is self.active_entry and self.worker and self.worker.is_alive():
+            messagebox.showinfo("Sweep active", "Stop this sweep before deleting it.")
+            return
+        self.sweep_entries.remove(entry)
+        if entry is self.active_entry:
+            self.active_entry = None
+            self.current_sweep = None
+        self._refresh_sweep_table()
         self.refresh_plots()
 
-    def clear_overlays(self) -> None:
-        self.overlays.clear()
-        self.refresh_plots()
+    @staticmethod
+    def _fit_entry(entry: SweepEntry) -> None:
+        try:
+            entry.fit = fit_rlc(entry.sweep)
+        except ValueError:
+            entry.fit = None
+            entry.show_fit = False
 
     def save(self) -> None:
-        sweeps = self.overlays + ([self.current_sweep] if self.current_sweep else [])
+        sweeps = [entry.sweep for entry in self.sweep_entries]
         if not sweeps:
             messagebox.showinfo("No sweeps", "There are no sweeps to save.")
             return
@@ -338,9 +450,14 @@ class AnalyzerGui:
         if path:
             try:
                 loaded = load_sweeps(path)
-                self.overlays.extend(loaded[:-1])
+                entries = [SweepEntry(sweep) for sweep in loaded]
+                for entry in entries:
+                    self._fit_entry(entry)
+                self.sweep_entries.extend(entries)
                 self.current_sweep = loaded[-1]
+                self.active_entry = entries[-1]
                 self.status.set(f"Loaded {len(loaded)} sweep(s) from {path}")
+                self._refresh_sweep_table(select=entries[-1])
                 self.refresh_plots()
             except Exception as error:
                 messagebox.showerror("Load failed", str(error))

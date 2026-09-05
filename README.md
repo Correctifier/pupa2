@@ -54,8 +54,13 @@ then run the pip command. Do not use pip's `--break-system-packages` option for
 this project.
 
 The PC app can acquire logarithmically spaced sweeps once or continuously. It
-shows magnitude, phase, real/imaginary, and Nyquist plots. Completed sweeps can
-be retained as overlays, saved together as versioned JSON, and loaded later.
+shows magnitude, phase, real/imaginary, and Nyquist plots. The loaded-sweep list
+can independently hide or delete traces using checkbox cells. Every completed
+or loaded sweep is automatically fitted to the pickup model
+`Z(s)=(R+sL)/(1+sRC+LC*s^2)`. Fitted DCR, inductance, capacitance,
+complex-domain R-squared, and residual standard deviation appear in the sweep
+table, where a second checkbox toggles the fitted trace overlay. Sweeps can be
+saved together as versioned JSON and loaded later.
 Magnitude uses logarithmic axes and supports automatic or user-selected
 vertical limits. Phase is fixed at -180 to 180 degrees. Nyquist plots maintain
 equal ohms-per-pixel scaling on their real and imaginary axes.
