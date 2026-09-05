@@ -1,0 +1,9 @@
+[submodule "external/ArduinoJson"]
+	path = external/ArduinoJson
+	url = https://github.com/bblanchon/ArduinoJson.git
+[submodule "external/imgui"]
+	path = external/imgui
+	url = https://github.com/ocornut/imgui.git
+[submodule "external/glfw"]
+	path = external/glfw
+	url = https://github.com/glfw/glfw.git
