@@ -1,0 +1,12 @@
+{
+  "cmake.buildDirectory": "${workspaceFolder}/build",
+  "cmake.configureSettings": {
+    "CMAKE_EXPORT_COMPILE_COMMANDS": true
+  },
+  "C_Cpp.intelliSenseEngine": "disabled",
+  "clangd.arguments": [
+    "--background-index",
+    "--clang-tidy",
+    "--query-driver=/usr/bin/c++,/usr/bin/g++,/usr/bin/g++-*,/usr/bin/cc,/usr/bin/gcc,/usr/bin/gcc-*"
+  ]
+}

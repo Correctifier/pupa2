@@ -87,6 +87,29 @@ Live acquisition is coalesced to the GUI refresh rate, and displayed traces are
 pixel-aware decimated while full-resolution samples remain available for saved
 files. This keeps multi-thousand-point sweeps responsive.
 
+## C++ editor setup (clangd)
+
+Configure with `cmake -S . -B build` using Ninja or Unix Makefiles. CMake exports
+`build/compile_commands.json` by default, and the root `compile_commands.json`
+symlink exposes it to clangd for sources and headers throughout the workspace.
+Run `cmake --build build -j` to produce any generated headers as well.
+
+In VS Code, install the recommended clangd and CMake Tools extensions. Workspace
+settings use `build` and disable the Microsoft C/C++ IntelliSense engine to
+avoid duplicate diagnostics. If clangd was running before the first configure,
+run **clangd: Restart language server** after configuring.
+
+The clangd arguments allow querying the system GCC drivers under `/usr/bin`
+for their standard-library include paths. Other editors should pass the same
+`--query-driver` argument from `.vscode/settings.json`; if you select a compiler
+elsewhere, add its trusted executable path to that allowlist.
+
+For a different build directory, point the root symlink at that directory's
+`compile_commands.json` (for example,
+`ln -sfn build-debug/compile_commands.json compile_commands.json`). The selected
+database determines the active target and compiler flags; the default desktop
+build does not include the unfinished STM32 target.
+
 ## STM32 status
 
 The application boundary and STM32 composition-root scaffold are present. The
