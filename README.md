@@ -51,6 +51,13 @@ desired, install it with `sudo apt install python3-venv`, recreate `.venv`, and
 then run the pip command. Do not use pip's `--break-system-packages` option for
 this project.
 
+The PC app can acquire logarithmically spaced sweeps once or continuously. It
+shows magnitude, phase, real/imaginary, and Nyquist plots. Completed sweeps can
+be retained as overlays, saved together as versioned JSON, and loaded later.
+Magnitude uses logarithmic axes and supports automatic or user-selected
+vertical limits. Phase is fixed at -180 to 180 degrees. Nyquist plots maintain
+equal ohms-per-pixel scaling on their real and imaginary axes.
+
 ## STM32 status
 
 The application boundary and STM32 composition-root scaffold are present. The
