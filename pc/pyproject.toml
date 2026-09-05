@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pickup-analyzer-pc"
+version = "0.1.0"
+description = "Desktop client for the guitar pickup impedance analyzer"
+requires-python = ">=3.10"
+dependencies = []
+
+[project.optional-dependencies]
+serial = ["pyserial>=3.5"]
+
+[project.scripts]
+pickup-analyzer = "pickup_analyzer.gui:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+

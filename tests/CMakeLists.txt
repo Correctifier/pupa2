@@ -1,0 +1,4 @@
+add_executable(application_tests application_tests.cpp)
+target_link_libraries(application_tests PRIVATE pickup_application)
+add_test(NAME application_tests COMMAND application_tests)
+
