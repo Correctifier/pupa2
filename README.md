@@ -36,12 +36,12 @@ To build and launch both the virtual target and PC app together:
 ./scripts/run_virtual.sh
 ```
 
-In the PC app, choose TCP and connect to `127.0.0.1:8765`. Closing either app
+The PC app automatically connects to `127.0.0.1:8765`. Closing either app
 or pressing Ctrl+C in the terminal stops both. The launcher works from any
 directory and forwards arguments to the virtual target, for example
 `./scripts/run_virtual.sh --headless` to open only the PC window, or
-`./scripts/run_virtual.sh 9000` to use a different port (enter that port in the
-PC app too). It requires the submodules and build dependencies described below.
+`./scripts/run_virtual.sh 9000` to use a different port for both apps.
+It requires the submodules and build dependencies described below.
 
 To build and run the components separately:
 
@@ -60,6 +60,8 @@ Pass `--headless` to run the transport/model without opening a window (useful
 for CI), or pass a numeric argument to select a different TCP port. On Linux,
 the GUI prefers X11/XWayland for reliable minimize/restore behavior; pass
 `--wayland` to explicitly use GLFW's native Wayland backend.
+Acquisition advances between redraws; the virtual target window redraws at
+about 60 FPS without tying each simulated DMA chunk to monitor refresh.
 
 In another terminal, launch the client directly. The TCP client uses only the
 Python standard library, so a virtual environment and package installation are
@@ -68,6 +70,11 @@ not required:
 ```sh
 ./scripts/run_pc.sh
 ```
+
+Use `./scripts/run_pc.sh --connect` to connect to the virtual target on startup,
+or `./scripts/run_pc.sh --connect 127.0.0.1:9000` for a custom TCP endpoint.
+Auto-connect retries refused connections for about five seconds while the
+target starts. Without `--connect`, connection remains manual.
 
 Choose TCP and `127.0.0.1:8765`. For the pseudo-terminal, install with
 `sudo apt install python3-serial`, choose Serial, and enter the path printed by

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import argparse
 import json
 import queue
 import threading
@@ -204,7 +205,7 @@ class AnalyzerGui:
         except (ValueError, tk.TclError) as error:
             messagebox.showerror("Invalid magnitude axis", str(error))
 
-    def connect(self) -> None:
+    def connect(self, *, retries: int = 0) -> None:
         if self.worker and self.worker.is_alive():
             messagebox.showinfo("Sweep active", "Stop the current sweep before reconnecting.")
             return
@@ -228,9 +229,17 @@ class AnalyzerGui:
             self.status.set(f"Connected via {self.mode.get()} to {self.endpoint.get()}")
             self.connect_button.configure(text="Reconnect")
         except Exception as error:
+            if self.client:
+                self.client.close()
+            elif self.transport:
+                self.transport.close()
             self.transport = None
             self.client = None
             self.device_info_text.set("Not connected")
+            if retries and isinstance(error, ConnectionRefusedError):
+                self.status.set(f"Waiting for target at {self.endpoint.get()}…")
+                self.root.after(250, lambda: self.connect(retries=retries - 1))
+                return
             messagebox.showerror("Connection failed", str(error))
 
     def start_sweep(self, continuous: bool) -> None:
@@ -483,8 +492,23 @@ class AnalyzerGui:
 
 
 def main() -> None:
+    parser = argparse.ArgumentParser(description="Guitar Pickup Impedance Analyzer PC app")
+    parser.add_argument(
+        "--connect", nargs="?", const="127.0.0.1:8765", metavar="HOST:PORT",
+        help="connect via TCP on startup (default: 127.0.0.1:8765)")
+    args = parser.parse_args()
+    if args.connect is not None:
+        try:
+            host, port = args.connect.rsplit(":", 1)
+            if not host or not 1 <= int(port) <= 65535:
+                raise ValueError
+        except ValueError:
+            parser.error("--connect requires HOST:PORT with a port between 1 and 65535")
     root = tk.Tk()
-    AnalyzerGui(root)
+    app = AnalyzerGui(root)
+    if args.connect is not None:
+        app.endpoint.set(args.connect)
+        root.after(0, lambda: app.connect(retries=20))
     root.mainloop()
 
 

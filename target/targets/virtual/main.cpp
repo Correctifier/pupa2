@@ -56,7 +56,8 @@ int main(int argc, char** argv) try {
   GLFWwindow* window = glfwCreateWindow(720, 390, "Pickup virtual target", nullptr, nullptr);
   if (!window) throw std::runtime_error("window creation failed");
   glfwMakeContextCurrent(window);
-  glfwSwapInterval(1);
+  // Pace redraws ourselves so vsync does not stall simulated DMA progress.
+  glfwSwapInterval(0);
   IMGUI_CHECKVERSION();
   ImGui::CreateContext();
   ImGui::StyleColorsDark();
@@ -67,10 +68,18 @@ int main(int argc, char** argv) try {
   const double inductance_min = 0.01, inductance_max = 20.0;
   const double capacitance_min = 1.0, capacitance_max = 1000.0;
   const double noise_min = 0.0, noise_max = 10.0;
+  constexpr auto frame_interval = std::chrono::microseconds(16667);
+  auto next_frame = std::chrono::steady_clock::now();
 
   while (!glfwWindowShouldClose(window)) {
-    glfwPollEvents();
     app.tick();
+    const auto now = std::chrono::steady_clock::now();
+    if (now < next_frame) {
+      std::this_thread::sleep_for(std::chrono::milliseconds(1));
+      continue;
+    }
+    next_frame = now + frame_interval;
+    glfwPollEvents();
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
