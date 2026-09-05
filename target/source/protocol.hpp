@@ -19,7 +19,8 @@ struct Request {
   std::uint32_t range{};
 };
 std::optional<Request> parse_request(std::string_view, std::string& code, std::string& error);
-std::string response(const Request&, std::string_view data_key = {}, std::string_view data_value = {});
+std::string response(const Request&, std::string_view data_key = {},
+                     std::string_view data_value = {});
 std::string device_info_response(const Request&, std::string_view target_name,
                                  std::string_view application_name,
                                  std::string_view application_version);

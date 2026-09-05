@@ -62,8 +62,9 @@ int main() {
   const std::complex<float> expected_v(0.2F, 0.05F);
   const std::complex<float> expected_sense(0.04F, -0.01F);
   for (std::size_t index = 0; index < frames; ++index) {
-    const std::complex<float> carrier(static_cast<float>(std::cos(2 * pi * frequency * index / sample_rate)),
-                                      static_cast<float>(std::sin(2 * pi * frequency * index / sample_rate)));
+    const double phase = 2 * pi * frequency * index / sample_rate;
+    const std::complex<float> carrier(static_cast<float>(std::cos(phase)),
+                                      static_cast<float>(std::sin(phase)));
     const auto adc = [](double volts) {
       return static_cast<std::uint16_t>(std::lround(2048.0 + volts * 4095.0 / 3.3));
     };
