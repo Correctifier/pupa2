@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+import json
 import queue
 import threading
 import tkinter as tk
+from collections import deque
 from datetime import datetime
 from tkinter import filedialog, messagebox, ttk
 
@@ -15,13 +17,17 @@ class AnalyzerGui:
     def __init__(self, root: tk.Tk):
         self.root = root
         root.title("Guitar Pickup Impedance Analyzer")
-        root.minsize(850, 650)
+        root.geometry("1050x780")
+        root.minsize(950, 700)
         self.transport: Transport | None = None
         self.transaction_id = 0
         self.events: queue.Queue[tuple[str, object]] = queue.Queue()
         self.progress_lock = threading.Lock()
         self.latest_progress: tuple[int, int, list[SweepPoint], bool] | None = None
         self.latest_complete: Sweep | None = None
+        self.console_lock = threading.Lock()
+        self.pending_console: deque[str] = deque(maxlen=4000)
+        self.console_line_count = 0
         self.stop_requested = threading.Event()
         self.worker: threading.Thread | None = None
         self.current_sweep: Sweep | None = None
@@ -43,6 +49,7 @@ class AnalyzerGui:
                        nyquist_series, False, equal_units=True),
         ]
         self.magnitude_plot = self.plots[0]
+        self._console_tab(notebook)
         self.status = tk.StringVar(value="Start the virtual target, then connect.")
         ttk.Label(root, textvariable=self.status, padding=(10, 3)).pack(fill="x")
         root.protocol("WM_DELETE_WINDOW", self.close)
@@ -97,6 +104,40 @@ class AnalyzerGui:
         self.magnitude_max = tk.DoubleVar(value=1000000.0)
         ttk.Entry(frame, textvariable=self.magnitude_max, width=10).pack(side="left", padx=4)
         ttk.Button(frame, text="Apply", command=self.apply_magnitude_axis).pack(side="left", padx=6)
+
+    def _console_tab(self, notebook: ttk.Notebook) -> None:
+        frame = ttk.Frame(notebook, padding=6)
+        notebook.add(frame, text="Console")
+        toolbar = ttk.Frame(frame)
+        toolbar.pack(fill="x", pady=(0, 5))
+        ttk.Label(toolbar, text="Newline-delimited JSON traffic (newest 2,000 lines)").pack(side="left")
+        ttk.Button(toolbar, text="Clear", command=self.clear_console).pack(side="right")
+        container = ttk.Frame(frame)
+        container.pack(fill="both", expand=True)
+        self.console = tk.Text(container, wrap="none", background="#15181d", foreground="#d7dce2",
+                               insertbackground="#d7dce2", font=("TkFixedFont", 9), state="disabled")
+        vertical = ttk.Scrollbar(container, orient="vertical", command=self.console.yview)
+        horizontal = ttk.Scrollbar(container, orient="horizontal", command=self.console.xview)
+        self.console.configure(yscrollcommand=vertical.set, xscrollcommand=horizontal.set)
+        self.console.grid(row=0, column=0, sticky="nsew")
+        vertical.grid(row=0, column=1, sticky="ns")
+        horizontal.grid(row=1, column=0, sticky="ew")
+        container.rowconfigure(0, weight=1)
+        container.columnconfigure(0, weight=1)
+
+    def clear_console(self) -> None:
+        with self.console_lock:
+            self.pending_console.clear()
+        self.console.configure(state="normal")
+        self.console.delete("1.0", "end")
+        self.console.configure(state="disabled")
+        self.console_line_count = 0
+
+    def _log_message(self, direction: str, message: dict) -> None:
+        timestamp = datetime.now().strftime("%H:%M:%S.%f")[:-3]
+        line = f"{timestamp} {direction} {json.dumps(message, separators=(',', ':'))}\n"
+        with self.console_lock:
+            self.pending_console.append(line)
 
     @staticmethod
     def _plot(notebook, tab_name, title, x_label, y_label, builder, log_x, log_y=False,
@@ -164,9 +205,12 @@ class AnalyzerGui:
                     if self.stop_requested.is_set():
                         break
                     self.transaction_id += 1
-                    response = self.transport.transact({"type": "measure_impedance", "direction": "request",
-                                                        "transaction_id": self.transaction_id,
-                                                        "payload": {"frequency_hz": frequency}})
+                    request = {"type": "measure_impedance", "direction": "request",
+                               "transaction_id": self.transaction_id,
+                               "payload": {"frequency_hz": frequency}}
+                    self._log_message("TX", request)
+                    response = self.transport.transact(request)
+                    self._log_message("RX", response)
                     if response.get("type") == "error":
                         raise RuntimeError(response.get("payload", {}).get("message", "target error"))
                     payload = response["payload"]
@@ -237,7 +281,26 @@ class AnalyzerGui:
             needs_redraw = True
         if needs_redraw:
             self.refresh_plots()
+        self._flush_console()
         self.root.after(50, self.poll_events)
+
+    def _flush_console(self) -> None:
+        with self.console_lock:
+            if not self.pending_console:
+                return
+            lines = list(self.pending_console)
+            self.pending_console.clear()
+        at_bottom = self.console.yview()[1] >= 0.999
+        self.console.configure(state="normal")
+        self.console.insert("end", "".join(lines))
+        self.console_line_count += len(lines)
+        excess = self.console_line_count - 2000
+        if excess > 0:
+            self.console.delete("1.0", f"{excess + 1}.0")
+            self.console_line_count -= excess
+        if at_bottom:
+            self.console.see("end")
+        self.console.configure(state="disabled")
 
     def refresh_plots(self) -> None:
         sweeps = self.overlays + ([self.current_sweep] if self.current_sweep else [])

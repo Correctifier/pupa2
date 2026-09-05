@@ -59,6 +59,8 @@ be retained as overlays, saved together as versioned JSON, and loaded later.
 Magnitude uses logarithmic axes and supports automatic or user-selected
 vertical limits. Phase is fixed at -180 to 180 degrees. Nyquist plots maintain
 equal ohms-per-pixel scaling on their real and imaginary axes.
+The Console tab shows timestamped transmitted and received NDJSON messages and
+keeps a bounded 2,000-line history during long or continuous sweeps.
 Live acquisition is coalesced to the GUI refresh rate, and displayed traces are
 pixel-aware decimated while full-resolution samples remain available for saved
 files. This keeps multi-thousand-point sweeps responsive.

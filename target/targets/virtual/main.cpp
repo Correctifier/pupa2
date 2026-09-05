@@ -51,7 +51,7 @@ int main(int argc, char** argv) try {
   }
 #endif
   if (!glfwInit()) throw std::runtime_error("GLFW initialization failed");
-  GLFWwindow* window = glfwCreateWindow(520, 330, "Pickup virtual target", nullptr, nullptr);
+  GLFWwindow* window = glfwCreateWindow(720, 390, "Pickup virtual target", nullptr, nullptr);
   if (!window) throw std::runtime_error("window creation failed");
   glfwMakeContextCurrent(window);
   glfwSwapInterval(1);
@@ -72,7 +72,12 @@ int main(int argc, char** argv) try {
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
-    ImGui::Begin("Simulated pickup");
+    const ImGuiViewport* viewport = ImGui::GetMainViewport();
+    ImGui::SetNextWindowPos(viewport->WorkPos);
+    ImGui::SetNextWindowSize(viewport->WorkSize);
+    ImGui::Begin("Simulated pickup", nullptr,
+                 ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove |
+                     ImGuiWindowFlags_NoSavedSettings);
     auto& p = frontend.parameters();
     ImGui::Text("Endpoints");
     ImGui::BulletText("TCP: 127.0.0.1:%u", port);
