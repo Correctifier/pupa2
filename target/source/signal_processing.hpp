@@ -20,22 +20,14 @@ struct ProcessedMeasurement {
   std::complex<float> impedance{};
 };
 
-class FourthOrderMovingAverage {
+class FourthOrderIntegrator {
  public:
-  std::complex<float> process(std::complex<float> input);
+  void add(std::complex<float> input);
+  std::complex<float> result() const;
   void reset();
 
  private:
-  static constexpr std::size_t window_size_ = 32;
-
-  struct Stage {
-    std::array<std::complex<float>, window_size_> values{};
-    std::complex<float> sum{};
-    std::size_t next_index{};
-    std::size_t count{};
-  };
-
-  std::array<Stage, 4> stages_;
+  std::array<std::complex<float>, 4> sums_{};
 };
 
 class AcquisitionProcessor {
@@ -56,11 +48,8 @@ class AcquisitionProcessor {
   float sample_rate_hz_{};
   float adc_scale_{};
   std::size_t sample_index_{};
-  std::size_t settled_outputs_{};
-  FourthOrderMovingAverage v_filter_;
-  FourthOrderMovingAverage vsense_filter_;
-  std::complex<float> v_result_{};
-  std::complex<float> vsense_result_{};
+  FourthOrderIntegrator v_integrator_;
+  FourthOrderIntegrator vsense_integrator_;
   std::uint16_t v_min_{4095}, v_max_{};
   std::uint16_t vsense_min_{4095}, vsense_max_{};
 };

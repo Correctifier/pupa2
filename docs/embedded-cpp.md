@@ -20,8 +20,8 @@ the shared target code without an explicit memory/runtime design review.
 - Incoming and outgoing protocol lines are capped at 1,024 bytes.
 - JSON uses ArduinoJson 6 `StaticJsonDocument`; the submodule is pinned to
   v6.21.6 because ArduinoJson 7's default document allocator uses the heap.
-- The fourth-order moving average uses four fixed 32-element circular buffers
-  per channel rather than `std::deque`.
+- Demodulated samples accumulate into four cascaded complex sums per channel, normalized
+  once at acquisition end.
 - `Application` owns a 4,096-entry (`8 KiB`) interleaved ADC buffer plus DSP
   state. Construct the application in static storage, not on an RTOS task stack.
 

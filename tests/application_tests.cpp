@@ -127,6 +127,20 @@ int main() {
     samples[index * 2 + 1] = adc(std::real(expected_sense * carrier));
   }
 
+  pickup::FourthOrderIntegrator integrator;
+
+  assert(integrator.result() == std::complex<float>{});
+  integrator.add({1.0F, 2.0F});
+  assert(integrator.result() == std::complex<float>(1.0F, 2.0F));
+  integrator.add({3.0F, -1.0F});
+  assert(integrator.result() == std::complex<float>(7.0F, 7.0F));
+  integrator.add({0.0F, 0.0F});
+  assert(integrator.result() == std::complex<float>(22.0F, 16.0F));
+  integrator.reset();
+  assert(integrator.result() == std::complex<float>{});
+  integrator.add({1.0F, 2.0F});
+  assert(integrator.result() == std::complex<float>(1.0F, 2.0F));
+
   pickup::AcquisitionProcessor processor;
 
   processor.begin(frequency, sample_rate);
@@ -137,6 +151,26 @@ int main() {
   assert(measurement);
   assert(std::abs(measurement->v - expected_v) < 0.002);
   assert(std::abs(measurement->vsense - expected_sense) < 0.002);
+
+  // Chunk boundaries must not change the accumulated measurement.
+  processor.begin(frequency, sample_rate);
+  assert(!processor.finish(2, 10000.0F));
+
+  for (std::size_t offset = 0; offset < samples.size(); offset += 128) {
+    processor.process(samples.data() + offset, 128);
+  }
+
+  const auto chunked = processor.finish(2, 10000.0F);
+
+  assert(chunked);
+  assert(std::abs(chunked->v - measurement->v) < 1e-6F);
+  assert(std::abs(chunked->vsense - measurement->vsense) < 1e-6F);
+
+  // A new acquisition must discard all previous accumulated samples.
+  samples.fill(2048);
+  processor.begin(frequency, sample_rate);
+  processor.process(samples.data(), samples.size());
+  assert(!processor.finish(2, 10000.0F));
 
   return 0;
 }

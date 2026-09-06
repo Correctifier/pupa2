@@ -5,25 +5,19 @@
 
 namespace pickup {
 
-void FourthOrderMovingAverage::reset() {
-  stages_ = {};
+void FourthOrderIntegrator::add(std::complex<float> input) {
+  for (auto& sum : sums_) {
+    sum += input;
+    input = sum;
+  }
 }
 
-std::complex<float> FourthOrderMovingAverage::process(std::complex<float> input) {
-  for (auto& stage : stages_) {
-    if (stage.count == window_size_) {
-      stage.sum -= stage.values[stage.next_index];
-    } else {
-      ++stage.count;
-    }
+std::complex<float> FourthOrderIntegrator::result() const {
+  return sums_.back();
+}
 
-    stage.values[stage.next_index] = input;
-    stage.sum += input;
-    stage.next_index = (stage.next_index + 1) % window_size_;
-    input = stage.sum / static_cast<float>(stage.count);
-  }
-
-  return input;
+void FourthOrderIntegrator::reset() {
+  sums_ = {};
 }
 
 void AcquisitionProcessor::begin(
@@ -35,13 +29,10 @@ void AcquisitionProcessor::begin(
   sample_rate_hz_ = sample_rate_hz;
   adc_scale_ = adc_full_scale_v / 4095.0F;
   sample_index_ = 0;
-  settled_outputs_ = 0;
 
-  v_filter_.reset();
-  vsense_filter_.reset();
+  v_integrator_.reset();
+  vsense_integrator_.reset();
 
-  v_result_ = {};
-  vsense_result_ = {};
   v_min_ = 4095;
   v_max_ = 0;
   vsense_min_ = 4095;
@@ -64,9 +55,9 @@ void AcquisitionProcessor::process(const std::uint16_t* data, std::size_t count)
     const std::complex<float> oscillator(std::cos(phase), std::sin(phase));
     const float v = (static_cast<float>(raw_v) - 2048.0F) * adc_scale_;
     const float sense = (static_cast<float>(raw_sense) - 2048.0F) * adc_scale_;
-    v_result_ = v_filter_.process(2.0F * v * oscillator);
-    vsense_result_ = vsense_filter_.process(2.0F * sense * oscillator);
-    ++settled_outputs_;
+
+    v_integrator_.add(2.0F * v * oscillator);
+    vsense_integrator_.add(2.0F * sense * oscillator);
   }
 }
 
@@ -74,22 +65,34 @@ std::optional<ProcessedMeasurement> AcquisitionProcessor::finish(
     std::uint32_t range,
     float rsense
 ) const {
-  if (sample_index_ == 0 || std::abs(vsense_result_) < 1e-15F) {
+  if (sample_index_ == 0) {
     return std::nullopt;
   }
 
-  ProcessedMeasurement result{
-      frequency_hz_,
-      range,
-      rsense,
-      v_result_,
-      vsense_result_,
-      v_min_,
-      v_max_,
-      vsense_min_,
-      vsense_max_
-  };
-  result.impedance = rsense * v_result_ / vsense_result_;
+  // Four cascaded sums have constant-input gain C(N + 3, 4).
+  // Normalize once at acquisition end to retain voltage amplitude units.
+  const auto count = static_cast<float>(sample_index_);
+  const float gain = count * (count + 1.0F) * (count + 2.0F) * (count + 3.0F) / 24.0F;
+  const auto v = v_integrator_.result() / gain;
+  const auto vsense = vsense_integrator_.result() / gain;
+
+  if (std::abs(vsense) < 1e-15F) {
+    return std::nullopt;
+  }
+
+  ProcessedMeasurement
+      result{
+          frequency_hz_,
+          range,
+          rsense,
+          v,
+          vsense,
+          v_min_,
+          v_max_,
+          vsense_min_,
+          vsense_max_
+      };
+  result.impedance = rsense * v / vsense;
 
   return result;
 }
