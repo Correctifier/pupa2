@@ -5,7 +5,19 @@
 
 namespace pickup {
 
-void Analyzer::set_generator(float frequency_hz, float amplitude_v) {
+bool Analyzer::supports_control(float frequency_hz, float amplitude_v) const {
+  return hardware_.supports_control(frequency_hz, amplitude_v);
+}
+
+bool Analyzer::supports_frequency(float frequency_hz) const {
+  return supports_control(frequency_hz, control_amplitude_v_);
+}
+
+bool Analyzer::set_generator(float frequency_hz, float amplitude_v) {
+  if (!supports_control(frequency_hz, amplitude_v)) {
+    return false;
+  }
+
   control_amplitude_v_ = amplitude_v;
 
   hardware_.set_control(frequency_hz, amplitude_v);
@@ -14,10 +26,13 @@ void Analyzer::set_generator(float frequency_hz, float amplitude_v) {
   settling_time_ms_ = static_cast<std::uint32_t>(std::ceil(
       1000.0F * FourthOrderMovingAverage::settling_time_seconds(hardware_.sample_rate_hz())
   ));
+
+  return true;
 }
 
 bool Analyzer::start_sweep(SweepParameters parameters, SweepCallbacks callbacks) {
-  if (sweep_) {
+  if (sweep_ || !supports_frequency(parameters.start_hz) ||
+      !supports_frequency(parameters.stop_hz)) {
     return false;
   }
 

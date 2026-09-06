@@ -35,7 +35,9 @@ class Analyzer {
 
   Analyzer& operator=(const Analyzer&) = delete;
 
-  void set_generator(float frequency_hz, float amplitude_v);
+  bool supports_control(float frequency_hz, float amplitude_v) const;
+  bool supports_frequency(float frequency_hz) const;
+  bool set_generator(float frequency_hz, float amplitude_v);
   // Returns false when a sweep is already active.
   bool start_sweep(SweepParameters parameters, SweepCallbacks callbacks);
   void stop_sweep();
@@ -64,7 +66,7 @@ class Analyzer {
   std::optional<ActiveSweep> sweep_;
   static constexpr std::size_t acquisition_buffer_count_ =
       2 * FourthOrderMovingAverage::settling_frames;
-  std::array<std::uint16_t, acquisition_buffer_count_> acquisition_buffer_{};
+  alignas(4) std::array<std::uint16_t, acquisition_buffer_count_> acquisition_buffer_{};
   std::uint32_t settling_time_ms_{};
   std::uint32_t control_set_at_ms_{};
   float control_amplitude_v_{0.25F};

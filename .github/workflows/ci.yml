@@ -44,3 +44,29 @@ jobs:
       - name: Smoke test virtual target
         if: github.event_name != 'workflow_dispatch' || inputs.smoke_test
         run: python scripts/smoke_virtual.py build/target/targets/virtual/pickup_virtual_target
+
+  stm32:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Install Arm toolchain
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ninja-build gcc-arm-none-eabi libnewlib-arm-none-eabi libstdc++-arm-none-eabi-newlib
+      - name: Configure NUCLEO-G431KB
+        run: cmake -S . -B build-stm32 -G Ninja -DCMAKE_TOOLCHAIN_FILE=cmake/toolchains/arm-none-eabi.cmake -DCMAKE_BUILD_TYPE=MinSizeRel
+      - name: Build firmware
+        run: cmake --build build-stm32 --parallel 2
+      - name: Upload firmware and map
+        uses: actions/upload-artifact@v4
+        with:
+          name: nucleo-g431kb-firmware
+          if-no-files-found: error
+          path: |
+            build-stm32/target/targets/stm32g4/*.elf
+            build-stm32/target/targets/stm32g4/*.hex
+            build-stm32/target/targets/stm32g4/*.bin
+            build-stm32/target/targets/stm32g4/*.map

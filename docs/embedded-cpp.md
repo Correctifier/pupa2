@@ -31,9 +31,12 @@ the shared target code without an explicit memory/runtime design review.
 - `Analyzer` (owned by `Application`) owns a 256-entry (`512 B`) interleaved ADC buffer plus DSP
   state. Construct the application in static storage, not on an RTOS task stack.
 
-An STM32 configuration enables `-fno-exceptions`, `-fno-rtti`, function/data
-sections, and linker garbage collection. A board-specific map-file review is
-still required once HAL, startup code, and a linker script are added.
+The NUCLEO-G431KB configuration enables `-fno-exceptions`, `-fno-rtti`, function/data
+sections, and linker garbage collection. Its linker script uses 128 KiB Flash and
+22 KiB DMA-accessible SRAM, reserves at least 4 KiB for stack, and leaves CCM
+unused. The build emits a map file and memory usage report. Runtime allocation
+traps and `_sbrk` refuses heap growth. See the [board BSP](../target/bsp/stm32/README.md)
+for wiring and hardware validation.
 
 ## BSP rules
 

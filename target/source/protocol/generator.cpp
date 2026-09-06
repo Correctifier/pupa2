@@ -25,7 +25,9 @@ EncodedMessage GeneratorModule::process(const RequestContext& request, JsonVaria
     return response(request, {"invalid_params", "generator values must be positive and finite"});
   }
 
-  service_.set_generator(frequency_hz, amplitude_v);
+  if (!service_.set_generator(frequency_hz, amplitude_v)) {
+    return response(request, {"invalid_params", "generator values exceed hardware limits"});
+  }
 
   return response(request);
 }

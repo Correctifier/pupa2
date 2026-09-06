@@ -46,6 +46,11 @@ EncodedMessage SweepModule::process(const RequestContext& request, JsonVariantCo
     );
   }
 
+  if (!service_.supports_frequency(settings.start_hz) ||
+      !service_.supports_frequency(settings.stop_hz)) {
+    return response(request, {"invalid_params", "sweep frequencies exceed hardware limits"});
+  }
+
   const SweepCallbacks callbacks{this, [](void* context, std::uint32_t points) {
                                    auto& self = *static_cast<SweepModule*>(context);
                                    const auto endpoint = *self.endpoint_;

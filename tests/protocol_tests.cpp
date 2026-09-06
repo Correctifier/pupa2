@@ -60,6 +60,11 @@ class Frontend final : public pickup::bsp::ImpedanceAnalyzer {
  public:
   std::uint32_t now_ms{};
   float sample_rate{64000.0F};
+  bool reject_control{};
+
+  bool supports_control(float, float) const override {
+    return !reject_control;
+  }
 
   std::uint32_t milliseconds() const override {
     return now_ms;
@@ -470,9 +475,26 @@ int main() {
   );
   assert(frontend.generator_calls == 1);
   assert(frontend.frequency == 1234.0F);
+
   assert(frontend.amplitude == 0.5F);
   assert(reply["id"] == 2);
   assert(reply["status"] == "ok");
+
+  const auto accepted_generator_calls = frontend.generator_calls;
+  frontend.reject_control = true;
+
+  request(
+      R"({"type":"request","object":"generator","action":"set","id":200,"params":{"frequency":30000,"amplitude":0.5}})"
+  );
+  assert(reply["error"]["code"] == "invalid_params");
+  assert(frontend.generator_calls == accepted_generator_calls);
+  request(
+      R"({"type":"request","object":"sweep","action":"start","id":201,"params":{"f_start":20,"f_stop":30000,"points":10}})"
+  );
+  assert(reply["error"]["code"] == "invalid_params");
+  assert(frontend.generator_calls == accepted_generator_calls);
+
+  frontend.reject_control = false;
 
   for (const auto params :
       {

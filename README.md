@@ -167,14 +167,30 @@ For a different build directory, point the root symlink at that directory's
 `compile_commands.json` (for example,
 `ln -sfn build-debug/compile_commands.json compile_commands.json`). The selected
 database determines the active target and compiler flags; the default desktop
-build does not include the unfinished STM32 target.
+build does not include the STM32 target; use the separate cross-build below.
 
-## STM32 status
+## NUCLEO-G431KB firmware
 
-The application boundary and STM32 composition-root scaffold are present. The
-hardware BSP needs the exact STM32G4 Nucleo-32 part number (for example,
-NUCLEO-G431KB) and analog/communications design before adding startup code,
-linker scripts, Cube HAL/LL, and peripheral drivers.
+The STM32 target uses the G4 HAL and CMSIS submodules, an Arm Cortex-M4F
+hard-float build, and the onboard ST-LINK virtual COM port at 115200 baud.
+See [board wiring and bring-up](target/bsp/stm32/README.md) for pin assignments,
+analog requirements, range selection, and firmware validation.
+
+With `arm-none-eabi-gcc` and `arm-none-eabi-g++` on `PATH`:
+
+```sh
+git submodule update --init --recursive
+cmake -S . -B build-stm32 -G Ninja \
+  -DCMAKE_TOOLCHAIN_FILE=cmake/toolchains/arm-none-eabi.cmake \
+  -DCMAKE_BUILD_TYPE=MinSizeRel
+cmake --build build-stm32 --parallel
+```
+
+ELF, HEX, BIN, and linker-map files are generated under
+`build-stm32/target/targets/stm32g4/`. The toolchain file disables host targets
+and tests for this build. The shared application is compiled into the firmware.
+CI also cross-builds the firmware and uploads these artifacts.
+
 
 ## License
 
