@@ -1,5 +1,6 @@
 #pragma once
 #include <array>
+#include <optional>
 
 #include "device_information.hpp"
 #include "protocol.hpp"
@@ -14,7 +15,6 @@ namespace pickup {
 
 class Analyzer;
 class Calibration;
-struct AcquisitionUpdate;
 
 class ApplicationProtocol final : public protocol::Router {
  public:
@@ -29,19 +29,14 @@ class ApplicationProtocol final : public protocol::Router {
 
   ApplicationProtocol& operator=(const ApplicationProtocol&) = delete;
 
-  void publish(const AcquisitionUpdate& update);
-
  private:
-  void measurement_acquired(std::uint32_t endpoint, const ProcessedMeasurement& sample) const;
-  void invalid_signal(std::uint32_t endpoint) const;
-  void sweep_complete(std::uint32_t endpoint, std::uint32_t points) const;
-
+  std::optional<std::uint32_t> sweep_destination_;
   protocol::DeviceModule device_;
   protocol::GeneratorModule generator_;
+  protocol::MeasurementModule measurement_;
   protocol::SweepModule sweep_;
   protocol::RangeModule range_;
   protocol::CalibrationModule calibration_;
-  protocol::MeasurementModule measurement_;
   std::array<protocol::Module*, 6> modules_;
 };
 

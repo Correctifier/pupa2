@@ -5,6 +5,13 @@
 #include "../analyzer.hpp"
 
 namespace pickup::protocol {
+SweepModule::~SweepModule() {
+  // Cancel borrowed callbacks before this module dies.
+  if (endpoint_) {
+    service_.stop_sweep();
+  }
+}
+
 EncodedMessage SweepModule::process(const RequestContext& request, JsonVariantConst params) {
   if (request.action == "stop") {
     service_.stop_sweep();
@@ -39,7 +46,16 @@ EncodedMessage SweepModule::process(const RequestContext& request, JsonVariantCo
     );
   }
 
-  if (!service_.start_sweep(settings)) {
+  const SweepCallbacks callbacks{this, [](void* context, std::uint32_t points) {
+                                   auto& self = *static_cast<SweepModule*>(context);
+                                   const auto endpoint = *self.endpoint_;
+
+                                   self.endpoint_.reset();
+
+                                   self.complete(endpoint, points);
+                                 }};
+
+  if (!service_.start_sweep(settings, callbacks)) {
     return response(request, {"busy", "a sweep is already running"});
   }
 

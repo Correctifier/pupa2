@@ -13,7 +13,7 @@ calls the domain method, and returns the encoded response. The router sends that
 response to the requesting endpoint.
 
 There is one dispatch by object name. There are no intermediate request classes,
-message variants, visitors, callback registrations, or typed handler interfaces.
+message variants, visitors, request callback registrations, or typed handler interfaces.
 All parameter validation completes before a module invokes domain behavior.
 
 ## Where to look
@@ -21,7 +21,7 @@ All parameter validation completes before a module invokes domain behavior.
 | Location | Responsibility |
 | --- | --- |
 | `target/source/protocol.*` | Envelope validation, module lookup, and response delivery |
-| `target/source/application_protocol.*` | Module ownership, registration, and acquisition event publication |
+| `target/source/application_protocol.*` | Module ownership and registration |
 | `target/source/protocol/module.*` | Module interface, bounded encoding, acknowledgements and errors |
 | `target/source/protocol/device.*` | Device information responses and capabilities |
 | `target/source/protocol/generator.*` | Generator parameter validation and control |
@@ -31,7 +31,7 @@ All parameter validation completes before a module invokes domain behavior.
 | `target/source/protocol/measurement.*` | Measurement events and acquisition errors |
 | `target/source/analyzer.*` | Generator, range, sweep, acquisition buffer, and measurement processing |
 | `target/source/calibration.*` | Calibration placeholder delegating to the BSP |
-| `target/source/application.*` | Construct objects and coordinate polling, acquisition, and publication |
+| `target/source/application.*` | Construct objects and tick the protocol and analyzer |
 
 ## Domain interfaces
 
@@ -51,20 +51,27 @@ and invalid envelopes use ID zero and `unknown` names.
 
 ## Events
 
-`Analyzer::tick()` returns an optional `AcquisitionUpdate` containing a measurement
-and completion state. No update means idle or pending acquisition; an update
-without a measurement reports invalid signal. The final measurement can carry
-completion in the same update.
+`MeasurementModule` registers its own measurement and invalid-signal callbacks
+with `Analyzer` on construction and unregisters them on destruction. This is a
+single measurement subscription, independent of sweep starts. `SweepModule`
+supplies only a completion callback when it starts a sweep; it has no reference
+to the measurement module.
 
-`Application` passes each update to `ApplicationProtocol::publish()`, which sends
-the measurement before sweep completion. `SweepModule` retains the initiator's
-endpoint after a successful start. A busy request cannot replace it. Stop,
-completion, and invalid-signal publication clear it. Event encoding remains in
-the sweep and measurement modules; acquisition errors keep their ID-zero format.
+The two modules borrow a shared protocol-owned event destination. A successful
+start sets it; rejected busy requests leave it unchanged. Measurement callbacks
+send to that destination, and failure clears it. Stop and completion also clear
+it. The analyzer knows neither the destination nor any protocol types.
 
-All polling, execution, responses, and publication run synchronously on the
-calling thread. There are no added threads or queues. Calls from an ISR or another
-thread still require synchronization or marshalling onto the application thread.
+The final measurement is emitted before completion. Stop discards the sweep's
+completion callback without emitting completion; the measurement subscription
+remains available for subsequent acquisitions. Destroying the sweep module
+cancels its active sweep; destroying the measurement module removes its own
+subscription. Callback contexts remain valid until removal, and measurement
+references are borrowed only for the callback duration.
+
+Callbacks run synchronously from `Analyzer::tick()` and must not reenter or
+destroy the analyzer or callback context. There are no added threads, queues,
+or allocations. `tick()` returns nothing and there is no publication relay.
 
 ## Adding an operation
 

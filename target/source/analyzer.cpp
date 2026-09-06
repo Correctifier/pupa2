@@ -11,7 +11,7 @@ void Analyzer::set_generator(float frequency_hz, float amplitude_v) {
   hardware_.set_control(frequency_hz, amplitude_v);
 }
 
-bool Analyzer::start_sweep(SweepParameters parameters) {
+bool Analyzer::start_sweep(SweepParameters parameters, SweepCallbacks callbacks) {
   if (sweep_) {
     return false;
   }
@@ -21,6 +21,7 @@ bool Analyzer::start_sweep(SweepParameters parameters) {
   sweep_->start_hz = parameters.start_hz;
   sweep_->stop_hz = parameters.stop_hz;
   sweep_->points = parameters.points;
+  sweep_->callbacks = callbacks;
 
   return true;
 }
@@ -37,9 +38,19 @@ bool Analyzer::set_range_manual(std::uint32_t index) {
   return hardware_.set_range_manual(index);
 }
 
-std::optional<AcquisitionUpdate> Analyzer::tick() {
+void Analyzer::set_measurement_callbacks(MeasurementCallbacks callbacks) {
+  measurement_callbacks_ = callbacks;
+}
+
+void Analyzer::clear_measurement_callbacks(void* context) {
+  if (measurement_callbacks_.context == context) {
+    measurement_callbacks_ = {};
+  }
+}
+
+void Analyzer::tick() {
   if (!sweep_) {
-    return std::nullopt;
+    return;
   }
 
   auto& sweep = *sweep_;
@@ -61,7 +72,7 @@ std::optional<AcquisitionUpdate> Analyzer::tick() {
       // Let an acquisition abandoned by sweep/stop finish before reusing its buffer.
       hardware_.acquisition_finished();
 
-      return std::nullopt;
+      return;
     }
 
     sweep.processor.begin(sweep.current_frequency_hz, hardware_.sample_rate_hz());
@@ -85,40 +96,40 @@ std::optional<AcquisitionUpdate> Analyzer::tick() {
   const bool all_data_processed = sweep.processed_count == acquisition_buffer_.size();
 
   if (!hardware_.acquisition_finished() || !all_data_processed) {
-    return std::nullopt;
+    return;
   }
 
   const auto result =
       sweep.processor.finish(hardware_.range_index(), hardware_.sense_resistor_ohm());
 
-  if (!result) {
-    const AcquisitionUpdate update{
-        std::nullopt,
-        false,
-        0
-    };
+  const auto callbacks = sweep.callbacks;
+  const auto measurement_callbacks = measurement_callbacks_;
 
+  if (!result) {
     sweep_.reset();
 
-    return update;
+    if (measurement_callbacks.invalid_signal) {
+      measurement_callbacks.invalid_signal(measurement_callbacks.context);
+    }
+
+    return;
   }
 
-  AcquisitionUpdate update{
-      *result,
-      false,
-      sweep.points
-  };
-
-  ++sweep.index;
+  const auto points = sweep.points;
+  const bool complete = ++sweep.index == points;
   sweep.acquisition_started = false;
 
-  if (sweep.index == sweep.points) {
-    update.complete = true;
-
+  if (complete) {
     sweep_.reset();
   }
 
-  return update;
+  if (measurement_callbacks.measurement) {
+    measurement_callbacks.measurement(measurement_callbacks.context, *result);
+  }
+
+  if (complete && callbacks.complete) {
+    callbacks.complete(callbacks.context, points);
+  }
 }
 
 }  // namespace pickup

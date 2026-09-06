@@ -7,12 +7,18 @@
 
 namespace pickup {
 
-// One acquisition can produce both a measurement and sweep completion.
-// An update without a measurement reports an invalid sense signal.
-struct AcquisitionUpdate {
-  std::optional<ProcessedMeasurement> measurement;
-  bool complete{};
-  std::uint32_t points{};
+// Callbacks run synchronously during tick(). Contexts must remain valid until their callbacks are
+// removed. Callbacks must not reenter or destroy the analyzer or their context. Measurement
+// references are borrowed only for the duration of the callback.
+struct MeasurementCallbacks {
+  void* context{};
+  void (*measurement)(void*, const ProcessedMeasurement&){};
+  void (*invalid_signal)(void*){};
+};
+
+struct SweepCallbacks {
+  void* context{};
+  void (*complete)(void*, std::uint32_t){};
 };
 
 struct SweepParameters {
@@ -31,11 +37,14 @@ class Analyzer {
 
   void set_generator(float frequency_hz, float amplitude_v);
   // Returns false when a sweep is already active.
-  bool start_sweep(SweepParameters parameters);
+  bool start_sweep(SweepParameters parameters, SweepCallbacks callbacks);
   void stop_sweep();
   void set_range_auto();
   bool set_range_manual(std::uint32_t index);
-  std::optional<AcquisitionUpdate> tick();
+  // One measurement subscriber, independent of the active sweep.
+  void set_measurement_callbacks(MeasurementCallbacks callbacks);
+  void clear_measurement_callbacks(void* context);
+  void tick();
 
  private:
   struct ActiveSweep {
@@ -47,8 +56,10 @@ class Analyzer {
     std::size_t processed_count{};
     float current_frequency_hz{};
     AcquisitionProcessor processor;
+    SweepCallbacks callbacks;
   };
   bsp::ImpedanceAnalyzer& hardware_;
+  MeasurementCallbacks measurement_callbacks_;
   std::optional<ActiveSweep> sweep_;
   static constexpr std::size_t acquisition_buffer_count_ = 4096;
   std::array<std::uint16_t, acquisition_buffer_count_> acquisition_buffer_{};

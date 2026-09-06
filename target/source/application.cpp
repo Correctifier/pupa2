@@ -15,9 +15,7 @@ Application::Application(ApplicationDependencies dependencies)
 void Application::tick() {
   protocol_.poll();
 
-  if (const auto update = analyzer_.tick()) {
-    protocol_.publish(*update);
-  }
+  analyzer_.tick();
 }
 
 }  // namespace pickup

@@ -1,6 +1,43 @@
 #include "measurement.hpp"
 
+#include "../analyzer.hpp"
+
 namespace pickup::protocol {
+MeasurementModule::MeasurementModule(
+    bsp::Transport& transport,
+    Analyzer& analyzer,
+    std::optional<std::uint32_t>& destination
+)
+    : Module("measurement", transport), analyzer_(analyzer), destination_(destination) {
+  analyzer_.set_measurement_callbacks(
+      {
+          this,
+          [](void* context, const ProcessedMeasurement& sample) {
+            auto& self = *static_cast<MeasurementModule*>(context);
+
+            if (self.destination_) {
+              self.acquired(*self.destination_, sample);
+            }
+          },
+          [](void* context) {
+            auto& self = *static_cast<MeasurementModule*>(context);
+
+            if (self.destination_) {
+              const auto endpoint = *self.destination_;
+
+              self.destination_.reset();
+
+              self.invalid_signal(endpoint);
+            }
+          }
+      }
+  );
+}
+
+MeasurementModule::~MeasurementModule() {
+  analyzer_.clear_measurement_callbacks(this);
+}
+
 void MeasurementModule::acquired(std::uint32_t endpoint, const ProcessedMeasurement& sample) const {
   StaticJsonDocument<768> document;
   document["type"] = "event";

@@ -21,6 +21,9 @@ the shared target code without an explicit memory/runtime design review.
 - Protocol modules and their registration array are owned by `ApplicationProtocol`;
   the domain-object references and router spans are non-owning. Modules validate
   and execute requests directly; dispatch does not allocate.
+- Active sweeps retain a completion callback; measurement callbacks are a separate
+  analyzer subscription. Modules remove their callbacks before destruction.
+  Callback storage is fixed and no `std::function` is used.
 - JSON uses ArduinoJson 6 `StaticJsonDocument`; the submodule is pinned to
   v6.21.6 because ArduinoJson 7's default document allocator uses the heap.
 - Demodulated samples accumulate into four cascaded complex sums per channel, normalized

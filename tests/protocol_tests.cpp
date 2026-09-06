@@ -1,6 +1,7 @@
 #include <ArduinoJson.h>
 
 #include <cassert>
+#include <cmath>
 #include <cstring>
 #include <deque>
 #include <string>
@@ -63,6 +64,9 @@ class Frontend final : public pickup::bsp::ImpedanceAnalyzer {
   float frequency{};
   float amplitude{};
   bool automatic{};
+  bool acquire{};
+  bool invalid_signal{};
+  std::size_t sample_count{};
   std::uint32_t range{};
 
   void set_control(float frequency_hz, float amplitude_v) override {
@@ -71,16 +75,28 @@ class Frontend final : public pickup::bsp::ImpedanceAnalyzer {
     amplitude = amplitude_v;
   }
 
-  bool start_acquisition(std::uint16_t*, std::size_t) override {
-    return false;
+  bool start_acquisition(std::uint16_t* buffer, std::size_t count) override {
+    if (!acquire) {
+      return false;
+    }
+
+    sample_count = count;
+
+    for (std::size_t i = 0; i < count; i += 2) {
+      const auto wave = std::cos(2.0 * 3.141592653589793 * frequency * (i / 2) / sample_rate_hz());
+      buffer[i] = static_cast<std::uint16_t>(2048 + 200 * wave);
+      buffer[i + 1] = invalid_signal ? 2048 : static_cast<std::uint16_t>(2048 + 100 * wave);
+    }
+
+    return true;
   }
 
   std::size_t clean_data_count() const override {
-    return 0;
+    return sample_count;
   }
 
   bool acquisition_finished() const override {
-    return false;
+    return acquire;
   }
 
   float sample_rate_hz() const override {
@@ -146,19 +162,20 @@ void test_sweep_event_destination() {
   assert(deserializeJson(reply, transport.outgoing.back().text) == DeserializationError::Ok);
   assert(reply["error"]["code"] == "busy");
 
-  const pickup::AcquisitionUpdate update{
-      pickup::ProcessedMeasurement{},
-      true,
-      1
-  };
+  hardware.acquire = true;
   const auto before = transport.outgoing.size();
 
-  protocol.publish(update);
+  analyzer.tick();
   assert(transport.outgoing.size() == before + 2);
   assert(transport.outgoing[before].endpoint == 17);
   assert(transport.outgoing[before + 1].endpoint == 17);
-  protocol.publish(update);
+  analyzer.tick();
   assert(transport.outgoing.size() == before + 2);
+
+  assert(deserializeJson(reply, transport.outgoing[before].text) == DeserializationError::Ok);
+  assert(reply["object"] == "measurement");
+  assert(deserializeJson(reply, transport.outgoing[before + 1].text) == DeserializationError::Ok);
+  assert(reply["action"] == "complete");
 
   // A stop from another endpoint clears the original event destination.
   analyzer.stop_sweep();
@@ -172,8 +189,108 @@ void test_sweep_event_destination() {
 
   const auto after_stop = transport.outgoing.size();
 
-  protocol.publish(update);
+  analyzer.tick();
   assert(transport.outgoing.size() == after_stop);
+
+  hardware.invalid_signal = true;
+
+  transport.enqueue(
+      29,
+      R"({"type":"request","object":"sweep","action":"start","id":5,"params":{"f_start":1000,"f_stop":1000,"points":1}})"
+  );
+  protocol.poll();
+
+  const auto before_failure = transport.outgoing.size();
+
+  analyzer.tick();
+  assert(transport.outgoing.size() == before_failure + 1);
+  assert(transport.outgoing.back().endpoint == 29);
+  assert(deserializeJson(reply, transport.outgoing.back().text) == DeserializationError::Ok);
+  assert(reply["error"]["code"] == "invalid_signal");
+  analyzer.tick();
+  assert(transport.outgoing.size() == before_failure + 1);
+}
+
+void test_callback_lifetime() {
+  Transport transport;
+  Frontend hardware;
+  hardware.acquire = true;
+  pickup::Analyzer analyzer(hardware);
+  pickup::Calibration calibration(hardware);
+
+  {
+    pickup::ApplicationProtocol protocol(
+        transport,
+        {
+            "test",
+            "test",
+            "0"
+        },
+        analyzer,
+        calibration
+    );
+
+    transport.enqueue(
+        17,
+        R"({"type":"request","object":"sweep","action":"start","id":1,"params":{"f_start":1000,"f_stop":1000,"points":1}})"
+    );
+    protocol.poll();
+  }
+
+  const auto before = transport.outgoing.size();
+
+  analyzer.tick();
+  assert(transport.outgoing.size() == before);
+  assert(hardware.generator_calls == 0);
+}
+
+void test_independent_measurement_subscription() {
+  Transport transport;
+  Frontend hardware;
+  hardware.acquire = true;
+  pickup::Analyzer analyzer(hardware);
+  std::optional<std::uint32_t> destination{31};
+
+  {
+    // No SweepModule is involved in measurement registration or delivery.
+    pickup::protocol::MeasurementModule measurement(
+        transport,
+        analyzer,
+        destination
+    );
+
+    assert(analyzer.start_sweep({
+        1000,
+        1000,
+        1
+    }, {}));
+    analyzer.tick();
+    assert(transport.outgoing.size() == 1);
+    assert(transport.outgoing.back().endpoint == 31);
+
+    hardware.invalid_signal = true;
+
+    assert(analyzer.start_sweep({
+        1000,
+        1000,
+        1
+    }, {}));
+    analyzer.tick();
+    assert(transport.outgoing.size() == 2);
+    assert(transport.outgoing.back().endpoint == 31);
+    assert(!destination);
+  }
+
+  // Destruction unregisters the callbacks while the analyzer remains usable.
+  destination = 32;
+
+  assert(analyzer.start_sweep({
+      1000,
+      1000,
+      1
+  }, {}));
+  analyzer.tick();
+  assert(transport.outgoing.size() == 2);
 }
 }  // namespace
 
@@ -181,6 +298,8 @@ int main() {
   Transport transport;
 
   test_sweep_event_destination();
+  test_callback_lifetime();
+  test_independent_measurement_subscription();
 
   Frontend frontend;
   pickup::Application application({
@@ -193,8 +312,17 @@ int main() {
       }
   });
   pickup::Analyzer analyzer(frontend);
-  pickup::protocol::SweepModule sweep(transport, analyzer);
-  pickup::protocol::MeasurementModule measurement(transport);
+  std::optional<std::uint32_t> destination;
+  pickup::protocol::MeasurementModule measurement(
+      transport,
+      analyzer,
+      destination
+  );
+  pickup::protocol::SweepModule sweep(
+      transport,
+      analyzer,
+      destination
+  );
   StaticJsonDocument<1024> reply;
 
   const auto request = [&](std::string_view text) {
