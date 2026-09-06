@@ -20,6 +20,7 @@ class SimulatedPickup final : public ImpedanceAnalyzer {
     parameters_ = parameters;
   }
 
+  std::uint32_t milliseconds() const override;
   void set_control(float frequency_hz, float amplitude_v) override;
   bool start_acquisition(std::uint16_t* buffer, std::size_t buffer_count) override;
   std::size_t clean_data_count() const override;

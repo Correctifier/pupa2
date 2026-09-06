@@ -19,9 +19,12 @@ measurements.
 
 The target BSP exposes float DAC frequency/amplitude control and asynchronous
 DMA-style acquisition into a caller-owned interleaved ADC buffer. Application
-logic streams newly clean samples through complex demodulation and
-four cascaded integrators over the acquisition in `target/source/signal_processing.*` before
-forming `Z = Rsense * Vdut / Vsense`.
+logic streams newly clean samples through complex demodulation and four
+cascaded 32-sample moving-average stages in `target/source/signal_processing.*` before
+forming `Z = Rsense * Vdut / Vsense`. Each sweep point waits one full filter window (128 frames at the actual sample
+rate, rounded up to milliseconds) after setting the generator before acquisition.
+Acquisition collects 128 frames (256 interleaved ADC entries). Both lengths derive
+from the filter definitions in `signal_processing.hpp`; command handling remains responsive.
 Target-side control and DSP use single-precision `float` and
 `std::complex<float>` to use the STM32G4 hardware FPU efficiently. Desktop-only
 plotting and nonlinear fitting retain Python's double-precision arithmetic.
@@ -176,3 +179,26 @@ linker scripts, Cube HAL/LL, and peripheral drivers.
 ## License
 
 MIT
+
+## Continuous integration
+
+[Host CI](.github/workflows/ci.yml) runs on pushes, pull requests, and manual
+workflow dispatches. It initializes submodules recursively, builds the host
+application and virtual target in Debug mode, runs CTest and Python unit tests,
+and checks formatting with the pinned tools from `pc[format]`. Debug mode keeps
+C++ test assertions enabled. The headless TCP smoke test checks device info and
+completion of a three-point sweep; it runs by default and can be disabled for a
+manual dispatch.
+
+After installing the development tools with `python -m pip install -e './pc[format]'`,
+the additional checks can be run locally with:
+
+```sh
+python -m unittest discover -s pc/tests -p 'test_*.py'
+python -m unittest discover -s scripts -p 'test_*.py'
+python scripts/format_code.py --check
+python scripts/smoke_virtual.py build/target/targets/virtual/pickup_virtual_target
+```
+
+Virtual environments are local development artifacts and are ignored at any
+directory depth; no virtual environment is included in the repository.

@@ -58,6 +58,13 @@ class Transport final : public pickup::bsp::Transport {
 
 class Frontend final : public pickup::bsp::ImpedanceAnalyzer {
  public:
+  std::uint32_t now_ms{};
+  float sample_rate{64000.0F};
+
+  std::uint32_t milliseconds() const override {
+    return now_ms;
+  }
+
   int generator_calls{};
   int range_calls{};
   int calibration_calls{};
@@ -100,7 +107,7 @@ class Frontend final : public pickup::bsp::ImpedanceAnalyzer {
   }
 
   float sample_rate_hz() const override {
-    return 64000;
+    return sample_rate;
   }
 
   void set_range_auto() override {
@@ -166,9 +173,17 @@ void test_sweep_event_destination() {
   const auto before = transport.outgoing.size();
 
   analyzer.tick();
+
+  hardware.now_ms += 10;
+
+  analyzer.tick();
   assert(transport.outgoing.size() == before + 2);
   assert(transport.outgoing[before].endpoint == 17);
   assert(transport.outgoing[before + 1].endpoint == 17);
+  analyzer.tick();
+
+  hardware.now_ms += 10;
+
   analyzer.tick();
   assert(transport.outgoing.size() == before + 2);
 
@@ -190,6 +205,10 @@ void test_sweep_event_destination() {
   const auto after_stop = transport.outgoing.size();
 
   analyzer.tick();
+
+  hardware.now_ms += 10;
+
+  analyzer.tick();
   assert(transport.outgoing.size() == after_stop);
 
   hardware.invalid_signal = true;
@@ -203,12 +222,99 @@ void test_sweep_event_destination() {
   const auto before_failure = transport.outgoing.size();
 
   analyzer.tick();
+
+  hardware.now_ms += 10;
+
+  analyzer.tick();
   assert(transport.outgoing.size() == before_failure + 1);
   assert(transport.outgoing.back().endpoint == 29);
   assert(deserializeJson(reply, transport.outgoing.back().text) == DeserializationError::Ok);
   assert(reply["error"]["code"] == "invalid_signal");
   analyzer.tick();
+
+  hardware.now_ms += 10;
+
+  analyzer.tick();
   assert(transport.outgoing.size() == before_failure + 1);
+}
+
+void test_settling_time() {
+  Frontend hardware;
+  pickup::Analyzer analyzer(hardware);
+  hardware.acquire = true;
+  hardware.now_ms = 0xFFFFFFFFU;
+
+  assert(pickup::FourthOrderMovingAverage::settling_frames == 128);
+
+  assert(analyzer.start_sweep({
+      1000,
+      2000,
+      2
+  }, {}));
+  analyzer.tick();
+  assert(hardware.sample_count == 0);
+  assert(hardware.generator_calls == 1);
+
+  hardware.now_ms += 1;
+
+  analyzer.tick();
+  assert(hardware.sample_count == 0);
+  assert(hardware.generator_calls == 1);
+
+  ++hardware.now_ms;
+
+  analyzer.tick();
+  assert(hardware.sample_count == 2 * pickup::FourthOrderMovingAverage::settling_frames);
+
+  hardware.sample_count = 0;
+  hardware.sample_rate = 48000.0F;
+
+  analyzer.tick();
+  assert(hardware.frequency == 2000);
+  assert(hardware.sample_count == 0);
+
+  // 128 frames at 48 kHz take 2.667 ms, so two milliseconds is too soon.
+  hardware.now_ms += 2;
+
+  analyzer.tick();
+  assert(hardware.sample_count == 0);
+
+  // A new generator setting restarts the settling interval.
+
+  analyzer.set_generator(2000, 0.5F);
+
+  ++hardware.now_ms;
+
+  analyzer.tick();
+  assert(hardware.sample_count == 0);
+
+  // Busy retries must not reprogram the generator or restart settling.
+  hardware.now_ms += 2;
+  hardware.acquire = false;
+
+  analyzer.tick();
+  assert(hardware.generator_calls == 3);
+
+  hardware.acquire = true;
+
+  analyzer.tick();
+  assert(hardware.sample_count == 2 * pickup::FourthOrderMovingAverage::settling_frames);
+
+  assert(analyzer.start_sweep({
+      1000,
+      1000,
+      1
+  }, {}));
+
+  hardware.sample_count = 0;
+
+  analyzer.tick();
+  analyzer.stop_sweep();
+
+  hardware.now_ms += 10;
+
+  analyzer.tick();
+  assert(hardware.sample_count == 0);
 }
 
 void test_callback_lifetime() {
@@ -240,6 +346,10 @@ void test_callback_lifetime() {
   const auto before = transport.outgoing.size();
 
   analyzer.tick();
+
+  hardware.now_ms += 10;
+
+  analyzer.tick();
   assert(transport.outgoing.size() == before);
   assert(hardware.generator_calls == 0);
 }
@@ -265,6 +375,10 @@ void test_independent_measurement_subscription() {
         1
     }, {}));
     analyzer.tick();
+
+    hardware.now_ms += 10;
+
+    analyzer.tick();
     assert(transport.outgoing.size() == 1);
     assert(transport.outgoing.back().endpoint == 31);
 
@@ -275,6 +389,10 @@ void test_independent_measurement_subscription() {
         1000,
         1
     }, {}));
+    analyzer.tick();
+
+    hardware.now_ms += 10;
+
     analyzer.tick();
     assert(transport.outgoing.size() == 2);
     assert(transport.outgoing.back().endpoint == 31);
@@ -290,6 +408,10 @@ void test_independent_measurement_subscription() {
       1
   }, {}));
   analyzer.tick();
+
+  hardware.now_ms += 10;
+
+  analyzer.tick();
   assert(transport.outgoing.size() == 2);
 }
 }  // namespace
@@ -297,6 +419,7 @@ void test_independent_measurement_subscription() {
 int main() {
   Transport transport;
 
+  test_settling_time();
   test_sweep_event_destination();
   test_callback_lifetime();
   test_independent_measurement_subscription();

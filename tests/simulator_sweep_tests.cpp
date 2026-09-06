@@ -1,10 +1,12 @@
 #include <ArduinoJson.h>
 
 #include <cassert>
+#include <chrono>
 #include <cmath>
 #include <cstring>
 #include <deque>
 #include <string>
+#include <thread>
 #include <vector>
 
 #include "application.hpp"
@@ -119,10 +121,10 @@ int main() {
   };
 
   start();
-  // A second request must be rejected while the first acquisition is active.
+  // A second request must be rejected while the first sweep is settling.
   start();
   assert(transport.outgoing.back().find("busy") != std::string::npos);
-  // Stop with an unfinished simulated DMA, then immediately request another point.
+  // Stop during settling, then immediately request another point.
   transport.enqueue(R"({"type":"request","object":"sweep","action":"stop","id":2})");
   app.tick();
   transport.outgoing.clear();
@@ -130,6 +132,7 @@ int main() {
 
   for (int tick = 0; tick < 100; ++tick) {
     app.tick();
+    std::this_thread::sleep_for(std::chrono::milliseconds(1));
   }
 
   assert(transport.outgoing.size() == 3);  // acknowledgement, measurement, completion
@@ -146,8 +149,9 @@ int main() {
       R"({"type":"request","object":"sweep","action":"start","id":3,"params":{"f_start":20,"f_stop":20000,"points":100}})"
   );
 
-  for (int tick = 0; tick < 1000; ++tick) {
+  for (int tick = 0; tick < 2000; ++tick) {
     app.tick();
+    std::this_thread::sleep_for(std::chrono::milliseconds(1));
   }
 
   assert(transport.outgoing.size() == 102);

@@ -1,0 +1,46 @@
+name: Host CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      smoke_test:
+        description: Run the headless virtual target smoke test
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+jobs:
+  host:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install host dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ninja-build libgl1-mesa-dev libx11-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libwayland-dev libxkbcommon-dev wayland-protocols
+          python -m pip install -e './pc[format]'
+      - name: Configure host targets
+        run: cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Debug -DPICKUP_BUILD_TESTS=ON -DPICKUP_BUILD_VIRTUAL_TARGET=ON -DPICKUP_BUILD_STM32_TARGET=OFF
+      - name: Build host targets
+        run: cmake --build build --parallel 2
+      - name: Run CTest
+        run: ctest --test-dir build --output-on-failure
+      - name: Run Python tests
+        run: python -m unittest discover -s pc/tests -p 'test_*.py'
+      - name: Run formatter regression tests
+        run: python -m unittest discover -s scripts -p 'test_*.py'
+      - name: Check formatting and style
+        run: python scripts/format_code.py --check
+      - name: Smoke test virtual target
+        if: github.event_name != 'workflow_dispatch' || inputs.smoke_test
+        run: python scripts/smoke_virtual.py build/target/targets/virtual/pickup_virtual_target

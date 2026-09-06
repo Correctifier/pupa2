@@ -9,6 +9,11 @@ void Analyzer::set_generator(float frequency_hz, float amplitude_v) {
   control_amplitude_v_ = amplitude_v;
 
   hardware_.set_control(frequency_hz, amplitude_v);
+
+  control_set_at_ms_ = hardware_.milliseconds();
+  settling_time_ms_ = static_cast<std::uint32_t>(std::ceil(
+      1000.0F * FourthOrderMovingAverage::settling_time_seconds(hardware_.sample_rate_hz())
+  ));
 }
 
 bool Analyzer::start_sweep(SweepParameters parameters, SweepCallbacks callbacks) {
@@ -55,7 +60,7 @@ void Analyzer::tick() {
 
   auto& sweep = *sweep_;
 
-  if (!sweep.acquisition_started) {
+  if (!sweep.frequency_set) {
     const float fraction =
         sweep.points == 1 ? 0.0F
                           : static_cast<float>(sweep.index) / static_cast<float>(sweep.points - 1);
@@ -66,7 +71,16 @@ void Analyzer::tick() {
             ? sweep.start_hz
             : (sweep.index + 1 == sweep.points ? sweep.stop_hz : std::exp(log_frequency));
 
-    hardware_.set_control(sweep.current_frequency_hz, control_amplitude_v_);
+    set_generator(sweep.current_frequency_hz, control_amplitude_v_);
+
+    sweep.frequency_set = true;
+  }
+
+  if (!sweep.acquisition_started) {
+    if (static_cast<std::uint32_t>(hardware_.milliseconds() - control_set_at_ms_) <
+        settling_time_ms_) {
+      return;
+    }
 
     if (!hardware_.start_acquisition(acquisition_buffer_.data(), acquisition_buffer_.size())) {
       // Let an acquisition abandoned by sweep/stop finish before reusing its buffer.
@@ -118,6 +132,7 @@ void Analyzer::tick() {
   const auto points = sweep.points;
   const bool complete = ++sweep.index == points;
   sweep.acquisition_started = false;
+  sweep.frequency_set = false;
 
   if (complete) {
     sweep_.reset();

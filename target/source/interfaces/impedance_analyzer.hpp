@@ -8,6 +8,9 @@ class ImpedanceAnalyzer {
  public:
   virtual ~ImpedanceAnalyzer() = default;
 
+  // Monotonic milliseconds, wrapping modulo 2^32.
+  virtual std::uint32_t milliseconds() const = 0;
+
   virtual void set_control(float frequency_hz, float amplitude_v) = 0;
   // buffer_count and clean_data_count are scalar uint16_t entries. Samples are
   // interleaved [Vdut, Vsense, Vdut, Vsense, ...]. Returns false while busy.

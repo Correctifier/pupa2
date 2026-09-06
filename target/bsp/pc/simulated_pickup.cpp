@@ -1,6 +1,7 @@
 #include "simulated_pickup.hpp"
 
 #include <algorithm>
+#include <chrono>
 #include <cmath>
 #include <limits>
 
@@ -14,6 +15,13 @@ constexpr double ranges[] = {
     100000.0
 };
 }  // namespace
+
+std::uint32_t SimulatedPickup::milliseconds() const {
+  const auto elapsed = std::chrono::steady_clock::now().time_since_epoch();
+  const auto milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(elapsed);
+
+  return static_cast<std::uint32_t>(milliseconds.count());
+}
 
 void SimulatedPickup::set_control(float frequency_hz, float amplitude_v) {
   generator_frequency_hz_ = frequency_hz;

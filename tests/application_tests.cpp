@@ -48,6 +48,10 @@ class FakeTransport final : public pickup::bsp::Transport {
 
 class FakeFrontend final : public pickup::bsp::ImpedanceAnalyzer {
  public:
+  std::uint32_t milliseconds() const override {
+    return 0;
+  }
+
   void set_control(float, float) override {}
 
   bool start_acquisition(std::uint16_t*, std::size_t) override {
@@ -109,7 +113,7 @@ int main() {
   constexpr double pi = 3.14159265358979323846;
   constexpr double sample_rate = 64000.0;
   constexpr double frequency = 2000.0;
-  constexpr std::size_t frames = 2048;
+  constexpr std::size_t frames = pickup::FourthOrderMovingAverage::settling_frames;
   std::array<std::uint16_t, frames * 2> samples{};
   const std::complex<float> expected_v(0.2F, 0.05F);
   const std::complex<float> expected_sense(0.04F, -0.01F);
@@ -127,19 +131,55 @@ int main() {
     samples[index * 2 + 1] = adc(std::real(expected_sense * carrier));
   }
 
-  pickup::FourthOrderIntegrator integrator;
+  pickup::FourthOrderMovingAverage filter;
+  const std::complex<float> constant(1.0F, 2.0F);
 
-  assert(integrator.result() == std::complex<float>{});
-  integrator.add({1.0F, 2.0F});
-  assert(integrator.result() == std::complex<float>(1.0F, 2.0F));
-  integrator.add({3.0F, -1.0F});
-  assert(integrator.result() == std::complex<float>(7.0F, 7.0F));
-  integrator.add({0.0F, 0.0F});
-  assert(integrator.result() == std::complex<float>(22.0F, 16.0F));
-  integrator.reset();
-  assert(integrator.result() == std::complex<float>{});
-  integrator.add({1.0F, 2.0F});
-  assert(integrator.result() == std::complex<float>(1.0F, 2.0F));
+  for (std::size_t index = 0; index < 256; ++index) {
+    assert(std::abs(filter.process(constant) - constant) < 1e-6F);
+  }
+
+  filter.reset();
+
+  // Warm up with zeros so the impulse sees four full 32-sample windows.
+  for (std::size_t index = 0; index < 128; ++index) {
+    assert(filter.process({}) == std::complex<float>{});
+  }
+
+  // Independent convolution of four boxcars gives the expected bell shape.
+  std::array<float, 125> expected_impulse{};
+  expected_impulse[0] = 1.0F;
+
+  for (std::size_t stage = 0; stage < 4; ++stage) {
+    std::array<float, 125> next{};
+
+    for (std::size_t index = 0; index <= stage * 31; ++index) {
+      for (std::size_t tap = 0; tap < 32; ++tap) {
+        next[index + tap] += expected_impulse[index] / 32.0F;
+      }
+    }
+
+    expected_impulse = next;
+  }
+
+  float total = 0.0F;
+
+  for (std::size_t index = 0; index < expected_impulse.size(); ++index) {
+    const auto output = filter.process(index == 0 ? constant : std::complex<float>{});
+
+    assert(std::abs(output - constant * expected_impulse[index]) < 1e-6F);
+    assert(expected_impulse[index] == expected_impulse[124 - index]);
+
+    total += expected_impulse[index];
+  }
+
+  assert(std::abs(total - 1.0F) < 1e-6F);
+
+  for (std::size_t index = 0; index < 128; ++index) {
+    assert(std::abs(filter.process({})) < 1e-6F);
+  }
+
+  filter.reset();
+  assert(filter.process(constant) == constant);
 
   pickup::AcquisitionProcessor processor;
 

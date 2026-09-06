@@ -26,9 +26,9 @@ the shared target code without an explicit memory/runtime design review.
   Callback storage is fixed and no `std::function` is used.
 - JSON uses ArduinoJson 6 `StaticJsonDocument`; the submodule is pinned to
   v6.21.6 because ArduinoJson 7's default document allocator uses the heap.
-- Demodulated samples accumulate into four cascaded complex sums per channel, normalized
-  once at acquisition end.
-- `Analyzer` (owned by `Application`) owns a 4,096-entry (`8 KiB`) interleaved ADC buffer plus DSP
+- The fourth-order moving average uses four fixed 32-element circular buffers
+  per channel rather than `std::deque`.
+- `Analyzer` (owned by `Application`) owns a 256-entry (`512 B`) interleaved ADC buffer plus DSP
   state. Construct the application in static storage, not on an RTOS task stack.
 
 An STM32 configuration enables `-fno-exceptions`, `-fno-rtti`, function/data

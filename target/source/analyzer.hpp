@@ -52,6 +52,7 @@ class Analyzer {
     float stop_hz{};
     std::uint32_t points{};
     std::uint32_t index{};
+    bool frequency_set{};
     bool acquisition_started{};
     std::size_t processed_count{};
     float current_frequency_hz{};
@@ -61,8 +62,11 @@ class Analyzer {
   bsp::ImpedanceAnalyzer& hardware_;
   MeasurementCallbacks measurement_callbacks_;
   std::optional<ActiveSweep> sweep_;
-  static constexpr std::size_t acquisition_buffer_count_ = 4096;
+  static constexpr std::size_t acquisition_buffer_count_ =
+      2 * FourthOrderMovingAverage::settling_frames;
   std::array<std::uint16_t, acquisition_buffer_count_> acquisition_buffer_{};
+  std::uint32_t settling_time_ms_{};
+  std::uint32_t control_set_at_ms_{};
   float control_amplitude_v_{0.25F};
 };
 
