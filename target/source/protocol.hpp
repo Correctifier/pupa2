@@ -1,11 +1,11 @@
 #pragma once
-#include "signal_processing.hpp"
-
 #include <array>
 #include <cstddef>
 #include <cstdint>
 #include <optional>
 #include <string_view>
+
+#include "signal_processing.hpp"
 
 namespace pickup::protocol {
 
@@ -31,19 +31,33 @@ struct EncodedMessage {
   std::array<char, capacity> bytes{};
   std::size_t size{};
 
-  std::string_view view() const { return {bytes.data(), size}; }
+  std::string_view view() const {
+    return {bytes.data(), size};
+  }
 };
 
 std::string_view to_string(Object value);
 std::string_view to_string(Action value);
-std::optional<Request> parse_request(std::string_view, std::string_view& code,
-                                     std::string_view& error);
+std::optional<Request> parse_request(
+    std::string_view,
+    std::string_view& code,
+    std::string_view& error,
+    Request* envelope = nullptr
+);
 EncodedMessage response(const Request&);
-EncodedMessage device_info_response(const Request&, std::string_view target_name,
-                                    std::string_view application_name,
-                                    std::string_view application_version);
-EncodedMessage error_response(std::uint64_t id, Object object, Action action,
-                              std::string_view code, std::string_view message);
+EncodedMessage device_info_response(
+    const Request&,
+    std::string_view target_name,
+    std::string_view application_name,
+    std::string_view application_version
+);
+EncodedMessage error_response(
+    std::uint64_t id,
+    Object object,
+    Action action,
+    std::string_view code,
+    std::string_view message
+);
 EncodedMessage measurement_event(const ProcessedMeasurement&);
 EncodedMessage sweep_event(Action action, std::uint32_t points);
 }  // namespace pickup::protocol

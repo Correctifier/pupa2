@@ -40,10 +40,16 @@ class FourthOrderMovingAverage {
 
 class AcquisitionProcessor {
  public:
-  void begin(float frequency_hz, float sample_rate_hz, float adc_full_scale_v = 3.3F);
+  void begin(
+      float frequency_hz,
+      float sample_rate_hz,
+      float adc_full_scale_v = 3.3F
+  );
   void process(const std::uint16_t* interleaved, std::size_t count);
-  std::optional<ProcessedMeasurement> finish(std::uint32_t range_index,
-                                             float sense_resistor_ohm) const;
+  std::optional<ProcessedMeasurement> finish(
+      std::uint32_t range_index,
+      float sense_resistor_ohm
+  ) const;
 
  private:
   float frequency_hz_{};

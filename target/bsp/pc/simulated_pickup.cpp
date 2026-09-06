@@ -7,7 +7,12 @@
 namespace pickup::bsp::pc {
 namespace {
 constexpr double pi = 3.14159265358979323846;
-constexpr double ranges[] = {100.0, 1000.0, 10000.0, 100000.0};
+constexpr double ranges[] = {
+    100.0,
+    1000.0,
+    10000.0,
+    100000.0
+};
 }  // namespace
 
 void SimulatedPickup::set_control(float frequency_hz, float amplitude_v) {
@@ -40,11 +45,9 @@ bool SimulatedPickup::start_acquisition(std::uint16_t* buffer, std::size_t count
   }
 
   const double omega = 2.0 * pi * generator_frequency_hz_;
-  const std::complex<double> series(parameters_.dcr_ohm,
-                                    omega * parameters_.inductance_h);
+  const std::complex<double> series(parameters_.dcr_ohm, omega * parameters_.inductance_h);
   const auto impedance =
-      1.0 / (1.0 / series +
-             std::complex<double>(0, omega * parameters_.capacitance_pf * 1e-12));
+      1.0 / (1.0 / series + std::complex<double>(0, omega * parameters_.capacitance_pf * 1e-12));
   if (automatic_range_) {
     double best_error = std::numeric_limits<double>::max();
     for (std::uint32_t index = 0; index < std::size(ranges); ++index) {
@@ -76,17 +79,20 @@ void SimulatedPickup::advance_dma() const {
   constexpr double adc_counts_per_volt = 4095.0 / 3.3;
   const auto quantize = [](double value) {
     const long counts = std::lround(2048.0 + value * adc_counts_per_volt);
-    return static_cast<std::uint16_t>(std::clamp(counts, 0L, 4095L));
+    return static_cast<std::uint16_t>(std::clamp(
+        counts,
+        0L,
+        4095L
+    ));
   };
 
   for (std::size_t index = clean_count_; index < end; index += 2) {
     const std::size_t sample = index / 2;
     const double phase = 2.0 * pi * generator_frequency_hz_ * sample / sample_rate_hz_;
     const std::complex<double> carrier(std::cos(phase), std::sin(phase));
-    const double v =
-        std::real(v_signal_ * carrier) + std::abs(v_signal_) * noise(generator_);
-    const double sense = std::real(vsense_signal_ * carrier) +
-                         std::abs(vsense_signal_) * noise(generator_);
+    const double v = std::real(v_signal_ * carrier) + std::abs(v_signal_) * noise(generator_);
+    const double sense =
+        std::real(vsense_signal_ * carrier) + std::abs(vsense_signal_) * noise(generator_);
     dma_buffer_[index] = quantize(v);
     dma_buffer_[index + 1] = quantize(sense);
   }

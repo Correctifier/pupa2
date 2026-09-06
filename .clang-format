@@ -2,9 +2,22 @@ BasedOnStyle: Google
 ColumnLimit: 100
 IndentWidth: 2
 ContinuationIndentWidth: 4
+# clang-format / clangd 22+: put long argument lists on separate lines.
+AlignAfterOpenBracket: false
+Cpp11BracedListStyle: true
+BreakAfterOpenBracketFunction: true
+BreakBeforeCloseBracketFunction: true
+BreakAfterOpenBracketBracedList: true
+BreakBeforeCloseBracketBracedList: true
+BinPackLongBracedList: false
+BinPackArguments: false
+BinPackParameters: OnePerLine
+AllowAllArgumentsOnNextLine: false
+AllowAllParametersOfDeclarationOnNextLine: false
 AllowShortBlocksOnASingleLine: Never
 AllowShortFunctionsOnASingleLine: Empty
 AllowShortIfStatementsOnASingleLine: Never
+InsertBraces: true
 AllowShortLoopsOnASingleLine: false
 BreakBeforeBraces: Attach
 DerivePointerAlignment: false

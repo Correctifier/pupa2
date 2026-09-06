@@ -5,7 +5,9 @@
 
 namespace pickup {
 
-void FourthOrderMovingAverage::reset() { stages_ = {}; }
+void FourthOrderMovingAverage::reset() {
+  stages_ = {};
+}
 
 std::complex<float> FourthOrderMovingAverage::process(std::complex<float> input) {
   for (auto& stage : stages_) {
@@ -23,7 +25,11 @@ std::complex<float> FourthOrderMovingAverage::process(std::complex<float> input)
   return input;
 }
 
-void AcquisitionProcessor::begin(float frequency_hz, float sample_rate_hz, float adc_full_scale_v) {
+void AcquisitionProcessor::begin(
+    float frequency_hz,
+    float sample_rate_hz,
+    float adc_full_scale_v
+) {
   frequency_hz_ = frequency_hz;
   sample_rate_hz_ = sample_rate_hz;
   adc_scale_ = adc_full_scale_v / 4095.0F;
@@ -49,8 +55,8 @@ void AcquisitionProcessor::process(const std::uint16_t* data, std::size_t count)
     vsense_min_ = std::min(vsense_min_, raw_sense);
     vsense_max_ = std::max(vsense_max_, raw_sense);
 
-    const float phase = -2.0F * pi * frequency_hz_ * static_cast<float>(sample_index_) /
-                        sample_rate_hz_;
+    const float phase =
+        -2.0F * pi * frequency_hz_ * static_cast<float>(sample_index_) / sample_rate_hz_;
     const std::complex<float> oscillator(std::cos(phase), std::sin(phase));
     const float v = (static_cast<float>(raw_v) - 2048.0F) * adc_scale_;
     const float sense = (static_cast<float>(raw_sense) - 2048.0F) * adc_scale_;
@@ -60,15 +66,25 @@ void AcquisitionProcessor::process(const std::uint16_t* data, std::size_t count)
   }
 }
 
-std::optional<ProcessedMeasurement> AcquisitionProcessor::finish(std::uint32_t range,
-                                                                 float rsense) const {
+std::optional<ProcessedMeasurement> AcquisitionProcessor::finish(
+    std::uint32_t range,
+    float rsense
+) const {
   if (sample_index_ == 0 || std::abs(vsense_result_) < 1e-15F) {
     return std::nullopt;
   }
 
-  ProcessedMeasurement result{frequency_hz_, range,      rsense,     v_result_,
-                              vsense_result_, v_min_,    v_max_,     vsense_min_,
-                              vsense_max_};
+  ProcessedMeasurement result{
+      frequency_hz_,
+      range,
+      rsense,
+      v_result_,
+      vsense_result_,
+      v_min_,
+      v_max_,
+      vsense_min_,
+      vsense_max_
+  };
   result.impedance = rsense * v_result_ / vsense_result_;
   return result;
 }

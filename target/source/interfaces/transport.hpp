@@ -1,8 +1,8 @@
 #pragma once
 
-#include <cstdint>
 #include <array>
 #include <cstddef>
+#include <cstdint>
 #include <optional>
 #include <string_view>
 
@@ -14,7 +14,9 @@ struct ReceivedLine {
   std::array<char, capacity> text{};
   std::size_t size{};
 
-  std::string_view view() const { return {text.data(), size}; }
+  std::string_view view() const {
+    return {text.data(), size};
+  }
 };
 
 class Transport {

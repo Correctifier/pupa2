@@ -1,9 +1,9 @@
 #pragma once
 
-#include "interfaces/impedance_analyzer.hpp"
-
 #include <complex>
 #include <random>
+
+#include "interfaces/impedance_analyzer.hpp"
 
 namespace pickup::bsp::pc {
 
@@ -16,15 +16,23 @@ struct PickupParameters {
 
 class SimulatedPickup final : public ImpedanceAnalyzer {
  public:
-  PickupParameters& parameters() { return parameters_; }
+  PickupParameters& parameters() {
+    return parameters_;
+  }
   void set_control(float frequency_hz, float amplitude_v) override;
   bool start_acquisition(std::uint16_t* buffer, std::size_t buffer_count) override;
   std::size_t clean_data_count() const override;
   bool acquisition_finished() const override;
-  float sample_rate_hz() const override { return sample_rate_hz_; }
-  void set_range_auto() override { automatic_range_ = true; }
+  float sample_rate_hz() const override {
+    return sample_rate_hz_;
+  }
+  void set_range_auto() override {
+    automatic_range_ = true;
+  }
   bool set_range_manual(std::uint32_t range_index) override;
-  std::uint32_t range_index() const override { return range_index_; }
+  std::uint32_t range_index() const override {
+    return range_index_;
+  }
   float sense_resistor_ohm() const override;
   void calibrate() override {}
 

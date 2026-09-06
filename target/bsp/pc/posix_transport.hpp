@@ -1,11 +1,11 @@
 #pragma once
 
-#include "interfaces/transport.hpp"
-
 #include <cstdint>
 #include <deque>
 #include <string>
 #include <unordered_map>
+
+#include "interfaces/transport.hpp"
 
 namespace pickup::bsp::pc {
 
@@ -18,7 +18,9 @@ class PosixTransport final : public Transport {
 
   std::optional<ReceivedLine> receive() override;
   void send(std::uint32_t endpoint, std::string_view line) override;
-  const std::string& serial_path() const { return serial_path_; }
+  const std::string& serial_path() const {
+    return serial_path_;
+  }
 
  private:
   void accept_clients();
@@ -35,4 +37,3 @@ class PosixTransport final : public Transport {
 };
 
 }  // namespace pickup::bsp::pc
-

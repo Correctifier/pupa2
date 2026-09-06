@@ -11,6 +11,12 @@ dependencies = []
 
 [project.optional-dependencies]
 serial = ["pyserial>=3.5"]
+format = [
+    "black==26.5.1",
+    "clang-format==22.1.8",
+    "tree-sitter==0.26.0",
+    "tree-sitter-cpp==0.23.4",
+]
 
 [project.scripts]
 pickup-analyzer = "pickup_analyzer.gui:main"
@@ -18,3 +24,9 @@ pickup-analyzer = "pickup_analyzer.gui:main"
 [tool.setuptools.packages.find]
 where = ["src"]
 
+[tool.black]
+line-length = 100
+target-version = ["py310"]
+required-version = "26.5.1"
+preview = true
+enable-unstable-feature = ["hug_parens_with_braces_and_square_brackets"]

@@ -1,18 +1,18 @@
-#include "application.hpp"
-#include "posix_transport.hpp"
-#include "simulated_pickup.hpp"
-
 #include <GLFW/glfw3.h>
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
 
-#include <cstdlib>
 #include <chrono>
+#include <cstdlib>
 #include <iostream>
 #include <stdexcept>
 #include <string_view>
 #include <thread>
+
+#include "application.hpp"
+#include "posix_transport.hpp"
+#include "simulated_pickup.hpp"
 
 int main(int argc, char** argv) try {
   std::uint16_t port = 8765;
@@ -29,9 +29,15 @@ int main(int argc, char** argv) try {
   }
   pickup::bsp::pc::PosixTransport transport(port);
   pickup::bsp::pc::SimulatedPickup frontend;
-  pickup::Application app({transport, frontend,
-                           {"PC virtual target", "Guitar Pickup Impedance Analyzer",
-                            PICKUP_APPLICATION_VERSION}});
+  pickup::Application app({
+      transport,
+      frontend,
+      {
+          "PC virtual target",
+          "Guitar Pickup Impedance Analyzer",
+          PICKUP_APPLICATION_VERSION
+      },
+  });
 
   std::cout << "TCP: 127.0.0.1:" << port << '\n';
   std::cout << "Virtual serial: "
@@ -52,9 +58,19 @@ int main(int argc, char** argv) try {
     glfwInitHint(GLFW_PLATFORM, GLFW_PLATFORM_X11);
   }
 #endif
-  if (!glfwInit()) throw std::runtime_error("GLFW initialization failed");
-  GLFWwindow* window = glfwCreateWindow(720, 390, "Pickup virtual target", nullptr, nullptr);
-  if (!window) throw std::runtime_error("window creation failed");
+  if (!glfwInit()) {
+    throw std::runtime_error("GLFW initialization failed");
+  }
+  GLFWwindow* window = glfwCreateWindow(
+      720,
+      390,
+      "Pickup virtual target",
+      nullptr,
+      nullptr
+  );
+  if (!window) {
+    throw std::runtime_error("window creation failed");
+  }
   glfwMakeContextCurrent(window);
   // Pace redraws ourselves so vsync does not stall simulated DMA progress.
   glfwSwapInterval(0);
@@ -86,28 +102,68 @@ int main(int argc, char** argv) try {
     const ImGuiViewport* viewport = ImGui::GetMainViewport();
     ImGui::SetNextWindowPos(viewport->WorkPos);
     ImGui::SetNextWindowSize(viewport->WorkSize);
-    ImGui::Begin("Simulated pickup", nullptr,
-                 ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove |
-                     ImGuiWindowFlags_NoSavedSettings);
+    ImGui::Begin(
+        "Simulated pickup",
+        nullptr,
+        ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings
+    );
     auto& p = frontend.parameters();
     ImGui::Text("Endpoints");
     ImGui::BulletText("TCP: 127.0.0.1:%u", port);
     ImGui::BulletText("Serial: %s", transport.serial_path().c_str());
     ImGui::Separator();
-    ImGui::SliderScalar("DCR (ohm)", ImGuiDataType_Double, &p.dcr_ohm,
-                        &dcr_min, &dcr_max, "%.0f");
-    ImGui::SliderScalar("Inductance (H)", ImGuiDataType_Double, &p.inductance_h,
-                        &inductance_min, &inductance_max, "%.3f");
-    ImGui::SliderScalar("Parallel capacitance (pF)", ImGuiDataType_Double,
-                        &p.capacitance_pf, &capacitance_min, &capacitance_max, "%.1f");
-    ImGui::SliderScalar("Noise (%)", ImGuiDataType_Double, &p.noise_percent,
-                        &noise_min, &noise_max, "%.2f");
+    ImGui::SliderScalar(
+        "DCR (ohm)",
+        ImGuiDataType_Double,
+        &p.dcr_ohm,
+        &dcr_min,
+        &dcr_max,
+        "%.0f"
+    );
+    ImGui::SliderScalar(
+        "Inductance (H)",
+        ImGuiDataType_Double,
+        &p.inductance_h,
+        &inductance_min,
+        &inductance_max,
+        "%.3f"
+    );
+    ImGui::SliderScalar(
+        "Parallel capacitance (pF)",
+        ImGuiDataType_Double,
+        &p.capacitance_pf,
+        &capacitance_min,
+        &capacitance_max,
+        "%.1f"
+    );
+    ImGui::SliderScalar(
+        "Noise (%)",
+        ImGuiDataType_Double,
+        &p.noise_percent,
+        &noise_min,
+        &noise_max,
+        "%.2f"
+    );
     ImGui::End();
     ImGui::Render();
     int width, height;
-    glfwGetFramebufferSize(window, &width, &height);
-    glViewport(0, 0, width, height);
-    glClearColor(0.08f, 0.09f, 0.11f, 1.0f);
+    glfwGetFramebufferSize(
+        window,
+        &width,
+        &height
+    );
+    glViewport(
+        0,
+        0,
+        width,
+        height
+    );
+    glClearColor(
+        0.08f,
+        0.09f,
+        0.11f,
+        1.0f
+    );
     glClear(GL_COLOR_BUFFER_BIT);
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     glfwSwapBuffers(window);

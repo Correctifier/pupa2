@@ -2,6 +2,8 @@
 
 #include <ArduinoJson.h>
 
+#include <cmath>
+
 namespace pickup::protocol {
 namespace {
 
@@ -9,7 +11,11 @@ template <typename Document>
 EncodedMessage encode(Document& document) {
   EncodedMessage message;
   const std::size_t json_size =
-      serializeJson(document, message.bytes.data(), message.bytes.size() - 1);
+      serializeJson(
+          document,
+          message.bytes.data(),
+          message.bytes.size() - 1
+      );
   if (json_size == 0 || json_size >= message.bytes.size() - 1) {
     return message;
   }
@@ -19,20 +25,40 @@ EncodedMessage encode(Document& document) {
 }
 
 Object parse_object(std::string_view value) {
-  if (value == "device") return Object::device;
-  if (value == "generator") return Object::generator;
-  if (value == "sweep") return Object::sweep;
-  if (value == "range") return Object::range;
-  if (value == "calibration") return Object::calibration;
+  if (value == "device") {
+    return Object::device;
+  }
+  if (value == "generator") {
+    return Object::generator;
+  }
+  if (value == "sweep") {
+    return Object::sweep;
+  }
+  if (value == "range") {
+    return Object::range;
+  }
+  if (value == "calibration") {
+    return Object::calibration;
+  }
   return Object::unknown;
 }
 
 Action parse_action(std::string_view value) {
-  if (value == "info") return Action::info;
-  if (value == "set") return Action::set;
-  if (value == "start") return Action::start;
-  if (value == "stop") return Action::stop;
-  if (value == "run") return Action::run;
+  if (value == "info") {
+    return Action::info;
+  }
+  if (value == "set") {
+    return Action::set;
+  }
+  if (value == "start") {
+    return Action::start;
+  }
+  if (value == "stop") {
+    return Action::stop;
+  }
+  if (value == "run") {
+    return Action::run;
+  }
   return Action::unknown;
 }
 
@@ -40,31 +66,50 @@ Action parse_action(std::string_view value) {
 
 std::string_view to_string(Object value) {
   switch (value) {
-    case Object::device: return "device";
-    case Object::generator: return "generator";
-    case Object::sweep: return "sweep";
-    case Object::range: return "range";
-    case Object::calibration: return "calibration";
-    case Object::measurement: return "measurement";
-    default: return "unknown";
+    case Object::device:
+      return "device";
+    case Object::generator:
+      return "generator";
+    case Object::sweep:
+      return "sweep";
+    case Object::range:
+      return "range";
+    case Object::calibration:
+      return "calibration";
+    case Object::measurement:
+      return "measurement";
+    default:
+      return "unknown";
   }
 }
 
 std::string_view to_string(Action value) {
   switch (value) {
-    case Action::info: return "info";
-    case Action::set: return "set";
-    case Action::start: return "start";
-    case Action::stop: return "stop";
-    case Action::run: return "run";
-    case Action::acquire: return "acquire";
-    case Action::complete: return "complete";
-    default: return "unknown";
+    case Action::info:
+      return "info";
+    case Action::set:
+      return "set";
+    case Action::start:
+      return "start";
+    case Action::stop:
+      return "stop";
+    case Action::run:
+      return "run";
+    case Action::acquire:
+      return "acquire";
+    case Action::complete:
+      return "complete";
+    default:
+      return "unknown";
   }
 }
 
-std::optional<Request> parse_request(std::string_view line, std::string_view& code,
-                                     std::string_view& error) {
+std::optional<Request> parse_request(
+    std::string_view line,
+    std::string_view& code,
+    std::string_view& error,
+    Request* envelope
+) {
   StaticJsonDocument<1024> document;
   if (deserializeJson(document, line) != DeserializationError::Ok) {
     code = "malformed_json";
@@ -82,6 +127,10 @@ std::optional<Request> parse_request(std::string_view line, std::string_view& co
   request.id = document["id"].as<std::uint64_t>();
   request.object = parse_object(document["object"].as<const char*>());
   request.action = parse_action(document["action"].as<const char*>());
+  // Preserve transaction identity even when parameter validation fails.
+  if (envelope) {
+    *envelope = request;
+  }
   const auto params = document["params"];
 
   if (request.object == Object::generator && request.action == Action::set) {
@@ -107,10 +156,13 @@ std::optional<Request> parse_request(std::string_view line, std::string_view& co
     request.f_start = params["f_start"];
     request.f_stop = params["f_stop"];
     request.points = params["points"];
-    if (request.f_start <= 0 || request.f_stop <= request.f_start || request.points < 2 ||
-        request.points > 100000) {
+    const bool single_point = request.points == 1 && request.f_start == request.f_stop;
+    if (!std::isfinite(request.f_start) || !std::isfinite(request.f_stop) || request.f_start <= 0 ||
+        request.points == 0 || request.points > 100000 ||
+        (!single_point && (request.f_stop <= request.f_start || request.points < 2))) {
       code = "invalid_params";
-      error = "require 0 < f_start < f_stop and 2..100000 points";
+      error =
+          "require positive finite endpoints, 2..100000 ascending points or 1 at equal endpoints";
       return std::nullopt;
     }
   } else if (request.object == Object::range && request.action == Action::set) {
@@ -144,10 +196,13 @@ EncodedMessage response(const Request& request) {
   return encode(document);
 }
 
-EncodedMessage device_info_response(const Request& request, std::string_view target_name,
-                                    std::string_view application_name,
-                                    std::string_view application_version) {
-  StaticJsonDocument<512> document;
+EncodedMessage device_info_response(
+    const Request& request,
+    std::string_view target_name,
+    std::string_view application_name,
+    std::string_view application_version
+) {
+  StaticJsonDocument<768> document;
   document["type"] = "response";
   document["object"] = "device";
   document["action"] = "info";
@@ -164,11 +219,17 @@ EncodedMessage device_info_response(const Request& request, std::string_view tar
   capabilities.add("range");
   capabilities.add("calibration");
   capabilities.add("measurement_events");
+  capabilities.add("single_point_sweep");
   return encode(document);
 }
 
-EncodedMessage error_response(std::uint64_t id, Object object, Action action,
-                              std::string_view code, std::string_view message) {
+EncodedMessage error_response(
+    std::uint64_t id,
+    Object object,
+    Action action,
+    std::string_view code,
+    std::string_view message
+) {
   StaticJsonDocument<384> document;
   document["type"] = "error";
   document["object"] = to_string(object);

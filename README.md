@@ -109,7 +109,37 @@ Live acquisition is coalesced to the GUI refresh rate, and displayed traces are
 pixel-aware decimated while full-resolution samples remain available for saved
 files. This keeps multi-thousand-point sweeps responsive.
 
+## Adaptive resolution
+
+Select **Adaptive resolution (100 initial points)** in the PC app, then use
+**Run once** or **Continuous**. Adaptive mode uses the selected start/stop
+frequencies and always begins with 100 log-spaced points; the ordinary Points
+field applies only to fixed sweeps. Defaults are **1% tolerance** and **1,000
+maximum points**, including the initial grid and every midpoint measurement.
+
+The **Complex midpoint** strategy measures each interval's geometric midpoint,
+compares complex impedance with linear interpolation in log-frequency, and
+subdivides intervals exceeding the tolerance. It checks intervals breadth-first
+so one feature cannot consume the entire budget before the other coarse
+intervals are checked. All measured points are retained and plotted in frequency
+order. Completed sweep names record whether tolerance was met or a point or
+refinement limit was reached; save/load and RLC fitting work as for fixed sweeps.
+Each continuous pass starts with a fresh coarse grid.
+
+Even a smooth curve needs 199 measurements to check all 99 initial intervals.
+A cap below 199 stops before that first check is complete. The error uses both
+real and imaginary impedance, so phase changes matter too. Tolerance describes
+the measured midpoint interpolation checks, not a guaranteed bound between
+samples; narrow unsampled features can be missed, and measurement noise can
+cause extra refinement. Depth and frequency-spacing limits prevent indefinite
+subdivision. Update/rebuild the target for the `single_point_sweep` capability.
+
+See [adaptive strategy development](docs/adaptive-sweeps.md) to add another
+planner or error metric without changing the GUI worker or firmware.
+
 ## C++ editor setup (clangd)
+
+See [coding style](docs/coding-style.md) for multiline argument formatting.
 
 Configure with `cmake -S . -B build` using Ninja or Unix Makefiles. CMake exports
 `build/compile_commands.json` by default, and the root `compile_commands.json`

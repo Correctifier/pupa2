@@ -1,13 +1,13 @@
 #pragma once
 
-#include "interfaces/impedance_analyzer.hpp"
-#include "interfaces/transport.hpp"
-#include "signal_processing.hpp"
-
 #include <array>
 #include <cstdint>
 #include <optional>
 #include <string_view>
+
+#include "interfaces/impedance_analyzer.hpp"
+#include "interfaces/transport.hpp"
+#include "signal_processing.hpp"
 
 namespace pickup {
 

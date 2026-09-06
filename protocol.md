@@ -39,6 +39,17 @@ response only acknowledges the operation; measurements arrive as events. A
 second start while active returns `busy`. Stop is idempotent. Range indices are
 device-defined and discoverable through future device metadata.
 
+Targets advertising `single_point_sweep` also accept `sweep/start` with
+`points: 1` and equal, positive, finite `f_start` and `f_stop`. This acquires one
+frequency through the same ADC/DSP path and emits one measurement followed by
+`sweep/complete` with `points: 1`. Other sweeps still require 2..100000 points
+and strictly increasing positive, finite endpoints. This lets host-side adaptive
+strategies choose additional frequencies without embedding a strategy in firmware.
+
+```json
+{"type":"request","object":"sweep","action":"start","id":8,"params":{"f_start":1234.0,"f_stop":1234.0,"points":1}}
+```
+
 ## Responses and events
 
 ```json

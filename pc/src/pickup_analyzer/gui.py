@@ -11,6 +11,8 @@ from datetime import datetime
 from tkinter import filedialog, messagebox, ttk
 
 from .client import AnalyzerClient
+from .acquisition import SweepCancelled, adaptive_sweep, measure_sweep
+from .adaptive import AdaptiveSettings, STRATEGIES
 from .fitting import RlcFit, fit_rlc
 from .plot import SweepPlot, components_series, magnitude_series, nyquist_series, phase_series
 from .sweep import Sweep, SweepPoint, load_sweeps, logarithmic_frequencies, save_sweeps
@@ -35,7 +37,7 @@ class AnalyzerGui:
         self.client: AnalyzerClient | None = None
         self.events: queue.Queue[tuple[str, object]] = queue.Queue()
         self.progress_lock = threading.Lock()
-        self.latest_progress: tuple[int, int, list[SweepPoint], bool] | None = None
+        self.latest_progress: tuple[int, int, list[SweepPoint], bool, bool] | None = None
         self.latest_complete: Sweep | None = None
         self.console_lock = threading.Lock()
         self.pending_console: deque[str] = deque(maxlen=4000)
@@ -50,120 +52,465 @@ class AnalyzerGui:
         self._connection_controls(controls)
         self._sweep_controls(controls)
         self._file_controls(controls)
+        self._adaptive_controls(root)
         self._magnitude_axis_controls(root)
         self._sweep_manager(root)
         notebook = ttk.Notebook(root)
-        notebook.pack(fill="both", expand=True, padx=8, pady=(0, 8))
+        notebook.pack(
+            fill="both",
+            expand=True,
+            padx=8,
+            pady=(0, 8),
+        )
         self.plots = [
-            self._plot(notebook, "Magnitude", "Magnitude", "Frequency (Hz)", "|Z| (ohm, log)", magnitude_series, True, True),
-            self._plot(notebook, "Phase", "Phase", "Frequency (Hz)", "Phase (degrees)", phase_series,
-                       True, y_range=(-180.0, 180.0)),
-            self._plot(notebook, "Real / Imag", "Components", "Frequency (Hz)", "Impedance (ohm)", components_series, True),
-            self._plot(notebook, "Nyquist", "Nyquist", "Real Z (ohm)", "Imaginary Z (ohm)",
-                       nyquist_series, False, equal_units=True),
+            self._plot(
+                notebook,
+                "Magnitude",
+                "Magnitude",
+                "Frequency (Hz)",
+                "|Z| (ohm, log)",
+                magnitude_series,
+                True,
+                True,
+            ),
+            self._plot(
+                notebook,
+                "Phase",
+                "Phase",
+                "Frequency (Hz)",
+                "Phase (degrees)",
+                phase_series,
+                True,
+                y_range=(-180.0, 180.0),
+            ),
+            self._plot(
+                notebook,
+                "Real / Imag",
+                "Components",
+                "Frequency (Hz)",
+                "Impedance (ohm)",
+                components_series,
+                True,
+            ),
+            self._plot(
+                notebook,
+                "Nyquist",
+                "Nyquist",
+                "Real Z (ohm)",
+                "Imaginary Z (ohm)",
+                nyquist_series,
+                False,
+                equal_units=True,
+            ),
         ]
         self.magnitude_plot = self.plots[0]
         self._console_tab(notebook)
         self.status = tk.StringVar(value="Start the virtual target, then connect.")
-        ttk.Label(root, textvariable=self.status, padding=(10, 3)).pack(fill="x")
+        ttk.Label(
+            root,
+            textvariable=self.status,
+            padding=(10, 3),
+        ).pack(fill="x")
         root.protocol("WM_DELETE_WINDOW", self.close)
         root.after(50, self.poll_events)
 
     def _connection_controls(self, parent: ttk.Frame) -> None:
-        frame = ttk.LabelFrame(parent, text="Connection", padding=8)
-        frame.pack(side="left", fill="y", padx=(0, 6))
+        frame = ttk.LabelFrame(
+            parent,
+            text="Connection",
+            padding=8,
+        )
+        frame.pack(
+            side="left",
+            fill="y",
+            padx=(0, 6),
+        )
         self.mode = tk.StringVar(value="TCP")
-        ttk.Combobox(frame, textvariable=self.mode, values=("TCP", "Serial"), width=7,
-                     state="readonly").grid(row=0, column=0)
+        ttk.Combobox(
+            frame,
+            textvariable=self.mode,
+            values=("TCP", "Serial"),
+            width=7,
+            state="readonly",
+        ).grid(
+            row=0,
+            column=0,
+        )
         self.endpoint = tk.StringVar(value="127.0.0.1:8765")
-        ttk.Entry(frame, textvariable=self.endpoint, width=20).grid(row=0, column=1, padx=5)
-        self.connect_button = ttk.Button(frame, text="Connect", command=self.connect)
+        ttk.Entry(
+            frame,
+            textvariable=self.endpoint,
+            width=20,
+        ).grid(
+            row=0,
+            column=1,
+            padx=5,
+        )
+        self.connect_button = ttk.Button(
+            frame,
+            text="Connect",
+            command=self.connect,
+        )
         self.connect_button.grid(row=0, column=2)
         self.device_info_text = tk.StringVar(value="Not connected")
-        ttk.Label(frame, textvariable=self.device_info_text, justify="left").grid(
-            row=1, column=0, columnspan=3, sticky="w", pady=(6, 0))
+        ttk.Label(
+            frame,
+            textvariable=self.device_info_text,
+            justify="left",
+            wraplength=380,
+        ).grid(
+            row=1,
+            column=0,
+            columnspan=3,
+            sticky="w",
+            pady=(6, 0),
+        )
 
     def _sweep_controls(self, parent: ttk.Frame) -> None:
-        frame = ttk.LabelFrame(parent, text="Log sweep", padding=8)
-        frame.pack(side="left", fill="y", padx=6)
-        self.start_hz, self.stop_hz, self.point_count = tk.DoubleVar(value=20), tk.DoubleVar(value=20000), tk.IntVar(value=101)
-        for column, (label, variable, width) in enumerate((("Start Hz", self.start_hz, 8),
-                                                           ("Stop Hz", self.stop_hz, 8),
-                                                           ("Points", self.point_count, 6))):
+        frame = ttk.LabelFrame(
+            parent,
+            text="Log sweep",
+            padding=8,
+        )
+        frame.pack(
+            side="left",
+            fill="y",
+            padx=6,
+        )
+        self.start_hz, self.stop_hz, self.point_count = (
+            tk.DoubleVar(value=20),
+            tk.DoubleVar(value=20000),
+            tk.IntVar(value=101),
+        )
+        for column, (
+            label,
+            variable,
+            width,
+        ) in enumerate((
+            (
+                "Start Hz",
+                self.start_hz,
+                8,
+            ),
+            (
+                "Stop Hz",
+                self.stop_hz,
+                8,
+            ),
+            (
+                "Points",
+                self.point_count,
+                6,
+            ),
+        )):
             ttk.Label(frame, text=label).grid(row=0, column=column)
-            ttk.Entry(frame, textvariable=variable, width=width).grid(row=1, column=column, padx=3)
-        self.once_button = ttk.Button(frame, text="Run once", command=lambda: self.start_sweep(False))
-        self.once_button.grid(row=2, column=0, pady=(6, 0))
-        self.continuous_button = ttk.Button(frame, text="Continuous", command=lambda: self.start_sweep(True))
-        self.continuous_button.grid(row=2, column=1, pady=(6, 0))
-        self.stop_button = ttk.Button(frame, text="Stop", command=self.stop_sweep, state="disabled")
-        self.stop_button.grid(row=2, column=2, pady=(6, 0))
+            entry = ttk.Entry(
+                frame,
+                textvariable=variable,
+                width=width,
+            )
+            entry.grid(
+                row=1,
+                column=column,
+                padx=3,
+            )
+            if variable is self.point_count:
+                self.point_count_entry = entry
+        self.once_button = ttk.Button(
+            frame,
+            text="Run once",
+            command=lambda: self.start_sweep(False),
+        )
+        self.once_button.grid(
+            row=2,
+            column=0,
+            pady=(6, 0),
+        )
+        self.continuous_button = ttk.Button(
+            frame,
+            text="Continuous",
+            command=lambda: self.start_sweep(True),
+        )
+        self.continuous_button.grid(
+            row=2,
+            column=1,
+            pady=(6, 0),
+        )
+        self.stop_button = ttk.Button(
+            frame,
+            text="Stop",
+            command=self.stop_sweep,
+            state="disabled",
+        )
+        self.stop_button.grid(
+            row=2,
+            column=2,
+            pady=(6, 0),
+        )
+
+    def _adaptive_controls(self, parent) -> None:
+        frame = ttk.Frame(
+            parent,
+            padding=(
+                10,
+                0,
+                10,
+                6,
+            ),
+        )
+        frame.pack(fill="x")
+        self.adaptive_enabled = tk.BooleanVar(value=False)
+        self.adaptive_tolerance = tk.DoubleVar(value=1.0)
+        self.adaptive_max_points = tk.IntVar(value=1000)
+        self.adaptive_strategy = tk.StringVar(value=next(iter(STRATEGIES)))
+        ttk.Checkbutton(
+            frame,
+            text="Adaptive resolution (100 initial points)",
+            variable=self.adaptive_enabled,
+            command=lambda: self.point_count_entry.configure(
+                state="disabled" if self.adaptive_enabled.get() else "normal"
+            ),
+        ).pack(side="left")
+        ttk.Label(frame, text="Tolerance %").pack(side="left", padx=(12, 4))
+        ttk.Entry(
+            frame,
+            textvariable=self.adaptive_tolerance,
+            width=6,
+        ).pack(side="left")
+        ttk.Label(frame, text="Max points").pack(side="left", padx=(12, 4))
+        ttk.Entry(
+            frame,
+            textvariable=self.adaptive_max_points,
+            width=7,
+        ).pack(side="left")
+        ttk.Combobox(
+            frame,
+            textvariable=self.adaptive_strategy,
+            values=tuple(STRATEGIES),
+            state="readonly",
+            width=20,
+        ).pack(
+            side="left",
+            padx=12,
+        )
 
     def _file_controls(self, parent: ttk.Frame) -> None:
-        frame = ttk.LabelFrame(parent, text="Sweeps", padding=8)
-        frame.pack(side="left", fill="y", padx=(6, 0))
-        ttk.Button(frame, text="Save all…", command=self.save).grid(row=0, column=0, padx=2)
-        ttk.Button(frame, text="Load…", command=self.load).grid(row=0, column=1, padx=2)
+        frame = ttk.LabelFrame(
+            parent,
+            text="Sweeps",
+            padding=8,
+        )
+        frame.pack(
+            side="left",
+            fill="y",
+            padx=(6, 0),
+        )
+        ttk.Button(
+            frame,
+            text="Save all…",
+            command=self.save,
+        ).grid(
+            row=0,
+            column=0,
+            padx=2,
+        )
+        ttk.Button(
+            frame,
+            text="Load…",
+            command=self.load,
+        ).grid(
+            row=0,
+            column=1,
+            padx=2,
+        )
 
     def _magnitude_axis_controls(self, parent) -> None:
-        frame = ttk.Frame(parent, padding=(10, 0, 10, 6))
+        frame = ttk.Frame(
+            parent,
+            padding=(
+                10,
+                0,
+                10,
+                6,
+            ),
+        )
         frame.pack(fill="x")
         ttk.Label(frame, text="Magnitude axis:").pack(side="left")
         self.magnitude_auto = tk.BooleanVar(value=True)
-        ttk.Checkbutton(frame, text="Auto", variable=self.magnitude_auto,
-                        command=self.apply_magnitude_axis).pack(side="left", padx=(6, 12))
+        ttk.Checkbutton(
+            frame,
+            text="Auto",
+            variable=self.magnitude_auto,
+            command=self.apply_magnitude_axis,
+        ).pack(
+            side="left",
+            padx=(6, 12),
+        )
         ttk.Label(frame, text="Minimum Ω").pack(side="left")
         self.magnitude_min = tk.DoubleVar(value=1000.0)
-        ttk.Entry(frame, textvariable=self.magnitude_min, width=10).pack(side="left", padx=(4, 10))
+        ttk.Entry(
+            frame,
+            textvariable=self.magnitude_min,
+            width=10,
+        ).pack(side="left", padx=(4, 10))
         ttk.Label(frame, text="Maximum Ω").pack(side="left")
         self.magnitude_max = tk.DoubleVar(value=1000000.0)
-        ttk.Entry(frame, textvariable=self.magnitude_max, width=10).pack(side="left", padx=4)
-        ttk.Button(frame, text="Apply", command=self.apply_magnitude_axis).pack(side="left", padx=6)
+        ttk.Entry(
+            frame,
+            textvariable=self.magnitude_max,
+            width=10,
+        ).pack(side="left", padx=4)
+        ttk.Button(
+            frame,
+            text="Apply",
+            command=self.apply_magnitude_axis,
+        ).pack(side="left", padx=6)
 
     def _sweep_manager(self, parent) -> None:
-        frame = ttk.LabelFrame(parent, text="Loaded sweeps", padding=6)
-        frame.pack(fill="x", padx=8, pady=(0, 6))
+        frame = ttk.LabelFrame(
+            parent,
+            text="Loaded sweeps",
+            padding=6,
+        )
+        frame.pack(
+            fill="x",
+            padx=8,
+            pady=(0, 6),
+        )
         table_frame = ttk.Frame(frame)
-        table_frame.pack(side="left", fill="x", expand=True)
-        columns = ("visible", "fit", "resistance", "inductance", "capacitance", "r2", "sigma")
-        self.sweep_table = ttk.Treeview(table_frame, columns=columns, show="tree headings", height=5)
+        table_frame.pack(
+            side="left",
+            fill="x",
+            expand=True,
+        )
+        columns = (
+            "visible",
+            "fit",
+            "resistance",
+            "inductance",
+            "capacitance",
+            "r2",
+            "sigma",
+        )
+        self.sweep_table = ttk.Treeview(
+            table_frame,
+            columns=columns,
+            show="tree headings",
+            height=5,
+        )
         self.sweep_table.heading("#0", text="Name")
-        headings = {"visible": "Sweep", "fit": "Fit", "resistance": "R (Ω)",
-                    "inductance": "L (H)", "capacitance": "C (pF)",
-                    "r2": "R²", "sigma": "σ (Ω)"}
+        headings = {
+            "visible": "Sweep",
+            "fit": "Fit",
+            "resistance": "R (Ω)",
+            "inductance": "L (H)",
+            "capacitance": "C (pF)",
+            "r2": "R²",
+            "sigma": "σ (Ω)",
+        }
         for column, heading in headings.items():
             self.sweep_table.heading(column, text=heading)
-        self.sweep_table.column("#0", width=250, stretch=True)
-        self.sweep_table.column("visible", width=55, anchor="center", stretch=False)
-        self.sweep_table.column("fit", width=45, anchor="center", stretch=False)
-        for column in ("resistance", "inductance", "capacitance", "r2", "sigma"):
-            self.sweep_table.column(column, width=92, anchor="e", stretch=False)
-        scrollbar = ttk.Scrollbar(table_frame, orient="horizontal", command=self.sweep_table.xview)
+        self.sweep_table.column(
+            "#0",
+            width=250,
+            stretch=True,
+        )
+        self.sweep_table.column(
+            "visible",
+            width=55,
+            anchor="center",
+            stretch=False,
+        )
+        self.sweep_table.column(
+            "fit",
+            width=45,
+            anchor="center",
+            stretch=False,
+        )
+        for column in (
+            "resistance",
+            "inductance",
+            "capacitance",
+            "r2",
+            "sigma",
+        ):
+            self.sweep_table.column(
+                column,
+                width=92,
+                anchor="e",
+                stretch=False,
+            )
+        scrollbar = ttk.Scrollbar(
+            table_frame,
+            orient="horizontal",
+            command=self.sweep_table.xview,
+        )
         self.sweep_table.configure(xscrollcommand=scrollbar.set)
         self.sweep_table.pack(fill="x", expand=True)
         scrollbar.pack(fill="x")
         self.sweep_table.bind("<Button-1>", self._sweep_table_click)
         buttons = ttk.Frame(frame)
-        buttons.pack(side="left", padx=(8, 0), anchor="n")
-        ttk.Button(buttons, text="Delete", command=self.delete_selected).pack(fill="x", pady=3)
+        buttons.pack(
+            side="left",
+            padx=(8, 0),
+            anchor="n",
+        )
+        ttk.Button(
+            buttons,
+            text="Delete",
+            command=self.delete_selected,
+        ).pack(fill="x", pady=3)
 
     def _console_tab(self, notebook: ttk.Notebook) -> None:
         frame = ttk.Frame(notebook, padding=6)
         notebook.add(frame, text="Console")
         toolbar = ttk.Frame(frame)
         toolbar.pack(fill="x", pady=(0, 5))
-        ttk.Label(toolbar, text="Newline-delimited JSON traffic (newest 2,000 lines)").pack(side="left")
-        ttk.Button(toolbar, text="Clear", command=self.clear_console).pack(side="right")
+        ttk.Label(toolbar, text="Newline-delimited JSON traffic (newest 2,000 lines)").pack(
+            side="left"
+        )
+        ttk.Button(
+            toolbar,
+            text="Clear",
+            command=self.clear_console,
+        ).pack(side="right")
         container = ttk.Frame(frame)
         container.pack(fill="both", expand=True)
-        self.console = tk.Text(container, wrap="none", background="#15181d", foreground="#d7dce2",
-                               insertbackground="#d7dce2", font=("TkFixedFont", 9), state="disabled")
-        vertical = ttk.Scrollbar(container, orient="vertical", command=self.console.yview)
-        horizontal = ttk.Scrollbar(container, orient="horizontal", command=self.console.xview)
+        self.console = tk.Text(
+            container,
+            wrap="none",
+            background="#15181d",
+            foreground="#d7dce2",
+            insertbackground="#d7dce2",
+            font=("TkFixedFont", 9),
+            state="disabled",
+        )
+        vertical = ttk.Scrollbar(
+            container,
+            orient="vertical",
+            command=self.console.yview,
+        )
+        horizontal = ttk.Scrollbar(
+            container,
+            orient="horizontal",
+            command=self.console.xview,
+        )
         self.console.configure(yscrollcommand=vertical.set, xscrollcommand=horizontal.set)
-        self.console.grid(row=0, column=0, sticky="nsew")
-        vertical.grid(row=0, column=1, sticky="ns")
-        horizontal.grid(row=1, column=0, sticky="ew")
+        self.console.grid(
+            row=0,
+            column=0,
+            sticky="nsew",
+        )
+        vertical.grid(
+            row=0,
+            column=1,
+            sticky="ns",
+        )
+        horizontal.grid(
+            row=1,
+            column=0,
+            sticky="ew",
+        )
         container.rowconfigure(0, weight=1)
         container.columnconfigure(0, weight=1)
 
@@ -182,12 +529,31 @@ class AnalyzerGui:
             self.pending_console.append(line)
 
     @staticmethod
-    def _plot(notebook, tab_name, title, x_label, y_label, builder, log_x, log_y=False,
-              y_range=None, equal_units=False):
+    def _plot(
+        notebook,
+        tab_name,
+        title,
+        x_label,
+        y_label,
+        builder,
+        log_x,
+        log_y=False,
+        y_range=None,
+        equal_units=False,
+    ):
         frame = ttk.Frame(notebook)
         notebook.add(frame, text=tab_name)
-        plot = SweepPlot(frame, title, x_label, y_label, builder, log_x, log_y,
-                         y_range, equal_units)
+        plot = SweepPlot(
+            frame,
+            title,
+            x_label,
+            y_label,
+            builder,
+            log_x,
+            log_y,
+            y_range,
+            equal_units,
+        )
         plot.pack(fill="both", expand=True)
         return plot
 
@@ -225,7 +591,8 @@ class AnalyzerGui:
                 f"Application: {info.get('application_name', 'unknown')} "
                 f"v{info.get('application_version', 'unknown')}\n"
                 f"Protocol: v{info.get('protocol_version', 'unknown')}\n"
-                f"Capabilities: {capabilities or 'not reported'}")
+                f"Capabilities: {capabilities or 'not reported'}"
+            )
             self.status.set(f"Connected via {self.mode.get()} to {self.endpoint.get()}")
             self.connect_button.configure(text="Reconnect")
         except Exception as error:
@@ -249,51 +616,101 @@ class AnalyzerGui:
         if self.worker and self.worker.is_alive():
             return
         try:
-            frequencies = logarithmic_frequencies(self.start_hz.get(), self.stop_hz.get(), self.point_count.get())
+            adaptive = self.adaptive_enabled.get()
+            frequencies = logarithmic_frequencies(
+                self.start_hz.get(),
+                self.stop_hz.get(),
+                100 if adaptive else self.point_count.get(),
+            )
+            settings = (
+                AdaptiveSettings(
+                    tolerance=self.adaptive_tolerance.get() / 100,
+                    max_points=self.adaptive_max_points.get(),
+                )
+                if adaptive
+                else None
+            )
+            strategy_name = self.adaptive_strategy.get()
         except (ValueError, tk.TclError) as error:
             messagebox.showerror("Invalid sweep", str(error))
             return
         self.stop_requested.clear()
+        with self.progress_lock:
+            self.latest_progress = None
+            self.latest_complete = None
         self.current_sweep = Sweep("Live acquisition", [])
         self.active_entry = SweepEntry(self.current_sweep)
         self.sweep_entries.append(self.active_entry)
         self._refresh_sweep_table(select=self.active_entry)
         self._set_running(True)
-        self.worker = threading.Thread(target=self._sweep_worker, args=(frequencies, continuous), daemon=True)
+        self.worker = threading.Thread(
+            target=self._sweep_worker,
+            args=(
+                frequencies,
+                continuous,
+                settings,
+                strategy_name,
+            ),
+            daemon=True,
+        )
         self.worker.start()
 
-    def _sweep_worker(self, frequencies: list[float], continuous: bool) -> None:
+    def _sweep_worker(
+        self,
+        frequencies: list[float],
+        continuous: bool,
+        settings: AdaptiveSettings | None = None,
+        strategy_name: str = "Complex midpoint",
+    ) -> None:
         try:
+            # A stop acknowledgement follows all earlier events on this connection.
+            self.client.stop_sweep()
+            self.client.discard_events()
             while not self.stop_requested.is_set():
                 points: list[SweepPoint] = []
-                self.client.start_sweep(frequencies[0], frequencies[-1], len(frequencies))
-                while True:
-                    if self.stop_requested.is_set():
-                        self.client.stop_sweep()
-                        break
-                    event = self.client.next_event(timeout=10.0)
-                    if event.get("object") == "sweep" and event.get("action") == "complete":
-                        break
-                    if event.get("object") != "measurement":
-                        continue
-                    data = event["data"]
-                    point = SweepPoint(float(data["f"]), float(data["z"]["re"]), float(data["z"]["im"]))
-                    index = len(points)
-                    # The UI consumes only the newest snapshot at its own frame rate.
-                    # This prevents thousands of redraw events from accumulating.
+
+                def on_point(point: SweepPoint) -> None:
                     with self.progress_lock:
                         points.append(point)
-                        self.latest_progress = (index, len(frequencies), points, continuous)
-                if len(points) == len(frequencies):
-                    with self.progress_lock:
-                        self.latest_progress = None
-                        # Completion is state, not an event: a fast simulator may
-                        # finish many passes between GUI frames. Only the newest
-                        # complete pass is useful as the scope back buffer.
-                        self.latest_complete = Sweep(
-                            datetime.now().strftime("Sweep %Y-%m-%d %H:%M:%S"), points)
+                        self.latest_progress = (
+                            len(points) - 1,
+                            settings.max_points if settings else len(frequencies),
+                            points,
+                            continuous,
+                            settings is not None,
+                        )
+
+                if settings:
+                    measured, reason = adaptive_sweep(
+                        self.client,
+                        frequencies[0],
+                        frequencies[-1],
+                        settings,
+                        STRATEGIES[strategy_name],
+                        self.stop_requested,
+                        on_point,
+                    )
+                    name = f"Adaptive ({reason})"
+                else:
+                    measured = measure_sweep(
+                        self.client,
+                        frequencies[0],
+                        frequencies[-1],
+                        len(frequencies),
+                        self.stop_requested,
+                        on_point,
+                    )
+                    name = "Sweep"
+                with self.progress_lock:
+                    self.latest_progress = None
+                    self.latest_complete = Sweep(
+                        f"{name} {datetime.now():%Y-%m-%d %H:%M:%S}",
+                        measured,
+                    )
                 if not continuous:
                     break
+        except SweepCancelled:
+            pass
         except Exception as error:
             self.events.put(("error", error))
         finally:
@@ -305,7 +722,11 @@ class AnalyzerGui:
 
     def _set_running(self, running: bool) -> None:
         state = "disabled" if running else "normal"
-        for button in (self.once_button, self.continuous_button, self.connect_button):
+        for button in (
+            self.once_button,
+            self.continuous_button,
+            self.connect_button,
+        ):
             button.configure(state=state)
         self.stop_button.configure(state="normal" if running else "disabled")
 
@@ -325,8 +746,14 @@ class AnalyzerGui:
             if self.latest_progress is None:
                 progress = None
             else:
-                index, total, measured, continuous = self.latest_progress
-                progress = (index, total, measured.copy(), continuous)
+                index, total, measured, continuous, adaptive = self.latest_progress
+                progress = (
+                    index,
+                    total,
+                    measured.copy(),
+                    continuous,
+                    adaptive,
+                )
         needs_redraw = False
         if complete is not None:
             self.current_sweep = complete
@@ -337,16 +764,24 @@ class AnalyzerGui:
             self._refresh_sweep_table(select=self.active_entry)
             needs_redraw = True
         if progress is not None:
-            index, total, measured, continuous = progress
-            if continuous and self.current_sweep and len(self.current_sweep.points) == total:
+            index, total, measured, continuous, adaptive = progress
+            if adaptive:
+                live_points = sorted(measured, key=lambda point: point.frequency_hz)
+            elif continuous and self.current_sweep and len(self.current_sweep.points) == total:
                 live_points = self.current_sweep.points.copy()
-                live_points[:len(measured)] = measured
+                live_points[: len(measured)] = measured
             else:
                 live_points = measured
             self.current_sweep = Sweep("Live", live_points)
             if self.active_entry is not None:
                 self.active_entry.sweep = self.current_sweep
-            self.status.set(f"Measuring point {index + 1} of {total}")
+                if adaptive:
+                    self.active_entry.fit = None
+            self.status.set(
+                f"Adaptive: {index + 1} measured (limit {total})"
+                if adaptive
+                else f"Measuring point {index + 1} of {total}"
+            )
             needs_redraw = True
         if needs_redraw:
             self.refresh_plots()
@@ -396,12 +831,28 @@ class AnalyzerGui:
         for index, entry in enumerate(self.sweep_entries):
             item_id = str(index)
             fit = entry.fit
-            fit_values = ((f"{fit.resistance_ohm:.6g}", f"{fit.inductance_h:.6g}",
-                           f"{fit.capacitance_f * 1e12:.6g}", f"{fit.r_squared:.6f}",
-                           f"{fit.standard_deviation_ohm:.6g}") if fit else ("—",) * 5)
-            self.sweep_table.insert("", "end", iid=item_id, text=entry.sweep.name,
-                                    values=("☑" if entry.visible else "☐",
-                                            "☑" if entry.show_fit else "☐", *fit_values))
+            fit_values = (
+                (
+                    f"{fit.resistance_ohm:.6g}",
+                    f"{fit.inductance_h:.6g}",
+                    f"{fit.capacitance_f * 1e12:.6g}",
+                    f"{fit.r_squared:.6f}",
+                    f"{fit.standard_deviation_ohm:.6g}",
+                )
+                if fit
+                else ("—",) * 5
+            )
+            self.sweep_table.insert(
+                "",
+                "end",
+                iid=item_id,
+                text=entry.sweep.name,
+                values=(
+                    "☑" if entry.visible else "☐",
+                    "☑" if entry.show_fit else "☐",
+                    *fit_values,
+                ),
+            )
             if entry is selected:
                 selected_id = item_id
         if selected_id is not None:
@@ -458,8 +909,10 @@ class AnalyzerGui:
         if not sweeps:
             messagebox.showinfo("No sweeps", "There are no sweeps to save.")
             return
-        path = filedialog.asksaveasfilename(defaultextension=".json",
-                                            filetypes=(("Sweep JSON", "*.json"), ("All files", "*")))
+        path = filedialog.asksaveasfilename(
+            defaultextension=".json",
+            filetypes=(("Sweep JSON", "*.json"), ("All files", "*")),
+        )
         if path:
             try:
                 save_sweeps(path, sweeps)
@@ -494,8 +947,12 @@ class AnalyzerGui:
 def main() -> None:
     parser = argparse.ArgumentParser(description="Guitar Pickup Impedance Analyzer PC app")
     parser.add_argument(
-        "--connect", nargs="?", const="127.0.0.1:8765", metavar="HOST:PORT",
-        help="connect via TCP on startup (default: 127.0.0.1:8765)")
+        "--connect",
+        nargs="?",
+        const="127.0.0.1:8765",
+        metavar="HOST:PORT",
+        help="connect via TCP on startup (default: 127.0.0.1:8765)",
+    )
     args = parser.parse_args()
     if args.connect is not None:
         try:
