@@ -31,8 +31,10 @@ bool SimulatedPickup::set_range_manual(std::uint32_t range_index) {
   if (range_index >= std::size(ranges)) {
     return false;
   }
+
   automatic_range_ = false;
   range_index_ = range_index;
+
   return true;
 }
 
@@ -40,6 +42,7 @@ bool SimulatedPickup::start_acquisition(std::uint16_t* buffer, std::size_t count
   if (acquisition_active_) {
     return false;
   }
+
   if (buffer == nullptr || count < 2 || count % 2 != 0) {
     return false;
   }
@@ -48,10 +51,13 @@ bool SimulatedPickup::start_acquisition(std::uint16_t* buffer, std::size_t count
   const std::complex<double> series(parameters_.dcr_ohm, omega * parameters_.inductance_h);
   const auto impedance =
       1.0 / (1.0 / series + std::complex<double>(0, omega * parameters_.capacitance_pf * 1e-12));
+
   if (automatic_range_) {
     double best_error = std::numeric_limits<double>::max();
+
     for (std::uint32_t index = 0; index < std::size(ranges); ++index) {
       const double error = std::abs(std::log(ranges[index] / std::abs(impedance)));
+
       if (error < best_error) {
         best_error = error;
         range_index_ = index;
@@ -66,6 +72,7 @@ bool SimulatedPickup::start_acquisition(std::uint16_t* buffer, std::size_t count
   dma_buffer_count_ = count;
   clean_count_ = 0;
   acquisition_active_ = true;
+
   return true;
 }
 
@@ -79,6 +86,7 @@ void SimulatedPickup::advance_dma() const {
   constexpr double adc_counts_per_volt = 4095.0 / 3.3;
   const auto quantize = [](double value) {
     const long counts = std::lround(2048.0 + value * adc_counts_per_volt);
+
     return static_cast<std::uint16_t>(std::clamp(
         counts,
         0L,
@@ -98,6 +106,7 @@ void SimulatedPickup::advance_dma() const {
   }
 
   clean_count_ = end;
+
   if (clean_count_ == dma_buffer_count_) {
     acquisition_active_ = false;
   }
@@ -105,11 +114,13 @@ void SimulatedPickup::advance_dma() const {
 
 std::size_t SimulatedPickup::clean_data_count() const {
   advance_dma();
+
   return clean_count_;
 }
 
 bool SimulatedPickup::acquisition_finished() const {
   advance_dma();
+
   return dma_buffer_ != nullptr && clean_count_ == dma_buffer_count_;
 }
 

@@ -13,11 +13,14 @@ class PosixTransport final : public Transport {
  public:
   explicit PosixTransport(std::uint16_t tcp_port);
   ~PosixTransport() override;
+
   PosixTransport(const PosixTransport&) = delete;
+
   PosixTransport& operator=(const PosixTransport&) = delete;
 
   std::optional<ReceivedLine> receive() override;
   void send(std::uint32_t endpoint, std::string_view line) override;
+
   const std::string& serial_path() const {
     return serial_path_;
   }

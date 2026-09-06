@@ -31,19 +31,23 @@ class ClientTests(unittest.TestCase):
     def test_routes_asynchronous_acquisition_error_with_zero_id(self):
         transport = FakeTransport()
         client = AnalyzerClient(transport)
+
         transport.incoming.put({
             "type": "error",
             "id": 0,
             "error": {"code": "invalid_signal", "message": "bad signal"},
         })
+
         with self.assertRaisesRegex(ProtocolError, "bad signal"):
             client.next_event(timeout=1)
+
         client.close()
 
     def test_assigns_ids_and_matches_response(self):
         transport = FakeTransport()
         client = AnalyzerClient(transport)
         response = client.request("device", "info")
+
         self.assertEqual(response["id"], 1)
         self.assertEqual(transport.sent[0]["type"], "request")
         client.close()
@@ -51,6 +55,7 @@ class ClientTests(unittest.TestCase):
     def test_routes_measurement_event(self):
         transport = FakeTransport()
         client = AnalyzerClient(transport)
+
         transport.incoming.put({
             "type": "event",
             "object": "measurement",
@@ -67,7 +72,9 @@ class ClientTests(unittest.TestCase):
                 "z": {"re": 7000, "im": 18000},
             },
         })
+
         result = client.next_measurement(timeout=1)
+
         self.assertEqual(result.z.re, 7000)
         client.close()
 

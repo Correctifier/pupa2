@@ -46,6 +46,7 @@ void Application::tick() {
               message
           )
       );
+
       continue;
     }
 
@@ -77,6 +78,7 @@ void Application::tick() {
     } else if (request->object == protocol::Object::generator &&
                request->action == protocol::Action::set) {
       control_amplitude_v_ = request->amplitude;
+
       dependencies_.analyzer.set_control(request->frequency, control_amplitude_v_);
       send_message(
           dependencies_.transport,
@@ -89,10 +91,12 @@ void Application::tick() {
         fail("busy", "a sweep is already running");
       } else {
         sweep_.emplace();
+
         sweep_->endpoint = line->endpoint;
         sweep_->start_hz = request->f_start;
         sweep_->stop_hz = request->f_stop;
         sweep_->points = request->points;
+
         send_message(
             dependencies_.transport,
             line->endpoint,
@@ -110,6 +114,7 @@ void Application::tick() {
     } else if (request->object == protocol::Object::range &&
                request->action == protocol::Action::set) {
       bool range_valid = true;
+
       if (request->mode == protocol::RangeMode::automatic) {
         dependencies_.analyzer.set_range_auto();
       } else {
@@ -147,6 +152,7 @@ void Application::process_sweep() {
   }
 
   auto& sweep = *sweep_;
+
   if (!sweep.acquisition_started) {
     const float fraction =
         sweep.points == 1 ? 0.0F
@@ -159,14 +165,17 @@ void Application::process_sweep() {
             : (sweep.index + 1 == sweep.points ? sweep.stop_hz : std::exp(log_frequency));
 
     dependencies_.analyzer.set_control(sweep.current_frequency_hz, control_amplitude_v_);
+
     if (!dependencies_.analyzer
             .start_acquisition(acquisition_buffer_.data(), acquisition_buffer_.size())) {
       // Let an acquisition abandoned by sweep/stop finish before reusing its buffer.
       dependencies_.analyzer.acquisition_finished();
+
       return;
     }
 
     sweep.processor.begin(sweep.current_frequency_hz, dependencies_.analyzer.sample_rate_hz());
+
     sweep.processed_count = 0;
     sweep.acquisition_started = true;
   }
@@ -174,15 +183,18 @@ void Application::process_sweep() {
   std::size_t clean_count =
       std::min(dependencies_.analyzer.clean_data_count(), acquisition_buffer_.size());
   clean_count -= clean_count % 2;
+
   if (clean_count > sweep.processed_count) {
     sweep.processor.process(
         acquisition_buffer_.data() + sweep.processed_count,
         clean_count - sweep.processed_count
     );
+
     sweep.processed_count = clean_count;
   }
 
   const bool all_data_processed = sweep.processed_count == acquisition_buffer_.size();
+
   if (!dependencies_.analyzer.acquisition_finished() || !all_data_processed) {
     return;
   }
@@ -191,6 +203,7 @@ void Application::process_sweep() {
       dependencies_.analyzer.range_index(),
       dependencies_.analyzer.sense_resistor_ohm()
   );
+
   if (!result) {
     send_message(
         dependencies_.transport,
@@ -204,13 +217,16 @@ void Application::process_sweep() {
         )
     );
     sweep_.reset();
+
     return;
   }
+
   send_message(
       dependencies_.transport,
       sweep.endpoint,
       protocol::measurement_event(*result)
   );
+
   ++sweep.index;
   sweep.acquisition_started = false;
 

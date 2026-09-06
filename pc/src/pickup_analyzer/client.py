@@ -9,6 +9,7 @@ from .transport import Transport
 class ProtocolError(RuntimeError):
     def __init__(self, message: str, code: str = "protocol_error"):
         super().__init__(message)
+
         self.code = code
 
 
@@ -24,6 +25,7 @@ class AnalyzerClient:
         self._events: queue.Queue[dict[str, Any]] = queue.Queue()
         self._closed = threading.Event()
         self._reader = threading.Thread(target=self._receive_loop, daemon=True)
+
         self._reader.start()
 
     def request(
@@ -35,21 +37,28 @@ class AnalyzerClient:
     ) -> dict[str, Any]:
         with self._id_lock:
             transaction_id, self._next_id = self._next_id, self._next_id + 1
+
         destination: queue.Queue = queue.Queue(maxsize=1)
+
         with self._pending_lock:
             self._pending[transaction_id] = destination
+
         message: dict[str, Any] = {
             "type": "request",
             "object": object_name,
             "action": action,
             "id": transaction_id,
         }
+
         if params is not None:
             message["params"] = params
+
         try:
             if self.monitor:
                 self.monitor("TX", message)
+
             self.transport.send(message)
+
             try:
                 response = destination.get(timeout=timeout)
             except queue.Empty as error:
@@ -57,14 +66,18 @@ class AnalyzerClient:
         finally:
             with self._pending_lock:
                 self._pending.pop(transaction_id, None)
+
         if isinstance(response, Exception):
             raise response
+
         if response.get("type") == "error" or response.get("status") == "error":
             detail = response.get("error", {})
+
             raise ProtocolError(
                 detail.get("message", "target rejected request"),
                 detail.get("code", "target_error"),
             )
+
         return response
 
     def device_info(self):
@@ -98,6 +111,7 @@ class AnalyzerClient:
 
     def discard_events(self):
         """Drain stale events after an acknowledged stop; use with one sweep consumer."""
+
         while True:
             try:
                 self._events.get_nowait()
@@ -127,17 +141,21 @@ class AnalyzerClient:
 
     def next_event(self, timeout=None):
         event = self._events.get(timeout=timeout)
+
         if event.get("type") == "error":
             detail = event.get("error", {})
+
             raise ProtocolError(
                 detail.get("message", "target error"),
                 detail.get("code", "target_error"),
             )
+
         return event
 
     def next_measurement(self, timeout=None):
         while True:
             event = self.next_event(timeout)
+
             if event.get("object") == "measurement":
                 return Measurement.from_event(event)
 
@@ -145,14 +163,17 @@ class AnalyzerClient:
         try:
             while not self._closed.is_set():
                 message = self.transport.receive()
+
                 if self.monitor:
                     self.monitor("RX", message)
+
                 if message.get("type") in ("response", "error") and isinstance(
                     message.get("id"),
                     int,
                 ):
                     with self._pending_lock:
                         destination = self._pending.get(message["id"])
+
                     if destination:
                         destination.put(message)
                     elif message.get("type") == "error":
@@ -163,8 +184,10 @@ class AnalyzerClient:
             if not self._closed.is_set():
                 with self._pending_lock:
                     destinations = list(self._pending.values())
+
                 for destination in destinations:
                     destination.put(error)
+
                 self._events.put({
                     "type": "error",
                     "error": {"code": "transport_disconnected", "message": str(error)},

@@ -22,6 +22,7 @@ std::complex<float> FourthOrderMovingAverage::process(std::complex<float> input)
     stage.next_index = (stage.next_index + 1) % window_size_;
     input = stage.sum / static_cast<float>(stage.count);
   }
+
   return input;
 }
 
@@ -35,8 +36,10 @@ void AcquisitionProcessor::begin(
   adc_scale_ = adc_full_scale_v / 4095.0F;
   sample_index_ = 0;
   settled_outputs_ = 0;
+
   v_filter_.reset();
   vsense_filter_.reset();
+
   v_result_ = {};
   vsense_result_ = {};
   v_min_ = 4095;
@@ -47,6 +50,7 @@ void AcquisitionProcessor::begin(
 
 void AcquisitionProcessor::process(const std::uint16_t* data, std::size_t count) {
   constexpr float pi = 3.14159265358979323846F;
+
   for (std::size_t i = 0; i + 1 < count; i += 2, ++sample_index_) {
     const auto raw_v = data[i];
     const auto raw_sense = data[i + 1];
@@ -86,6 +90,7 @@ std::optional<ProcessedMeasurement> AcquisitionProcessor::finish(
       vsense_max_
   };
   result.impedance = rsense * v_result_ / vsense_result_;
+
   return result;
 }
 

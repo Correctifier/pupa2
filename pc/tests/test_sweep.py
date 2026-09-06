@@ -19,6 +19,7 @@ class SweepTests(unittest.TestCase):
             10000.0,
             4,
         )
+
         self.assertEqual(
             [round(value) for value in values],
             [
@@ -48,8 +49,10 @@ class SweepTests(unittest.TestCase):
                 )
             ],
         )
+
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "sweep.json"
+
             save_sweeps(path, [sweep])
             self.assertEqual(load_sweeps(path), [sweep])
             self.assertEqual(json.loads(path.read_text())["version"], 1)

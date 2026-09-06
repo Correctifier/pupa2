@@ -30,7 +30,9 @@ class Measurement:
     def from_event(cls, message: dict[str, Any]) -> "Measurement":
         if message.get("type") != "event" or message.get("object") != "measurement":
             raise ValueError("message is not a measurement event")
+
         data = message["data"]
+
         return cls(
             float(data["f"]),
             int(data["range"]),

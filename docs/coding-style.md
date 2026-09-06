@@ -22,6 +22,47 @@ statements. `else if` chains are fine when every branch has a braced body. The
 formatter also adds braces to loops for consistency. Python uses its required
 indentation-based blocks.
 
+## Vertical whitespace
+
+Use blank lines to mark logical sections, following the principle in
+[PEP 8](https://peps.python.org/pep-0008/#blank-lines) and
+[Google's C++ style guide](https://google.github.io/styleguide/cppguide.html#Vertical_Whitespace).
+Those guides leave the exact boundaries to judgment. This project makes the
+following statement-padding rules automatic:
+
+- Put one blank line before and after an `if`/`else` block, loop, or exception
+  handling block when another statement is adjacent at the same nesting level.
+- Separate runs of declarations, initialization, assignments, and calculations
+  from actions such as function calls. Keep consecutive assignments/calculations
+  together; the formatter does not try to infer separate mathematical ideas.
+- Put a blank line before a return, throw/raise, break, or continue when another
+  statement precedes it in the same block.
+- Separate function/constructor definitions from neighboring declarations and
+  definitions. Preserve Python's normal two blank lines around top-level definitions.
+- Keep `if`/`else`, `try`/`catch`/`finally`, and `do`/`while` chains together.
+  Do not add blank lines just inside braces or between an `if` and its body.
+- Keep leading comments attached to the section they explain, preserve manual
+  logical separators, and never insert blank lines inside expressions or literals.
+
+```cpp
+const float voltage = sample * scale;
+const float impedance = voltage / current;
+
+if (!std::isfinite(impedance)) {
+  return;
+}
+
+publish(impedance);
+
+for (auto& channel : channels) {
+  channel.reset();
+}
+```
+
+These are project rules built on established style guidance, not a claim that
+every language has a single universal whitespace standard. The complete rules,
+including whitespace, are enforced by `scripts/format_code.py` and `--check`.
+
 ```python
 result = adaptive_sweep(
     client,

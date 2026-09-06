@@ -18,6 +18,7 @@ AllowShortBlocksOnASingleLine: Never
 AllowShortFunctionsOnASingleLine: Empty
 AllowShortIfStatementsOnASingleLine: Never
 InsertBraces: true
+MaxEmptyLinesToKeep: 1
 AllowShortLoopsOnASingleLine: false
 BreakBeforeBraces: Attach
 DerivePointerAlignment: false

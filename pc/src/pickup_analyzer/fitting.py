@@ -22,12 +22,15 @@ class RlcFit:
             + s * self.resistance_ohm * self.capacitance_f
             + self.inductance_h * self.capacitance_f * s * s
         )
+
         return numerator / denominator
 
     def as_sweep(self, source: Sweep) -> Sweep:
         points = []
+
         for point in source.points:
             value = self.evaluate(point.frequency_hz)
+
             points.append(
                 SweepPoint(
                     point.frequency_hz,
@@ -35,19 +38,24 @@ class RlcFit:
                     value.imag,
                 )
             )
+
         return Sweep(f"RLC fit: {source.name}", points)
 
 
 def _solve(matrix: list[list[float]], vector: list[float]) -> list[float]:
     size = len(vector)
     augmented = [row.copy() + [value] for row, value in zip(matrix, vector)]
+
     for column in range(size):
         pivot = max(range(column, size), key=lambda row: abs(augmented[row][column]))
+
         if abs(augmented[pivot][column]) < 1e-24:
             raise ValueError("sweep does not contain enough information for an RLC fit")
+
         augmented[column], augmented[pivot] = augmented[pivot], augmented[column]
         divisor = augmented[column][column]
         augmented[column] = [value / divisor for value in augmented[column]]
+
         for row in range(size):
             if row != column:
                 factor = augmented[row][column]
@@ -55,6 +63,7 @@ def _solve(matrix: list[list[float]], vector: list[float]) -> list[float]:
                     value - factor * pivot_value
                     for value, pivot_value in zip(augmented[row], augmented[column])
                 ]
+
     return [augmented[row][-1] for row in range(size)]
 
 
@@ -67,20 +76,25 @@ def _values(log_parameters: list[float], frequencies: list[float]) -> list[compl
         0.0,
         0.0,
     )
+
     return [fit.evaluate(frequency) for frequency in frequencies]
 
 
 def _residual_vector(predicted: list[complex], observed: list[complex]) -> list[float]:
     result = []
+
     for model, actual in zip(predicted, observed):
         difference = model - actual
+
         result.extend((difference.real, difference.imag))
+
     return result
 
 
 def fit_rlc(sweep: Sweep) -> RlcFit:
     if len(sweep.points) < 3:
         raise ValueError("at least three sweep points are required")
+
     frequencies = [point.frequency_hz for point in sweep.points]
     observed = [complex(point.real_ohm, point.imaginary_ohm) for point in sweep.points]
     low = min(sweep.points, key=lambda point: point.frequency_hz)
@@ -100,18 +114,22 @@ def fit_rlc(sweep: Sweep) -> RlcFit:
     predicted = _values(parameters, frequencies)
     residual = _residual_vector(predicted, observed)
     cost = sum(value * value for value in residual)
+
     for _ in range(80):
         epsilon = 1e-5
         jacobian_columns = []
+
         for parameter_index in range(3):
             plus, minus = parameters.copy(), parameters.copy()
             plus[parameter_index] += epsilon
             minus[parameter_index] -= epsilon
             plus_values = _residual_vector(_values(plus, frequencies), observed)
             minus_values = _residual_vector(_values(minus, frequencies), observed)
+
             jacobian_columns.append(
                 [(high - low) / (2.0 * epsilon) for high, low in zip(plus_values, minus_values)]
             )
+
         normal = [
             [
                 sum(
@@ -126,17 +144,23 @@ def fit_rlc(sweep: Sweep) -> RlcFit:
             sum(jacobian_columns[i][row] * residual[row] for row in range(len(residual)))
             for i in range(3)
         ]
+
         for index in range(3):
             normal[index][index] += damping * max(normal[index][index], 1.0)
+
         step = _solve(normal, [-value for value in gradient])
         candidate = [value + delta for value, delta in zip(parameters, step)]
+
         try:
             candidate_predicted = _values(candidate, frequencies)
         except (OverflowError, ZeroDivisionError):
             damping *= 10.0
+
             continue
+
         candidate_residual = _residual_vector(candidate_predicted, observed)
         candidate_cost = sum(value * value for value in candidate_residual)
+
         if candidate_cost < cost:
             parameters, predicted, residual, cost = (
                 candidate,
@@ -145,6 +169,7 @@ def fit_rlc(sweep: Sweep) -> RlcFit:
                 candidate_cost,
             )
             damping = max(1e-12, damping / 3.0)
+
             if max(abs(value) for value in step) < 1e-9:
                 break
         else:
@@ -155,6 +180,7 @@ def fit_rlc(sweep: Sweep) -> RlcFit:
     total_sum = sum(abs(value - mean) ** 2 for value in observed)
     r_squared = 1.0 - cost / total_sum if total_sum > 0 else 1.0
     deviation = math.sqrt(cost / max(1, 2 * len(observed) - 3))
+
     return RlcFit(
         resistance,
         inductance,

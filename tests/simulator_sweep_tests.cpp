@@ -16,22 +16,29 @@ class Transport final : public pickup::bsp::Transport {
  public:
   std::deque<pickup::bsp::ReceivedLine> incoming;
   std::vector<std::string> outgoing;
+
   std::optional<pickup::bsp::ReceivedLine> receive() override {
     if (incoming.empty()) {
       return std::nullopt;
     }
+
     auto line = incoming.front();
+
     incoming.pop_front();
+
     return line;
   }
+
   void send(std::uint32_t endpoint, std::string_view line) override {
     assert(endpoint == 42);
     outgoing.emplace_back(line);
   }
+
   void enqueue(std::string_view text) {
     pickup::bsp::ReceivedLine line;
     line.endpoint = 42;
     line.size = text.size();
+
     std::memcpy(
         line.text.data(),
         text.data(),
@@ -44,6 +51,7 @@ class Transport final : public pickup::bsp::Transport {
 
 int main() {
   std::string_view code, error;
+
   for (const auto* params :
       {
           R"({"f_start":1000,"f_stop":1000,"points":2})",
@@ -55,6 +63,7 @@ int main() {
     const std::string request =
         std::string(R"({"type":"request","object":"sweep","action":"start","id":1,"params":)") +
         params + "}";
+
     assert(!pickup::protocol::parse_request(
         request,
         code,
@@ -75,9 +84,12 @@ int main() {
           "0"
       }
   });
+
   transport.enqueue(R"({"type":"request","object":"device","action":"info","id":0})");
   app.tick();
+
   StaticJsonDocument<1024> document;
+
   assert(deserializeJson(document, transport.outgoing.back()) == DeserializationError::Ok);
   assert(document["data"]["capabilities"].size() == 6);
   assert(document["data"]["capabilities"][5] == "single_point_sweep");
@@ -91,6 +103,7 @@ int main() {
   assert(document["object"] == "sweep");
   assert(document["error"]["code"] == "invalid_params");
   transport.outgoing.clear();
+
   const auto start = [&] {
     transport.enqueue(
         R"({"type":"request","object":"sweep","action":"start","id":1,"params":{"f_start":1234,"f_stop":1234,"points":1}})"
@@ -107,9 +120,11 @@ int main() {
   app.tick();
   transport.outgoing.clear();
   start();
+
   for (int tick = 0; tick < 100; ++tick) {
     app.tick();
   }
+
   assert(transport.outgoing.size() == 3);  // acknowledgement, measurement, completion
   assert(deserializeJson(document, transport.outgoing[1]) == DeserializationError::Ok);
   assert(document["object"] == "measurement");
@@ -123,13 +138,16 @@ int main() {
   transport.enqueue(
       R"({"type":"request","object":"sweep","action":"start","id":3,"params":{"f_start":20,"f_stop":20000,"points":100}})"
   );
+
   for (int tick = 0; tick < 1000; ++tick) {
     app.tick();
   }
+
   assert(transport.outgoing.size() == 102);
   assert(deserializeJson(document, transport.outgoing[1]) == DeserializationError::Ok);
   assert(document["data"]["f"].as<float>() == 20.0F);
   assert(deserializeJson(document, transport.outgoing[100]) == DeserializationError::Ok);
   assert(document["data"]["f"].as<float>() == 20000.0F);
+
   return 0;
 }

@@ -15,18 +15,24 @@ class FakeTransport final : public pickup::bsp::Transport {
     if (input.empty()) {
       return std::nullopt;
     }
+
     auto value = input.front();
+
     input.pop_front();
+
     return value;
   }
+
   void send(std::uint32_t endpoint, std::string_view line) override {
     output_endpoint = endpoint;
     output = line;
   }
+
   void enqueue(std::uint32_t endpoint, std::string_view text) {
     pickup::bsp::ReceivedLine line;
     line.endpoint = endpoint;
     line.size = text.size();
+
     std::memcpy(
         line.text.data(),
         text.data(),
@@ -34,6 +40,7 @@ class FakeTransport final : public pickup::bsp::Transport {
     );
     input.push_back(line);
   }
+
   std::deque<pickup::bsp::ReceivedLine> input;
   std::uint32_t output_endpoint{};
   std::string output;
@@ -42,28 +49,37 @@ class FakeTransport final : public pickup::bsp::Transport {
 class FakeFrontend final : public pickup::bsp::ImpedanceAnalyzer {
  public:
   void set_control(float, float) override {}
+
   bool start_acquisition(std::uint16_t*, std::size_t) override {
     return false;
   }
+
   std::size_t clean_data_count() const override {
     return 0;
   }
+
   bool acquisition_finished() const override {
     return false;
   }
+
   float sample_rate_hz() const override {
     return 192000;
   }
+
   void set_range_auto() override {}
+
   bool set_range_manual(std::uint32_t) override {
     return true;
   }
+
   std::uint32_t range_index() const override {
     return 0;
   }
+
   float sense_resistor_ohm() const override {
     return 100;
   }
+
   void calibrate() override {}
 };
 }  // namespace
@@ -80,6 +96,7 @@ int main() {
           "0.0.0"
       }
   });
+
   transport.enqueue(42, R"({"type":"request","object":"device","action":"info","id":7})");
   app.tick();
   assert(transport.output_endpoint == 42);
@@ -96,6 +113,7 @@ int main() {
   std::array<std::uint16_t, frames * 2> samples{};
   const std::complex<float> expected_v(0.2F, 0.05F);
   const std::complex<float> expected_sense(0.04F, -0.01F);
+
   for (std::size_t index = 0; index < frames; ++index) {
     const double phase = 2 * pi * frequency * index / sample_rate;
     const std::complex<float> carrier(
@@ -108,12 +126,17 @@ int main() {
     samples[index * 2] = adc(std::real(expected_v * carrier));
     samples[index * 2 + 1] = adc(std::real(expected_sense * carrier));
   }
+
   pickup::AcquisitionProcessor processor;
+
   processor.begin(frequency, sample_rate);
   processor.process(samples.data(), samples.size());
+
   const auto measurement = processor.finish(2, 10000.0);
+
   assert(measurement);
   assert(std::abs(measurement->v - expected_v) < 0.002);
   assert(std::abs(measurement->vsense - expected_sense) < 0.002);
+
   return 0;
 }

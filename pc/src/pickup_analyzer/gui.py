@@ -30,9 +30,11 @@ class SweepEntry:
 class AnalyzerGui:
     def __init__(self, root: tk.Tk):
         self.root = root
+
         root.title("Guitar Pickup Impedance Analyzer")
         root.geometry("1050x780")
         root.minsize(950, 700)
+
         self.transport: Transport | None = None
         self.client: AnalyzerClient | None = None
         self.events: queue.Queue[tuple[str, object]] = queue.Queue()
@@ -48,6 +50,7 @@ class AnalyzerGui:
         self.sweep_entries: list[SweepEntry] = []
         self.active_entry: SweepEntry | None = None
         controls = ttk.Frame(root, padding=8)
+
         controls.pack(fill="x")
         self._connection_controls(controls)
         self._sweep_controls(controls)
@@ -55,13 +58,16 @@ class AnalyzerGui:
         self._adaptive_controls(root)
         self._magnitude_axis_controls(root)
         self._sweep_manager(root)
+
         notebook = ttk.Notebook(root)
+
         notebook.pack(
             fill="both",
             expand=True,
             padx=8,
             pady=(0, 8),
         )
+
         self.plots = [
             self._plot(
                 notebook,
@@ -104,8 +110,11 @@ class AnalyzerGui:
             ),
         ]
         self.magnitude_plot = self.plots[0]
+
         self._console_tab(notebook)
+
         self.status = tk.StringVar(value="Start the virtual target, then connect.")
+
         ttk.Label(
             root,
             textvariable=self.status,
@@ -120,12 +129,15 @@ class AnalyzerGui:
             text="Connection",
             padding=8,
         )
+
         frame.pack(
             side="left",
             fill="y",
             padx=(0, 6),
         )
+
         self.mode = tk.StringVar(value="TCP")
+
         ttk.Combobox(
             frame,
             textvariable=self.mode,
@@ -136,7 +148,9 @@ class AnalyzerGui:
             row=0,
             column=0,
         )
+
         self.endpoint = tk.StringVar(value="127.0.0.1:8765")
+
         ttk.Entry(
             frame,
             textvariable=self.endpoint,
@@ -146,13 +160,17 @@ class AnalyzerGui:
             column=1,
             padx=5,
         )
+
         self.connect_button = ttk.Button(
             frame,
             text="Connect",
             command=self.connect,
         )
+
         self.connect_button.grid(row=0, column=2)
+
         self.device_info_text = tk.StringVar(value="Not connected")
+
         ttk.Label(
             frame,
             textvariable=self.device_info_text,
@@ -172,16 +190,19 @@ class AnalyzerGui:
             text="Log sweep",
             padding=8,
         )
+
         frame.pack(
             side="left",
             fill="y",
             padx=6,
         )
+
         self.start_hz, self.stop_hz, self.point_count = (
             tk.DoubleVar(value=20),
             tk.DoubleVar(value=20000),
             tk.IntVar(value=101),
         )
+
         for column, (
             label,
             variable,
@@ -204,44 +225,53 @@ class AnalyzerGui:
             ),
         )):
             ttk.Label(frame, text=label).grid(row=0, column=column)
+
             entry = ttk.Entry(
                 frame,
                 textvariable=variable,
                 width=width,
             )
+
             entry.grid(
                 row=1,
                 column=column,
                 padx=3,
             )
+
             if variable is self.point_count:
                 self.point_count_entry = entry
+
         self.once_button = ttk.Button(
             frame,
             text="Run once",
             command=lambda: self.start_sweep(False),
         )
+
         self.once_button.grid(
             row=2,
             column=0,
             pady=(6, 0),
         )
+
         self.continuous_button = ttk.Button(
             frame,
             text="Continuous",
             command=lambda: self.start_sweep(True),
         )
+
         self.continuous_button.grid(
             row=2,
             column=1,
             pady=(6, 0),
         )
+
         self.stop_button = ttk.Button(
             frame,
             text="Stop",
             command=self.stop_sweep,
             state="disabled",
         )
+
         self.stop_button.grid(
             row=2,
             column=2,
@@ -258,11 +288,14 @@ class AnalyzerGui:
                 6,
             ),
         )
+
         frame.pack(fill="x")
+
         self.adaptive_enabled = tk.BooleanVar(value=False)
         self.adaptive_tolerance = tk.DoubleVar(value=1.0)
         self.adaptive_max_points = tk.IntVar(value=1000)
         self.adaptive_strategy = tk.StringVar(value=next(iter(STRATEGIES)))
+
         ttk.Checkbutton(
             frame,
             text="Adaptive resolution (100 initial points)",
@@ -300,6 +333,7 @@ class AnalyzerGui:
             text="Sweeps",
             padding=8,
         )
+
         frame.pack(
             side="left",
             fill="y",
@@ -334,9 +368,12 @@ class AnalyzerGui:
                 6,
             ),
         )
+
         frame.pack(fill="x")
         ttk.Label(frame, text="Magnitude axis:").pack(side="left")
+
         self.magnitude_auto = tk.BooleanVar(value=True)
+
         ttk.Checkbutton(
             frame,
             text="Auto",
@@ -347,14 +384,18 @@ class AnalyzerGui:
             padx=(6, 12),
         )
         ttk.Label(frame, text="Minimum Ω").pack(side="left")
+
         self.magnitude_min = tk.DoubleVar(value=1000.0)
+
         ttk.Entry(
             frame,
             textvariable=self.magnitude_min,
             width=10,
         ).pack(side="left", padx=(4, 10))
         ttk.Label(frame, text="Maximum Ω").pack(side="left")
+
         self.magnitude_max = tk.DoubleVar(value=1000000.0)
+
         ttk.Entry(
             frame,
             textvariable=self.magnitude_max,
@@ -372,17 +413,21 @@ class AnalyzerGui:
             text="Loaded sweeps",
             padding=6,
         )
+
         frame.pack(
             fill="x",
             padx=8,
             pady=(0, 6),
         )
+
         table_frame = ttk.Frame(frame)
+
         table_frame.pack(
             side="left",
             fill="x",
             expand=True,
         )
+
         columns = (
             "visible",
             "fit",
@@ -398,7 +443,9 @@ class AnalyzerGui:
             show="tree headings",
             height=5,
         )
+
         self.sweep_table.heading("#0", text="Name")
+
         headings = {
             "visible": "Sweep",
             "fit": "Fit",
@@ -408,8 +455,10 @@ class AnalyzerGui:
             "r2": "R²",
             "sigma": "σ (Ω)",
         }
+
         for column, heading in headings.items():
             self.sweep_table.heading(column, text=heading)
+
         self.sweep_table.column(
             "#0",
             width=250,
@@ -427,6 +476,7 @@ class AnalyzerGui:
             anchor="center",
             stretch=False,
         )
+
         for column in (
             "resistance",
             "inductance",
@@ -440,16 +490,20 @@ class AnalyzerGui:
                 anchor="e",
                 stretch=False,
             )
+
         scrollbar = ttk.Scrollbar(
             table_frame,
             orient="horizontal",
             command=self.sweep_table.xview,
         )
+
         self.sweep_table.configure(xscrollcommand=scrollbar.set)
         self.sweep_table.pack(fill="x", expand=True)
         scrollbar.pack(fill="x")
         self.sweep_table.bind("<Button-1>", self._sweep_table_click)
+
         buttons = ttk.Frame(frame)
+
         buttons.pack(
             side="left",
             padx=(8, 0),
@@ -463,8 +517,11 @@ class AnalyzerGui:
 
     def _console_tab(self, notebook: ttk.Notebook) -> None:
         frame = ttk.Frame(notebook, padding=6)
+
         notebook.add(frame, text="Console")
+
         toolbar = ttk.Frame(frame)
+
         toolbar.pack(fill="x", pady=(0, 5))
         ttk.Label(toolbar, text="Newline-delimited JSON traffic (newest 2,000 lines)").pack(
             side="left"
@@ -474,8 +531,11 @@ class AnalyzerGui:
             text="Clear",
             command=self.clear_console,
         ).pack(side="right")
+
         container = ttk.Frame(frame)
+
         container.pack(fill="both", expand=True)
+
         self.console = tk.Text(
             container,
             wrap="none",
@@ -495,6 +555,7 @@ class AnalyzerGui:
             orient="horizontal",
             command=self.console.xview,
         )
+
         self.console.configure(yscrollcommand=vertical.set, xscrollcommand=horizontal.set)
         self.console.grid(
             row=0,
@@ -517,14 +578,17 @@ class AnalyzerGui:
     def clear_console(self) -> None:
         with self.console_lock:
             self.pending_console.clear()
+
         self.console.configure(state="normal")
         self.console.delete("1.0", "end")
         self.console.configure(state="disabled")
+
         self.console_line_count = 0
 
     def _log_message(self, direction: str, message: dict) -> None:
         timestamp = datetime.now().strftime("%H:%M:%S.%f")[:-3]
         line = f"{timestamp} {direction} {json.dumps(message, separators=(',', ':'))}\n"
+
         with self.console_lock:
             self.pending_console.append(line)
 
@@ -542,7 +606,9 @@ class AnalyzerGui:
         equal_units=False,
     ):
         frame = ttk.Frame(notebook)
+
         notebook.add(frame, text=tab_name)
+
         plot = SweepPlot(
             frame,
             title,
@@ -554,19 +620,26 @@ class AnalyzerGui:
             y_range,
             equal_units,
         )
+
         plot.pack(fill="both", expand=True)
+
         return plot
 
     def apply_magnitude_axis(self) -> None:
         if not hasattr(self, "magnitude_plot"):
             return
+
         if self.magnitude_auto.get():
             self.magnitude_plot.set_y_range(None)
+
             return
+
         try:
             minimum, maximum = self.magnitude_min.get(), self.magnitude_max.get()
+
             if minimum <= 0 or maximum <= minimum:
                 raise ValueError("limits must be positive, with maximum greater than minimum")
+
             self.magnitude_plot.set_y_range((minimum, maximum))
         except (ValueError, tk.TclError) as error:
             messagebox.showerror("Invalid magnitude axis", str(error))
@@ -574,18 +647,23 @@ class AnalyzerGui:
     def connect(self, *, retries: int = 0) -> None:
         if self.worker and self.worker.is_alive():
             messagebox.showinfo("Sweep active", "Stop the current sweep before reconnecting.")
+
             return
+
         try:
             if self.transport:
                 self.client.close()
+
             if self.mode.get() == "TCP":
                 host, port = self.endpoint.get().rsplit(":", 1)
                 self.transport = TcpTransport(host, int(port))
             else:
                 self.transport = SerialTransport(self.endpoint.get())
+
             self.client = AnalyzerClient(self.transport, self._log_message)
             info = self.client.device_info()
             capabilities = ", ".join(info.get("capabilities", []))
+
             self.device_info_text.set(
                 f"Target: {info.get('target_name', 'unknown')}\n"
                 f"Application: {info.get('application_name', 'unknown')} "
@@ -600,21 +678,29 @@ class AnalyzerGui:
                 self.client.close()
             elif self.transport:
                 self.transport.close()
+
             self.transport = None
             self.client = None
+
             self.device_info_text.set("Not connected")
+
             if retries and isinstance(error, ConnectionRefusedError):
                 self.status.set(f"Waiting for target at {self.endpoint.get()}…")
                 self.root.after(250, lambda: self.connect(retries=retries - 1))
+
                 return
+
             messagebox.showerror("Connection failed", str(error))
 
     def start_sweep(self, continuous: bool) -> None:
         if not self.client:
             messagebox.showinfo("Not connected", "Connect to a target first.")
+
             return
+
         if self.worker and self.worker.is_alive():
             return
+
         try:
             adaptive = self.adaptive_enabled.get()
             frequencies = logarithmic_frequencies(
@@ -633,16 +719,22 @@ class AnalyzerGui:
             strategy_name = self.adaptive_strategy.get()
         except (ValueError, tk.TclError) as error:
             messagebox.showerror("Invalid sweep", str(error))
+
             return
+
         self.stop_requested.clear()
+
         with self.progress_lock:
             self.latest_progress = None
             self.latest_complete = None
+
         self.current_sweep = Sweep("Live acquisition", [])
         self.active_entry = SweepEntry(self.current_sweep)
+
         self.sweep_entries.append(self.active_entry)
         self._refresh_sweep_table(select=self.active_entry)
         self._set_running(True)
+
         self.worker = threading.Thread(
             target=self._sweep_worker,
             args=(
@@ -653,6 +745,7 @@ class AnalyzerGui:
             ),
             daemon=True,
         )
+
         self.worker.start()
 
     def _sweep_worker(
@@ -666,12 +759,14 @@ class AnalyzerGui:
             # A stop acknowledgement follows all earlier events on this connection.
             self.client.stop_sweep()
             self.client.discard_events()
+
             while not self.stop_requested.is_set():
                 points: list[SweepPoint] = []
 
                 def on_point(point: SweepPoint) -> None:
                     with self.progress_lock:
                         points.append(point)
+
                         self.latest_progress = (
                             len(points) - 1,
                             settings.max_points if settings else len(frequencies),
@@ -701,12 +796,14 @@ class AnalyzerGui:
                         on_point,
                     )
                     name = "Sweep"
+
                 with self.progress_lock:
                     self.latest_progress = None
                     self.latest_complete = Sweep(
                         f"{name} {datetime.now():%Y-%m-%d %H:%M:%S}",
                         measured,
                     )
+
                 if not continuous:
                     break
         except SweepCancelled:
@@ -722,27 +819,32 @@ class AnalyzerGui:
 
     def _set_running(self, running: bool) -> None:
         state = "disabled" if running else "normal"
+
         for button in (
             self.once_button,
             self.continuous_button,
             self.connect_button,
         ):
             button.configure(state=state)
+
         self.stop_button.configure(state="normal" if running else "disabled")
 
     def poll_events(self) -> None:
         try:
             while True:
                 event, value = self.events.get_nowait()
+
                 if event == "error":
                     messagebox.showerror("Sweep failed", str(value))
                 elif event == "stopped":
                     self._set_running(False)
         except queue.Empty:
             pass
+
         with self.progress_lock:
             complete = self.latest_complete
             self.latest_complete = None
+
             if self.latest_progress is None:
                 progress = None
             else:
@@ -754,17 +856,25 @@ class AnalyzerGui:
                     continuous,
                     adaptive,
                 )
+
         needs_redraw = False
+
         if complete is not None:
             self.current_sweep = complete
+
             if self.active_entry is not None:
                 self.active_entry.sweep = complete
+
                 self._fit_entry(self.active_entry)
+
             self.status.set(f"Completed {complete.name}: {len(complete.points)} points")
             self._refresh_sweep_table(select=self.active_entry)
+
             needs_redraw = True
+
         if progress is not None:
             index, total, measured, continuous, adaptive = progress
+
             if adaptive:
                 live_points = sorted(measured, key=lambda point: point.frequency_hz)
             elif continuous and self.current_sweep and len(self.current_sweep.points) == total:
@@ -772,19 +882,26 @@ class AnalyzerGui:
                 live_points[: len(measured)] = measured
             else:
                 live_points = measured
+
             self.current_sweep = Sweep("Live", live_points)
+
             if self.active_entry is not None:
                 self.active_entry.sweep = self.current_sweep
+
                 if adaptive:
                     self.active_entry.fit = None
+
             self.status.set(
                 f"Adaptive: {index + 1} measured (limit {total})"
                 if adaptive
                 else f"Measuring point {index + 1} of {total}"
             )
+
             needs_redraw = True
+
         if needs_redraw:
             self.refresh_plots()
+
         self._flush_console()
         self.root.after(50, self.poll_events)
 
@@ -792,42 +909,61 @@ class AnalyzerGui:
         with self.console_lock:
             if not self.pending_console:
                 return
+
             lines = list(self.pending_console)
+
             self.pending_console.clear()
+
         at_bottom = self.console.yview()[1] >= 0.999
+
         self.console.configure(state="normal")
         self.console.insert("end", "".join(lines))
+
         self.console_line_count += len(lines)
         excess = self.console_line_count - 2000
+
         if excess > 0:
             self.console.delete("1.0", f"{excess + 1}.0")
+
             self.console_line_count -= excess
+
         if at_bottom:
             self.console.see("end")
+
         self.console.configure(state="disabled")
 
     def refresh_plots(self) -> None:
         sweeps: list[Sweep] = []
+
         for entry in self.sweep_entries:
             if entry.visible:
                 sweeps.append(entry.sweep)
+
             if entry.show_fit and entry.fit is not None:
                 sweeps.append(entry.fit.as_sweep(entry.sweep))
+
         for plot in self.plots:
             plot.set_sweeps(sweeps)
 
     def _selected_entry(self) -> SweepEntry | None:
         selection = self.sweep_table.selection()
+
         if not selection:
             messagebox.showinfo("No selection", "Select a sweep from the list first.")
+
             return None
+
         index = int(selection[0])
+
         return self.sweep_entries[index] if index < len(self.sweep_entries) else None
 
     def _refresh_sweep_table(self, select: SweepEntry | None = None) -> None:
         selected = select or self._selected_entry_quiet()
+
         self.sweep_table.delete(*self.sweep_table.get_children())
+
         selected_id = None
+
         for index, entry in enumerate(self.sweep_entries):
             item_id = str(index)
             fit = entry.fit
@@ -842,6 +978,7 @@ class AnalyzerGui:
                 if fit
                 else ("—",) * 5
             )
+
             self.sweep_table.insert(
                 "",
                 "end",
@@ -853,46 +990,63 @@ class AnalyzerGui:
                     *fit_values,
                 ),
             )
+
             if entry is selected:
                 selected_id = item_id
+
         if selected_id is not None:
             self.sweep_table.selection_set(selected_id)
 
     def _selected_entry_quiet(self) -> SweepEntry | None:
         selection = self.sweep_table.selection()
+
         if not selection:
             return None
+
         index = int(selection[0])
+
         return self.sweep_entries[index] if index < len(self.sweep_entries) else None
 
     def _sweep_table_click(self, event) -> str | None:
         row = self.sweep_table.identify_row(event.y)
         column = self.sweep_table.identify_column(event.x)
+
         if not row:
             return None
+
         self.sweep_table.selection_set(row)
+
         entry = self.sweep_entries[int(row)]
+
         if column == "#1":
             entry.visible = not entry.visible
         elif column == "#2" and entry.fit is not None:
             entry.show_fit = not entry.show_fit
         else:
             return None
+
         self._refresh_sweep_table(select=entry)
         self.refresh_plots()
+
         return "break"
 
     def delete_selected(self) -> None:
         entry = self._selected_entry()
+
         if not entry:
             return
+
         if entry is self.active_entry and self.worker and self.worker.is_alive():
             messagebox.showinfo("Sweep active", "Stop this sweep before deleting it.")
+
             return
+
         self.sweep_entries.remove(entry)
+
         if entry is self.active_entry:
             self.active_entry = None
             self.current_sweep = None
+
         self._refresh_sweep_table()
         self.refresh_plots()
 
@@ -906,13 +1060,17 @@ class AnalyzerGui:
 
     def save(self) -> None:
         sweeps = [entry.sweep for entry in self.sweep_entries]
+
         if not sweeps:
             messagebox.showinfo("No sweeps", "There are no sweeps to save.")
+
             return
+
         path = filedialog.asksaveasfilename(
             defaultextension=".json",
             filetypes=(("Sweep JSON", "*.json"), ("All files", "*")),
         )
+
         if path:
             try:
                 save_sweeps(path, sweeps)
@@ -922,15 +1080,20 @@ class AnalyzerGui:
 
     def load(self) -> None:
         path = filedialog.askopenfilename(filetypes=(("Sweep JSON", "*.json"), ("All files", "*")))
+
         if path:
             try:
                 loaded = load_sweeps(path)
                 entries = [SweepEntry(sweep) for sweep in loaded]
+
                 for entry in entries:
                     self._fit_entry(entry)
+
                 self.sweep_entries.extend(entries)
+
                 self.current_sweep = loaded[-1]
                 self.active_entry = entries[-1]
+
                 self.status.set(f"Loaded {len(loaded)} sweep(s) from {path}")
                 self._refresh_sweep_table(select=entries[-1])
                 self.refresh_plots()
@@ -939,13 +1102,16 @@ class AnalyzerGui:
 
     def close(self) -> None:
         self.stop_requested.set()
+
         if self.client:
             self.client.close()
+
         self.root.destroy()
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Guitar Pickup Impedance Analyzer PC app")
+
     parser.add_argument(
         "--connect",
         nargs="?",
@@ -953,19 +1119,25 @@ def main() -> None:
         metavar="HOST:PORT",
         help="connect via TCP on startup (default: 127.0.0.1:8765)",
     )
+
     args = parser.parse_args()
+
     if args.connect is not None:
         try:
             host, port = args.connect.rsplit(":", 1)
+
             if not host or not 1 <= int(port) <= 65535:
                 raise ValueError
         except ValueError:
             parser.error("--connect requires HOST:PORT with a port between 1 and 65535")
+
     root = tk.Tk()
     app = AnalyzerGui(root)
+
     if args.connect is not None:
         app.endpoint.set(args.connect)
         root.after(0, lambda: app.connect(retries=20))
+
     root.mainloop()
 
 

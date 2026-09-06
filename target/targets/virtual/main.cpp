@@ -18,6 +18,7 @@ int main(int argc, char** argv) try {
   std::uint16_t port = 8765;
   bool headless = false;
   bool prefer_wayland = false;
+
   for (int i = 1; i < argc; ++i) {
     if (std::string_view(argv[i]) == "--headless") {
       headless = true;
@@ -27,6 +28,7 @@ int main(int argc, char** argv) try {
       port = static_cast<std::uint16_t>(std::stoi(argv[i]));
     }
   }
+
   pickup::bsp::pc::PosixTransport transport(port);
   pickup::bsp::pc::SimulatedPickup frontend;
   pickup::Application app({
@@ -43,6 +45,7 @@ int main(int argc, char** argv) try {
   std::cout << "Virtual serial: "
             << (transport.serial_path().empty() ? "unavailable" : transport.serial_path())
             << std::endl;
+
   if (headless) {
     while (true) {
       app.tick();
@@ -61,6 +64,7 @@ int main(int argc, char** argv) try {
   if (!glfwInit()) {
     throw std::runtime_error("GLFW initialization failed");
   }
+
   GLFWwindow* window = glfwCreateWindow(
       720,
       390,
@@ -68,9 +72,11 @@ int main(int argc, char** argv) try {
       nullptr,
       nullptr
   );
+
   if (!window) {
     throw std::runtime_error("window creation failed");
   }
+
   glfwMakeContextCurrent(window);
   // Pace redraws ourselves so vsync does not stall simulated DMA progress.
   glfwSwapInterval(0);
@@ -89,17 +95,24 @@ int main(int argc, char** argv) try {
 
   while (!glfwWindowShouldClose(window)) {
     app.tick();
+
     const auto now = std::chrono::steady_clock::now();
+
     if (now < next_frame) {
       std::this_thread::sleep_for(std::chrono::milliseconds(1));
+
       continue;
     }
+
     next_frame = now + frame_interval;
+
     glfwPollEvents();
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
+
     const ImGuiViewport* viewport = ImGui::GetMainViewport();
+
     ImGui::SetNextWindowPos(viewport->WorkPos);
     ImGui::SetNextWindowSize(viewport->WorkSize);
     ImGui::Begin(
@@ -107,7 +120,9 @@ int main(int argc, char** argv) try {
         nullptr,
         ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings
     );
+
     auto& p = frontend.parameters();
+
     ImGui::Text("Endpoints");
     ImGui::BulletText("TCP: 127.0.0.1:%u", port);
     ImGui::BulletText("Serial: %s", transport.serial_path().c_str());
@@ -146,7 +161,9 @@ int main(int argc, char** argv) try {
     );
     ImGui::End();
     ImGui::Render();
+
     int width, height;
+
     glfwGetFramebufferSize(
         window,
         &width,
@@ -168,13 +185,16 @@ int main(int argc, char** argv) try {
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     glfwSwapBuffers(window);
   }
+
   ImGui_ImplOpenGL3_Shutdown();
   ImGui_ImplGlfw_Shutdown();
   ImGui::DestroyContext();
   glfwDestroyWindow(window);
   glfwTerminate();
+
   return 0;
 } catch (const std::exception& error) {
   std::cerr << "virtual target: " << error.what() << '\n';
+
   return 1;
 }

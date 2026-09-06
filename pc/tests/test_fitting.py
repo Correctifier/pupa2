@@ -14,12 +14,14 @@ class FittingTests(unittest.TestCase):
             0.0,
         )
         points = []
+
         for frequency in logarithmic_frequencies(
             20.0,
             20000.0,
             101,
         ):
             value = expected.evaluate(frequency)
+
             points.append(
                 SweepPoint(
                     frequency,
@@ -27,7 +29,9 @@ class FittingTests(unittest.TestCase):
                     value.imag,
                 )
             )
+
         result = fit_rlc(Sweep("exact", points))
+
         self.assertGreater(result.r_squared, 0.999999)
         self.assertLess(result.standard_deviation_ohm, 0.01)
         self.assertAlmostEqual(

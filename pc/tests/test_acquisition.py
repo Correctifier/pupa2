@@ -27,6 +27,7 @@ class FakeClient:
             stop,
             count,
         ))
+
         for f in (
             [start]
             if count == 1
@@ -37,6 +38,7 @@ class FakeClient:
             )
         ):
             self.events.put({"object": "measurement", "data": {"f": f, "z": {"re": 100, "im": 0}}})
+
         self.events.put({
             "object": "sweep",
             "action": "complete",
@@ -67,6 +69,7 @@ class AcquisitionTests(unittest.TestCase):
             threading.Event(),
             observed.append,
         )
+
         self.assertEqual(reason, "tolerance met")
         self.assertEqual(len(points), 199)
         self.assertEqual(
@@ -97,9 +100,11 @@ class AcquisitionTests(unittest.TestCase):
                 cancelled,
                 cancel,
             )
+
         self.assertTrue(client.stopped)
         self.assertTrue(client.events.empty())
         cancelled.clear()
+
         result = measure_sweep(
             client,
             1000,
@@ -108,6 +113,7 @@ class AcquisitionTests(unittest.TestCase):
             cancelled,
             lambda p: None,
         )
+
         self.assertEqual(len(result), 1)
         self.assertEqual(result[0].frequency_hz, 1000)
 
@@ -133,11 +139,13 @@ class AcquisitionTests(unittest.TestCase):
             threading.Event(),
             lambda p: None,
         )
+
         self.assertEqual((len(result), reason), (101, "experiment complete"))
 
     def test_missing_capability_fails_before_acquisition(self):
         client = FakeClient()
         client.device_info = lambda: {"capabilities": []}
+
         with self.assertRaisesRegex(ValueError, "update its firmware"):
             adaptive_sweep(
                 client,
@@ -148,6 +156,7 @@ class AcquisitionTests(unittest.TestCase):
                 threading.Event(),
                 lambda p: None,
             )
+
         self.assertEqual(client.requests, [])
 
     def test_runner_enforces_budget_even_for_custom_strategy(self):
@@ -159,6 +168,7 @@ class AcquisitionTests(unittest.TestCase):
 
             def next_frequency(self):
                 self.frequency += 1
+
                 return self.frequency
 
             def observe(self, point):
@@ -173,6 +183,7 @@ class AcquisitionTests(unittest.TestCase):
             threading.Event(),
             lambda p: None,
         )
+
         self.assertEqual((len(result), reason), (103, "point limit reached"))
 
 

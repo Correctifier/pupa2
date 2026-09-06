@@ -13,10 +13,13 @@ def read_short_sweep(client: AnalyzerClient) -> None:
         20_000.0,
         11,
     )
+
     while True:
         event = client.next_event(timeout=5.0)
+
         if event.get("object") == "measurement":
             data = event["data"]
+
             print(f"{data['f']:9.2f} Hz  Z={data['z']['re']:+.2f}{data['z']['im']:+.2f}j Ω")
         elif event.get("object") == "sweep" and event.get("action") == "complete":
             break
@@ -30,6 +33,7 @@ if __name__ == "__main__":
         else TcpTransport("127.0.0.1", 8765)
     )
     client = AnalyzerClient(transport)
+
     try:
         read_short_sweep(client)
     finally:

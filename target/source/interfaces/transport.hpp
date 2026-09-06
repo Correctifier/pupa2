@@ -22,6 +22,7 @@ struct ReceivedLine {
 class Transport {
  public:
   virtual ~Transport() = default;
+
   virtual std::optional<ReceivedLine> receive() = 0;
   virtual void send(std::uint32_t endpoint, std::string_view line) = 0;
 };
