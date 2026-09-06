@@ -30,7 +30,7 @@ The shared target code follows a heap-free embedded C++ policy documented in
 board-specific ARM toolchain and linker inputs.
 
 See [target protocol modules](docs/target-protocol.md) for request dispatch,
-typed message handlers, event publishing, and adding new operations.
+module processing, event publishing, and adding new operations.
 
 ## Get started
 

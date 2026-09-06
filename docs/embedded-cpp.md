@@ -5,7 +5,7 @@ heap and no C++ exception or RTTI runtime. The PC BSP is outside this policy.
 
 ## Allowed library facilities
 
-- `std::array`, `std::optional`, `std::variant`, and `std::complex<float>` have value semantics
+- `std::array`, `std::optional`, and `std::complex<float>` have value semantics
   and do not allocate. The DSP uses only basic complex arithmetic.
 - `std::string_view` is non-owning. All views passed through the target API must
   remain valid for the duration of the call.
@@ -19,8 +19,8 @@ the shared target code without an explicit memory/runtime design review.
 
 - Incoming and outgoing protocol lines are capped at 1,024 bytes.
 - Protocol modules and their registration array are owned by `ApplicationProtocol`;
-  the behavior-object references and router spans are non-owning. Decoded request
-  variants store their plain values inline; dispatch does not allocate.
+  the domain-object references and router spans are non-owning. Modules validate
+  and execute requests directly; dispatch does not allocate.
 - JSON uses ArduinoJson 6 `StaticJsonDocument`; the submodule is pinned to
   v6.21.6 because ArduinoJson 7's default document allocator uses the heap.
 - Demodulated samples accumulate into four cascaded complex sums per channel, normalized

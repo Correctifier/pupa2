@@ -5,33 +5,27 @@
 #include "../analyzer.hpp"
 
 namespace pickup::protocol {
-DecodedMessage GeneratorModule::decode(const RequestContext& request, JsonVariantConst params) {
+EncodedMessage GeneratorModule::process(const RequestContext& request, JsonVariantConst params) {
   if (request.action != "set") {
-    return {std::nullopt, unsupported_operation()};
+    return response(request, unsupported_operation());
   }
 
   if (!params["frequency"].is<float>() || !params["amplitude"].is<float>()) {
-    return {std::nullopt, {"invalid_params", "generator requires numeric frequency and amplitude"}};
+    return response(
+        request,
+        {"invalid_params", "generator requires numeric frequency and amplitude"}
+    );
   }
 
-  const GeneratorSetRequest settings{
-      params["frequency"].as<float>(),
-      params["amplitude"].as<float>()
-  };
+  const float frequency_hz = params["frequency"].as<float>();
+  const float amplitude_v = params["amplitude"].as<float>();
 
-  if (!std::isfinite(settings.frequency_hz) || !std::isfinite(settings.amplitude_v) ||
-      settings.frequency_hz <= 0 || settings.amplitude_v <= 0) {
-    return {std::nullopt, {"invalid_params", "generator values must be positive and finite"}};
+  if (!std::isfinite(frequency_hz) || !std::isfinite(amplitude_v) || frequency_hz <= 0 ||
+      amplitude_v <= 0) {
+    return response(request, {"invalid_params", "generator values must be positive and finite"});
   }
 
-  return {settings, {}};
-}
-
-std::optional<EncodedMessage> GeneratorModule::handle(
-    const RequestContext& request,
-    const GeneratorSetRequest& message
-) {
-  service_.set_generator(message.frequency_hz, message.amplitude_v);
+  service_.set_generator(frequency_hz, amplitude_v);
 
   return response(request);
 }

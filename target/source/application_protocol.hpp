@@ -31,15 +31,10 @@ class ApplicationProtocol final : public protocol::Router {
 
   void publish(const AcquisitionUpdate& update);
 
+ private:
   void measurement_acquired(std::uint32_t endpoint, const ProcessedMeasurement& sample) const;
   void invalid_signal(std::uint32_t endpoint) const;
   void sweep_complete(std::uint32_t endpoint, std::uint32_t points) const;
-
- private:
-  protocol::EncodedMessage dispatch_message(
-      const protocol::RequestContext& request,
-      const ApplicationMessage& message
-  ) override;
 
   protocol::DeviceModule device_;
   protocol::GeneratorModule generator_;

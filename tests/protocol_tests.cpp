@@ -113,118 +113,6 @@ class Frontend final : public pickup::bsp::ImpedanceAnalyzer {
   }
 };
 
-template <typename Message>
-Message decode_request(
-    pickup::protocol::Module& module,
-    std::string_view action,
-    std::string_view params
-) {
-  StaticJsonDocument<256> document;
-  const pickup::protocol::RequestContext context{
-      42,
-      7,
-      module.object(),
-      action
-  };
-
-  assert(deserializeJson(document, params) == DeserializationError::Ok);
-
-  const auto decoded = module.decode(context, document.as<JsonVariantConst>());
-
-  assert(decoded.error.ok());
-  assert(decoded.message);
-
-  const auto* message = std::get_if<Message>(&*decoded.message);
-
-  assert(message);
-
-  return *message;
-}
-
-void test_decoded_messages(Transport& transport) {
-  Frontend hardware;
-  pickup::Analyzer analyzer(hardware);
-  pickup::Calibration calibration_service(hardware);
-  pickup::protocol::DeviceModule device(transport, {
-      "test",
-      "test",
-      "0"
-  });
-  pickup::protocol::GeneratorModule generator(transport, analyzer);
-  pickup::protocol::SweepModule sweep(transport, analyzer);
-  pickup::protocol::RangeModule range(transport, analyzer);
-  pickup::protocol::CalibrationModule calibration(transport, calibration_service);
-
-  const pickup::protocol::RequestContext context{
-      42,
-      7,
-      "generator",
-      "set"
-  };
-  const auto set_generator = pickup::protocol::GeneratorSetRequest{1234, 0.5F};
-  pickup::protocol::MeasurementModule measurement(transport);
-
-  assert(!device.handle(context, set_generator));
-  assert(!sweep.handle(context, set_generator));
-  assert(!range.handle(context, set_generator));
-  assert(!calibration.handle(context, set_generator));
-  assert(!measurement.handle(context, set_generator));
-  assert(hardware.generator_calls == 0);
-  assert(generator.handle(context, set_generator));
-  assert(hardware.generator_calls == 1);
-
-  // A domain error is handled, not a reason to try another module.
-  const auto bad_range = pickup::protocol::RangeSetRequest{pickup::protocol::RangeMode::manual, 99};
-  const auto rejected = range.handle(context, bad_range);
-  StaticJsonDocument<1024> error;
-
-  assert(rejected);
-  assert(deserializeJson(error, rejected->view()) == DeserializationError::Ok);
-  assert(error["error"]["code"] == "invalid_params");
-
-  decode_request<pickup::protocol::DeviceInfoRequest>(
-      device,
-      "info",
-      "{}"
-  );
-
-  // Values remain usable after the decoder's JSON document has been destroyed.
-  const auto generator_message = decode_request<pickup::protocol::GeneratorSetRequest>(
-      generator,
-      "set",
-      R"({"frequency":1234,"amplitude":0.5})"
-  );
-  const auto sweep_message = decode_request<pickup::protocol::SweepStartRequest>(
-      sweep,
-      "start",
-      R"({"f_start":20,"f_stop":20000,"points":100})"
-  );
-  const auto range_message = decode_request<pickup::protocol::RangeSetRequest>(
-      range,
-      "set",
-      R"({"mode":"manual","range":2})"
-  );
-
-  assert(generator_message.frequency_hz == 1234.0F);
-  assert(generator_message.amplitude_v == 0.5F);
-  assert(sweep_message.endpoint == 42);
-  assert(sweep_message.start_hz == 20.0F);
-  assert(sweep_message.stop_hz == 20000.0F);
-  assert(sweep_message.points == 100);
-  assert(range_message.mode == pickup::protocol::RangeMode::manual);
-  assert(range_message.index == 2);
-  decode_request<pickup::protocol::SweepStopRequest>(
-      sweep,
-      "stop",
-      "{}"
-  );
-  decode_request<pickup::protocol::CalibrationRunRequest>(
-      calibration,
-      "run",
-      "{}"
-  );
-}
-
 void test_sweep_event_destination() {
   Transport transport;
   Frontend hardware;
@@ -292,7 +180,6 @@ void test_sweep_event_destination() {
 int main() {
   Transport transport;
 
-  test_decoded_messages(transport);
   test_sweep_event_destination();
 
   Frontend frontend;

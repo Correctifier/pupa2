@@ -22,11 +22,6 @@ class Router {
  protected:
   explicit Router(bsp::Transport& transport) : transport_(transport) {}
 
-  virtual EncodedMessage dispatch_message(
-      const RequestContext& request,
-      const ApplicationMessage& message
-  ) = 0;
-
   // Derived protocols register their owned modules after member construction.
   void register_modules(std::span<Module* const> modules) {
     modules_ = modules;

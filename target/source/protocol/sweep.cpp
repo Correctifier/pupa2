@@ -5,22 +5,24 @@
 #include "../analyzer.hpp"
 
 namespace pickup::protocol {
-DecodedMessage SweepModule::decode(const RequestContext& request, JsonVariantConst params) {
+EncodedMessage SweepModule::process(const RequestContext& request, JsonVariantConst params) {
   if (request.action == "stop") {
-    return {SweepStopRequest{}, {}};
+    service_.stop_sweep();
+    endpoint_.reset();
+
+    return response(request);
   }
 
   if (request.action != "start") {
-    return {std::nullopt, unsupported_operation()};
+    return response(request, unsupported_operation());
   }
 
   if (!params["f_start"].is<float>() || !params["f_stop"].is<float>() ||
       !params["points"].is<std::uint32_t>()) {
-    return {std::nullopt, {"invalid_params", "sweep requires f_start, f_stop, and points"}};
+    return response(request, {"invalid_params", "sweep requires f_start, f_stop, and points"});
   }
 
-  const SweepStartRequest settings{
-      request.endpoint,
+  const SweepParameters settings{
       params["f_start"].as<float>(),
       params["f_stop"].as<float>(),
       params["points"].as<std::uint32_t>()
@@ -30,14 +32,20 @@ DecodedMessage SweepModule::decode(const RequestContext& request, JsonVariantCon
   if (!std::isfinite(settings.start_hz) || !std::isfinite(settings.stop_hz) ||
       settings.start_hz <= 0 || settings.points == 0 || settings.points > 100000 ||
       (!single_point && (settings.stop_hz <= settings.start_hz || settings.points < 2))) {
-    return {
-        std::nullopt,
+    return response(
+        request,
         {"invalid_params",
             "require positive finite endpoints, 2..100000 ascending points or 1 at equal endpoints"}
-    };
+    );
   }
 
-  return {settings, {}};
+  if (!service_.start_sweep(settings)) {
+    return response(request, {"busy", "a sweep is already running"});
+  }
+
+  endpoint_ = request.endpoint;
+
+  return response(request);
 }
 
 void SweepModule::complete(std::uint32_t endpoint, std::uint32_t points) const {
@@ -48,33 +56,6 @@ void SweepModule::complete(std::uint32_t endpoint, std::uint32_t points) const {
   document.createNestedObject("data")["points"] = points;
 
   send(endpoint, encode(document));
-}
-
-std::optional<EncodedMessage> SweepModule::handle(
-    const RequestContext& request,
-    const SweepStartRequest& message
-) {
-  if (!service_.start_sweep({
-      message.start_hz,
-      message.stop_hz,
-      message.points
-  })) {
-    return response(request, {"busy", "a sweep is already running"});
-  }
-
-  endpoint_ = request.endpoint;
-
-  return response(request);
-}
-
-std::optional<EncodedMessage> SweepModule::handle(
-    const RequestContext& request,
-    const SweepStopRequest&
-) {
-  service_.stop_sweep();
-  endpoint_.reset();
-
-  return response(request);
 }
 
 }  // namespace pickup::protocol

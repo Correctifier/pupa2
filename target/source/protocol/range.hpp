@@ -1,6 +1,5 @@
 #pragma once
 #include "module.hpp"
-#include "range_messages.hpp"
 
 namespace pickup {
 class Analyzer;
@@ -13,13 +12,7 @@ class RangeModule final : public Module {
   RangeModule(bsp::Transport& transport, Analyzer& service)
       : Module("range", transport), service_(service) {}
 
-  using Module::handle;
-
-  DecodedMessage decode(const RequestContext& request, JsonVariantConst params) override;
-  std::optional<EncodedMessage> handle(
-      const RequestContext& request,
-      const RangeSetRequest& message
-  ) override;
+  EncodedMessage process(const RequestContext& request, JsonVariantConst params) override;
 
  private:
   Analyzer& service_;

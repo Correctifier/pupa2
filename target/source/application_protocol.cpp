@@ -29,24 +29,6 @@ ApplicationProtocol::ApplicationProtocol(
   register_modules(modules_);
 }
 
-protocol::EncodedMessage ApplicationProtocol::dispatch_message(
-    const protocol::RequestContext& request,
-    const ApplicationMessage& message
-) {
-  return std::visit(
-      [this, &request](const auto& concrete_message) {
-        for (auto* module : modules_) {
-          if (auto response = module->handle(request, concrete_message)) {
-            return *response;
-          }
-        }
-
-        return protocol::response(request, protocol::unsupported_operation());
-      },
-      message
-  );
-}
-
 void ApplicationProtocol::publish(const AcquisitionUpdate& update) {
   const auto endpoint = sweep_.endpoint();
 

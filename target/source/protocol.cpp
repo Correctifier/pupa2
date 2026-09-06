@@ -35,13 +35,7 @@ EncodedMessage Router::dispatch(const bsp::ReceivedLine& line) {
 
   for (auto* module : modules_) {
     if (module->object() == request.object) {
-      const auto decoded = module->decode(request, document["params"].as<JsonVariantConst>());
-
-      if (!decoded.message) {
-        return response(request, decoded.error);
-      }
-
-      return dispatch_message(request, *decoded.message);
+      return module->process(request, document["params"].as<JsonVariantConst>());
     }
   }
 

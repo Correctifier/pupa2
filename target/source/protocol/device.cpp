@@ -1,18 +1,11 @@
 #include "device.hpp"
 
 namespace pickup::protocol {
-DecodedMessage DeviceModule::decode(const RequestContext& request, JsonVariantConst) {
+EncodedMessage DeviceModule::process(const RequestContext& request, JsonVariantConst) {
   if (request.action != "info") {
-    return {std::nullopt, unsupported_operation()};
+    return response(request, unsupported_operation());
   }
 
-  return {DeviceInfoRequest{}, {}};
-}
-
-std::optional<EncodedMessage> DeviceModule::handle(
-    const RequestContext& request,
-    const DeviceInfoRequest&
-) {
   return response(request, info_);
 }
 

@@ -1,6 +1,7 @@
 #pragma once
+#include <optional>
+
 #include "module.hpp"
-#include "sweep_messages.hpp"
 
 namespace pickup {
 class Analyzer;
@@ -13,18 +14,8 @@ class SweepModule final : public Module {
   SweepModule(bsp::Transport& transport, Analyzer& service)
       : Module("sweep", transport), service_(service) {}
 
-  using Module::handle;
-
-  DecodedMessage decode(const RequestContext& request, JsonVariantConst params) override;
+  EncodedMessage process(const RequestContext& request, JsonVariantConst params) override;
   void complete(std::uint32_t endpoint, std::uint32_t points) const;
-  std::optional<EncodedMessage> handle(
-      const RequestContext& request,
-      const SweepStartRequest& message
-  ) override;
-  std::optional<EncodedMessage> handle(
-      const RequestContext& request,
-      const SweepStopRequest& message
-  ) override;
 
   std::optional<std::uint32_t> endpoint() const {
     return endpoint_;
