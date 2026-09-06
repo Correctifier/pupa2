@@ -7,6 +7,9 @@
 namespace pickup::bsp::stm32::acquisition {
 void initialize();
 void invalidate();
+// Set while capture is stopped; output rate includes boxcar decimation.
+void configure(float frequency_hz, float raw_sample_rate_hz);
+float sample_rate_hz();
 bool start(std::uint16_t* buffer, std::size_t count);
 std::size_t clean_data_count();
 bool finish();

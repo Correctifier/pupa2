@@ -3,8 +3,10 @@
 #include <array>
 #include <cmath>
 #include <cstdint>
+#include <span>
 
 #include "hal_support.hpp"
+#include "nco.hpp"
 
 using pickup::bsp::stm32::detail::check;
 using pickup::bsp::stm32::detail::fail;
@@ -13,9 +15,12 @@ namespace {
 DAC_HandleTypeDef dac{};
 DMA_HandleTypeDef dac_dma{};
 TIM_HandleTypeDef timer{};
-constexpr std::size_t waveform_length = 32;
+constexpr std::size_t waveform_length = 512;
+// 170 MHz / 272 = 625 ksample/s for both DAC and ADC, at every tone frequency.
+constexpr std::uint32_t timer_ticks = 272;
+pickup::bsp::stm32::Nco oscillator;
 alignas(4) std::array<std::uint16_t, waveform_length> waveform{};
-float sample_rate = 32000.0F;
+float sample_rate = 625000.0F;
 }  // namespace
 
 namespace pickup::bsp::stm32::generator {
@@ -94,16 +99,13 @@ void stop() {
 }
 
 void start(float frequency_hz, float amplitude_v) {
-  // 32 DAC samples per cycle keeps 20 kHz sweeps below 1 MS/s.
-  const float rate = frequency_hz * waveform_length;
-  const float timer_clock = static_cast<float>(HAL_RCC_GetPCLK1Freq());
-  const auto prescaler = static_cast<std::uint32_t>(std::ceil(timer_clock / rate / 65536.0F));
-  const auto period = static_cast<std::uint32_t>(std::lround(timer_clock / rate / prescaler));
-  sample_rate = timer_clock / static_cast<float>(prescaler * period);
+  const auto clock_multiplier = (RCC->CFGR & RCC_CFGR_PPRE1) == 0 ? 1U : 2U;
+  const auto timer_clock = HAL_RCC_GetPCLK1Freq() * clock_multiplier;
+  sample_rate = static_cast<float>(timer_clock) / timer_ticks;
   timer.Instance = TIM6;
-  timer.Init.Prescaler = prescaler - 1;
+  timer.Init.Prescaler = 0;
   timer.Init.CounterMode = TIM_COUNTERMODE_UP;
-  timer.Init.Period = period - 1;
+  timer.Init.Period = timer_ticks - 1;
   timer.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
 
   check(HAL_TIM_Base_Init(&timer));
@@ -114,19 +116,22 @@ void start(float frequency_hz, float amplitude_v) {
 
   check(HAL_TIMEx_MasterConfigSynchronization(&timer, &trigger));
 
-  const float amplitude = amplitude_v * 4095.0F / 3.3F;
+  oscillator.reset(
+      frequency_hz,
+      sample_rate,
+      amplitude_v
+  );
 
-  for (std::size_t index = 0; index < waveform.size(); ++index) {
-    waveform[index] = static_cast<std::uint16_t>(
-        std::lround(2048.0F + amplitude * std::cos(6.28318530718F * index / waveform.size()))
-    );
-  }
+  // Prime the DAC pipeline, then enqueue the following samples in time order.
+  const auto first_sample = oscillator.next();
+
+  oscillator.fill(waveform);
 
   check(HAL_DAC_SetValue(
       &dac,
       DAC_CHANNEL_1,
       DAC_ALIGN_12B_R,
-      waveform.back()
+      first_sample
   ));
   check(HAL_DAC_Start_DMA(
       &dac,
@@ -135,7 +140,6 @@ void start(float frequency_hz, float amplitude_v) {
       waveform.size(),
       DAC_ALIGN_12B_R
   ));
-  __HAL_DMA_DISABLE_IT(&dac_dma, DMA_IT_HT | DMA_IT_TC);
   check(HAL_TIM_Base_Start(&timer));
 }
 
@@ -145,11 +149,43 @@ float sample_rate_hz() {
 }  // namespace pickup::bsp::stm32::generator
 
 extern "C" void DMA1_Channel1_IRQHandler() {
+  if (__HAL_DMA_GET_FLAG(&dac_dma, __HAL_DMA_GET_HT_FLAG_INDEX(&dac_dma)) &&
+      __HAL_DMA_GET_FLAG(&dac_dma, __HAL_DMA_GET_TC_FLAG_INDEX(&dac_dma))) {
+    fail();
+  }
+
   HAL_DMA_IRQHandler(&dac_dma);
 }
 
 extern "C" void TIM6_DAC_IRQHandler() {
   HAL_DAC_IRQHandler(&dac);
+}
+
+namespace {
+void refill(std::size_t offset) {
+  const auto remaining = __HAL_DMA_GET_COUNTER(&dac_dma);
+  const bool first_half_active = remaining > waveform_length / 2;
+
+  if (first_half_active == (offset == 0)) {
+    fail();
+  }
+
+  oscillator.fill(std::span(waveform).subspan(offset, waveform_length / 2));
+  __DMB();
+
+  // A missed refill deadline must not silently repeat stale waveform samples.
+  if ((__HAL_DMA_GET_COUNTER(&dac_dma) > waveform_length / 2) == (offset == 0)) {
+    fail();
+  }
+}
+}  // namespace
+
+extern "C" void HAL_DAC_ConvHalfCpltCallbackCh1(DAC_HandleTypeDef*) {
+  refill(0);
+}
+
+extern "C" void HAL_DAC_ConvCpltCallbackCh1(DAC_HandleTypeDef*) {
+  refill(waveform_length / 2);
 }
 
 extern "C" void HAL_DAC_ErrorCallbackCh1(DAC_HandleTypeDef*) {

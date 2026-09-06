@@ -38,9 +38,11 @@ void initialize_serial() {
   uart.Init.OverSampling = UART_OVERSAMPLING_16;
 
   check(HAL_UART_Init(&uart));
+  // At 115200 baud a byte arrives every 87 us, sooner than a DMA half deadline.
+  // Let the short RX handler preempt waveform refill/ADC averaging.
   HAL_NVIC_SetPriority(
       USART2_IRQn,
-      2,
+      0,
       0
   );
   HAL_NVIC_EnableIRQ(USART2_IRQn);

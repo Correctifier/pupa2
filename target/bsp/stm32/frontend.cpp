@@ -24,6 +24,7 @@ void Frontend::set_control(float frequency_hz, float amplitude_v) {
   generator::stop();
   ranges::apply_pending();
   generator::start(frequency_hz, amplitude_v);
+  acquisition::configure(frequency_hz, generator::sample_rate_hz());
 }
 
 bool Frontend::start_acquisition(std::uint16_t* buffer, std::size_t count) {
@@ -46,7 +47,7 @@ bool Frontend::acquisition_finished() const {
 }
 
 float Frontend::sample_rate_hz() const {
-  return generator::sample_rate_hz();
+  return acquisition::sample_rate_hz();
 }
 
 void Frontend::set_range_auto() {

@@ -24,3 +24,12 @@ add_executable(pickup_circuit_tests
 target_include_directories(pickup_circuit_tests PRIVATE ../target/bsp/pc ../target/source)
 target_compile_options(pickup_circuit_tests PRIVATE -UNDEBUG -Wall -Wextra -Wpedantic)
 add_test(NAME pickup_circuit_tests COMMAND pickup_circuit_tests)
+
+add_executable(stm32_waveform_tests
+  stm32_waveform_tests.cpp
+  ../target/bsp/stm32/nco.cpp
+)
+target_include_directories(stm32_waveform_tests PRIVATE ../target/bsp/stm32)
+target_link_libraries(stm32_waveform_tests PRIVATE pickup_application)
+target_compile_options(stm32_waveform_tests PRIVATE -UNDEBUG -Wall -Wextra -Wpedantic)
+add_test(NAME stm32_waveform_tests COMMAND stm32_waveform_tests)

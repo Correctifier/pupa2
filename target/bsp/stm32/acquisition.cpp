@@ -1,7 +1,9 @@
 #include "acquisition.hpp"
 
 #include <algorithm>
+#include <array>
 
+#include "adc_decimator.hpp"
 #include "hal_support.hpp"
 
 using pickup::bsp::stm32::detail::check;
@@ -9,6 +11,8 @@ using pickup::bsp::stm32::detail::check;
 namespace {
 ADC_HandleTypeDef adc1{}, adc2{};
 DMA_HandleTypeDef adc_dma{};
+std::array<std::uint32_t, 512> dma_buffer{};
+pickup::bsp::stm32::AdcDecimator decimator;
 std::uint16_t* acquisition_buffer{};
 std::size_t acquisition_count{};
 bool acquisition_active{};
@@ -86,7 +90,7 @@ void initialize() {
   adc_dma.Init.MemInc = DMA_MINC_ENABLE;
   adc_dma.Init.PeriphDataAlignment = DMA_PDATAALIGN_WORD;
   adc_dma.Init.MemDataAlignment = DMA_MDATAALIGN_WORD;
-  adc_dma.Init.Mode = DMA_NORMAL;
+  adc_dma.Init.Mode = DMA_CIRCULAR;
   adc_dma.Init.Priority = DMA_PRIORITY_VERY_HIGH;
 
   check(HAL_DMA_Init(&adc_dma));
@@ -107,6 +111,14 @@ void initialize() {
       0
   );
   HAL_NVIC_EnableIRQ(ADC1_2_IRQn);
+}
+
+void configure(float frequency_hz, float raw_sample_rate_hz) {
+  decimator.configure(frequency_hz, raw_sample_rate_hz);
+}
+
+float sample_rate_hz() {
+  return decimator.sample_rate_hz();
 }
 
 void invalidate() {
@@ -130,12 +142,13 @@ bool start(std::uint16_t* buffer, std::size_t count) {
   acquisition_error = false;
   acquisition_active = true;
 
+  decimator.begin({buffer, count});
+
   check(HAL_ADCEx_MultiModeStart_DMA(
       &adc1,
-      reinterpret_cast<std::uint32_t*>(buffer),
-      count / 2
+      dma_buffer.data(),
+      dma_buffer.size()
   ));
-  __HAL_DMA_DISABLE_IT(&adc_dma, DMA_IT_HT);
 
   return true;
 }
@@ -194,7 +207,49 @@ void calibrate() {
 }
 }  // namespace pickup::bsp::stm32::acquisition
 
+namespace {
+void stop_capture(bool error) {
+  LL_ADC_REG_StopConversion(ADC1);
+  LL_ADC_REG_StopConversion(ADC2);
+  __HAL_DMA_DISABLE(&adc_dma);
+  __DMB();
+
+  acquisition_error = error;
+  acquisition_done = true;
+}
+
+void consume(std::size_t offset) {
+  if (acquisition_done) {
+    return;
+  }
+
+  const auto remaining = __HAL_DMA_GET_COUNTER(&adc_dma);
+
+  if ((remaining > dma_buffer.size() / 2) == (offset == 0)) {
+    stop_capture(true);
+
+    return;
+  }
+
+  __DMB();
+
+  const bool complete =
+      decimator.process(std::span(dma_buffer).subspan(offset, dma_buffer.size() / 2));
+
+  if ((__HAL_DMA_GET_COUNTER(&adc_dma) > dma_buffer.size() / 2) == (offset == 0)) {
+    stop_capture(true);
+  } else if (complete) {
+    stop_capture(false);
+  }
+}
+}  // namespace
+
 extern "C" void DMA1_Channel2_IRQHandler() {
+  if (__HAL_DMA_GET_FLAG(&adc_dma, __HAL_DMA_GET_HT_FLAG_INDEX(&adc_dma)) &&
+      __HAL_DMA_GET_FLAG(&adc_dma, __HAL_DMA_GET_TC_FLAG_INDEX(&adc_dma))) {
+    stop_capture(true);
+  }
+
   HAL_DMA_IRQHandler(&adc_dma);
 }
 
@@ -202,19 +257,14 @@ extern "C" void ADC1_2_IRQHandler() {
   HAL_ADC_IRQHandler(&adc1);
 }
 
-extern "C" void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef*) {
-  LL_ADC_REG_StopConversion(ADC1);
-  LL_ADC_REG_StopConversion(ADC2);
-  __DMB();
+extern "C" void HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef*) {
+  consume(0);
+}
 
-  acquisition_done = true;
+extern "C" void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef*) {
+  consume(dma_buffer.size() / 2);
 }
 
 extern "C" void HAL_ADC_ErrorCallback(ADC_HandleTypeDef*) {
-  LL_ADC_REG_StopConversion(ADC1);
-  LL_ADC_REG_StopConversion(ADC2);
-  __HAL_DMA_DISABLE(&adc_dma);
-
-  acquisition_error = true;
-  acquisition_done = true;
+  stop_capture(true);
 }
