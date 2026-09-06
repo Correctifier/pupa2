@@ -25,6 +25,7 @@ target_link_libraries(imgui PUBLIC glfw OpenGL::GL)
 
 add_executable(pickup_virtual_target
   main.cpp
+  virtual_gui.cpp
   ../../bsp/pc/posix_transport.cpp
   ../../bsp/pc/simulated_pickup.cpp
 )

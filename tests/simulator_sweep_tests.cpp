@@ -74,7 +74,11 @@ int main() {
 
   Transport transport;
   pickup::bsp::pc::SimulatedPickup frontend;
-  frontend.parameters().noise_percent = 0;
+  pickup::bsp::pc::PickupParameters parameters;
+  parameters.noise_percent = 0;
+
+  frontend.set_parameters(parameters);
+
   pickup::Application app({
       transport,
       frontend,

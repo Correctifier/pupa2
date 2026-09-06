@@ -16,8 +16,8 @@ struct PickupParameters {
 
 class SimulatedPickup final : public ImpedanceAnalyzer {
  public:
-  PickupParameters& parameters() {
-    return parameters_;
+  void set_parameters(PickupParameters parameters) {
+    parameters_ = parameters;
   }
 
   void set_control(float frequency_hz, float amplitude_v) override;
