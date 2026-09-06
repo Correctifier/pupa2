@@ -10,3 +10,8 @@ target_include_directories(simulator_sweep_tests PRIVATE ../target/bsp/pc)
 target_link_libraries(simulator_sweep_tests PRIVATE pickup_application)
 target_compile_options(simulator_sweep_tests PRIVATE -UNDEBUG)
 add_test(NAME simulator_sweep_tests COMMAND simulator_sweep_tests)
+
+add_executable(protocol_tests protocol_tests.cpp)
+target_link_libraries(protocol_tests PRIVATE pickup_application)
+target_compile_options(protocol_tests PRIVATE -UNDEBUG)
+add_test(NAME protocol_tests COMMAND protocol_tests)

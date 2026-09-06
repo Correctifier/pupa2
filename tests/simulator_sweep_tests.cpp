@@ -8,7 +8,6 @@
 #include <vector>
 
 #include "application.hpp"
-#include "protocol.hpp"
 #include "simulated_pickup.hpp"
 
 namespace {
@@ -50,28 +49,6 @@ class Transport final : public pickup::bsp::Transport {
 }  // namespace
 
 int main() {
-  std::string_view code, error;
-
-  for (const auto* params :
-      {
-          R"({"f_start":1000,"f_stop":1000,"points":2})",
-          R"({"f_start":1000,"f_stop":2000,"points":1})",
-          R"({"f_start":0,"f_stop":0,"points":1})",
-          R"({"f_start":1000,"f_stop":1000,"points":0})",
-          R"({"f_start":1e100,"f_stop":1e100,"points":1})"
-      }) {
-    const std::string request =
-        std::string(R"({"type":"request","object":"sweep","action":"start","id":1,"params":)") +
-        params + "}";
-
-    assert(!pickup::protocol::parse_request(
-        request,
-        code,
-        error
-    ));
-    assert(code == "invalid_params");
-  }
-
   Transport transport;
   pickup::bsp::pc::SimulatedPickup frontend;
   pickup::bsp::pc::PickupParameters parameters;
@@ -88,6 +65,32 @@ int main() {
           "0"
       }
   });
+
+  for (const auto* params :
+      {
+          R"({"f_start":1000,"f_stop":1000,"points":2})",
+          R"({"f_start":1000,"f_stop":2000,"points":1})",
+          R"({"f_start":0,"f_stop":0,"points":1})",
+          R"({"f_start":1000,"f_stop":1000,"points":0})",
+          R"({"f_start":1e100,"f_stop":1e100,"points":1})"
+      }) {
+    const std::string request =
+        std::string(R"({"type":"request","object":"sweep","action":"start","id":1,"params":)") +
+        params + "}";
+
+    transport.enqueue(request);
+    app.tick();
+
+    StaticJsonDocument<1024> invalid;
+
+    assert(deserializeJson(invalid, transport.outgoing.back()) == DeserializationError::Ok);
+    assert(invalid["id"] == 1);
+    assert(invalid["object"] == "sweep");
+    assert(invalid["action"] == "start");
+    assert(invalid["error"]["code"] == "invalid_params");
+  }
+
+  transport.outgoing.clear();
 
   transport.enqueue(R"({"type":"request","object":"device","action":"info","id":0})");
   app.tick();

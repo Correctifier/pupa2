@@ -17,8 +17,18 @@ endif()
 
 add_subdirectory(external/ArduinoJson)
 add_library(pickup_application
+  target/source/analyzer.cpp
+  target/source/calibration.cpp
   target/source/application.cpp
+  target/source/application_protocol.cpp
   target/source/protocol.cpp
+  target/source/protocol/module.cpp
+  target/source/protocol/device.cpp
+  target/source/protocol/generator.cpp
+  target/source/protocol/sweep.cpp
+  target/source/protocol/range.cpp
+  target/source/protocol/calibration.cpp
+  target/source/protocol/measurement.cpp
   target/source/signal_processing.cpp
 )
 target_include_directories(pickup_application PUBLIC target/source)

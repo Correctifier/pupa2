@@ -1,0 +1,43 @@
+#include "device.hpp"
+
+namespace pickup::protocol {
+DecodedMessage DeviceModule::decode(const RequestContext& request, JsonVariantConst) {
+  if (request.action != "info") {
+    return {std::nullopt, unsupported_operation()};
+  }
+
+  return {DeviceInfoRequest{}, {}};
+}
+
+std::optional<EncodedMessage> DeviceModule::handle(
+    const RequestContext& request,
+    const DeviceInfoRequest&
+) {
+  return response(request, info_);
+}
+
+EncodedMessage response(const RequestContext& request, const DeviceInformation& info) {
+  StaticJsonDocument<768> document;
+  document["type"] = "response";
+  document["object"] = "device";
+  document["action"] = "info";
+  document["id"] = request.id;
+  document["status"] = "ok";
+  auto data = document.createNestedObject("data");
+  data["target_name"] = info.target_name;
+  data["application_name"] = info.application_name;
+  data["application_version"] = info.application_version;
+  data["protocol_version"] = 1;
+  auto capabilities = data.createNestedArray("capabilities");
+
+  capabilities.add("generator");
+  capabilities.add("sweep");
+  capabilities.add("range");
+  capabilities.add("calibration");
+  capabilities.add("measurement_events");
+  capabilities.add("single_point_sweep");
+
+  return encode(document);
+}
+
+}  // namespace pickup::protocol

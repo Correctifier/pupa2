@@ -1,63 +1,41 @@
 #pragma once
-#include <array>
-#include <cstddef>
-#include <cstdint>
-#include <optional>
-#include <string_view>
+#include <span>
 
-#include "signal_processing.hpp"
+#include "protocol/module.hpp"
 
 namespace pickup::protocol {
 
-enum class Object { unknown, device, generator, sweep, range, calibration, measurement };
-enum class Action { unknown, info, set, start, stop, run, acquire, complete };
-enum class RangeMode { unspecified, automatic, manual };
+// Registration storage and modules must remain valid whenever poll() is called.
+class Router {
+ public:
+  Router(bsp::Transport& transport, std::span<Module* const> modules)
+      : transport_(transport), modules_(modules) {}
 
-struct Request {
-  std::uint64_t id{};
-  Object object{Object::unknown};
-  Action action{Action::unknown};
-  float frequency{};
-  float amplitude{};
-  float f_start{};
-  float f_stop{};
-  std::uint32_t points{};
-  RangeMode mode{RangeMode::unspecified};
-  std::uint32_t range{};
-};
+  virtual ~Router() = default;
 
-struct EncodedMessage {
-  static constexpr std::size_t capacity = 1024;
-  std::array<char, capacity> bytes{};
-  std::size_t size{};
+  Router(const Router&) = delete;
 
-  std::string_view view() const {
-    return {bytes.data(), size};
+  Router& operator=(const Router&) = delete;
+
+  void poll();
+
+ protected:
+  explicit Router(bsp::Transport& transport) : transport_(transport) {}
+
+  virtual EncodedMessage dispatch_message(
+      const RequestContext& request,
+      const ApplicationMessage& message
+  ) = 0;
+
+  // Derived protocols register their owned modules after member construction.
+  void register_modules(std::span<Module* const> modules) {
+    modules_ = modules;
   }
+
+ private:
+  EncodedMessage dispatch(const bsp::ReceivedLine& line);
+  bsp::Transport& transport_;
+  std::span<Module* const> modules_{};
 };
 
-std::string_view to_string(Object value);
-std::string_view to_string(Action value);
-std::optional<Request> parse_request(
-    std::string_view,
-    std::string_view& code,
-    std::string_view& error,
-    Request* envelope = nullptr
-);
-EncodedMessage response(const Request&);
-EncodedMessage device_info_response(
-    const Request&,
-    std::string_view target_name,
-    std::string_view application_name,
-    std::string_view application_version
-);
-EncodedMessage error_response(
-    std::uint64_t id,
-    Object object,
-    Action action,
-    std::string_view code,
-    std::string_view message
-);
-EncodedMessage measurement_event(const ProcessedMeasurement&);
-EncodedMessage sweep_event(Action action, std::uint32_t points);
 }  // namespace pickup::protocol

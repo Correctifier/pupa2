@@ -6,6 +6,7 @@ a Python desktop client. The current milestone is a usable virtual target.
 ## Architecture
 
 - `target/source`: hardware-independent application and JSON protocol
+- `target/source/protocol`: per-object request handlers and event encoders
 - `target/source/interfaces`: BSP contracts used by application code
 - `target/bsp/pc`: simulated pickup and TCP/pseudo-serial implementations
 - `target/bsp/stm32`: home for STM32 implementations
@@ -27,6 +28,9 @@ plotting and nonlinear fitting retain Python's double-precision arithmetic.
 The shared target code follows a heap-free embedded C++ policy documented in
 `docs/embedded-cpp.md`; enable `PICKUP_BUILD_STM32_TARGET` only with the
 board-specific ARM toolchain and linker inputs.
+
+See [target protocol modules](docs/target-protocol.md) for request dispatch,
+typed message handlers, event publishing, and adding new operations.
 
 ## Get started
 
