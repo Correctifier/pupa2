@@ -57,11 +57,33 @@ must be finite, within the original range, and distinct from existing samples.
 `observe()` receives the acquired value, not an interpolation or fitted value.
 The runner enforces the point cap even if a custom planner does not.
 
-The built-in planner processes a queue of intervals breadth-first. Each
-midpoint is kept; failing intervals enqueue both halves. It stops at the
+`RecursiveMidpointStrategy` (GUI: **Complex midpoint**) processes intervals
+breadth-first. `LargestErrorMidpointStrategy` (GUI: **Largest error first**) uses
+a max-error priority queue. Each midpoint is kept; failing intervals enqueue
+both halves. Both stop at the
 tolerance, point cap, depth 12, or natural-log interval width `1e-5`. These last
 two settings and the impedance floor can be changed through `AdaptiveSettings`
 for Python experiments. Hitting a limit does not report tolerance convergence.
+
+## Largest-error ordering
+
+A midpoint's actual error cannot be known before acquiring it. The planner
+first probes every coarse interval (99 extra measurements with the default
+100-point grid). Unprobed coarse intervals have infinite priority, so an early
+feature cannot consume the refinement budget before this initial assessment.
+
+After that, each queued child interval carries its parent's measured error as
+its priority estimate. Pop the highest-priority interval, acquire its geometric
+midpoint, and calculate its actual relative complex interpolation error. If it
+exceeds tolerance, push its two children with that new error. The next pop
+compares these new candidates against every remaining interval, regardless of
+depth. This repeats until convergence or a configured limit. A sequence number
+breaks equal-error ties deterministically without comparing measurement objects.
+
+This orders acquisitions by **estimated error**, not by the as-yet unmeasured
+error at each candidate. The priority is the magnitude of the complex residual
+normalized by measured impedance, preserving the GUI's percentage tolerance and
+sensitivity to phase. Custom metrics work with either built-in strategy.
 
 ## Validation
 

@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
+import heapq
 import math
-from collections import deque
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from typing import Protocol
@@ -116,18 +116,44 @@ class RecursiveMidpointStrategy:
 
         self.settings = settings
         self.error_metric = error_metric
-        self._intervals = deque(
-            (
-                a,
-                b,
+        self._intervals: list[tuple[float, int, SweepPoint, SweepPoint, int]] = []
+        self._sequence = 0
+
+        for left, right in zip(points, points[1:]):
+            self._queue_interval(
+                left,
+                right,
                 1,
+                math.inf,
             )
-            for a, b in zip(points, points[1:])
-        )
+
         self._pending: tuple[SweepPoint, SweepPoint, int] | None = None
         self._count = len(points)
         self._limited = False
         self.stop_reason = ""
+
+    def _priority(self, error: float, depth: int) -> float:
+        return depth
+
+    def _queue_interval(
+        self,
+        left: SweepPoint,
+        right: SweepPoint,
+        depth: int,
+        error: float,
+    ) -> None:
+        heapq.heappush(
+            self._intervals,
+            (
+                self._priority(error, depth),
+                self._sequence,
+                left,
+                right,
+                depth,
+            ),
+        )
+
+        self._sequence += 1
 
     def next_frequency(self) -> float | None:
         if self._pending is not None:
@@ -139,7 +165,7 @@ class RecursiveMidpointStrategy:
 
                 return None
 
-            left, right, depth = self._intervals.popleft()
+            _, _, left, right, depth = heapq.heappop(self._intervals)
             span = math.log(right.frequency_hz / left.frequency_hz)
 
             if depth > self.settings.max_depth or span <= self.settings.min_log_span:
@@ -192,20 +218,36 @@ class RecursiveMidpointStrategy:
             raise ValueError("Adaptive error metric must return a finite nonnegative value")
 
         if error > self.settings.tolerance:
-            self._intervals.append((
+            self._queue_interval(
                 left,
                 point,
                 depth + 1,
-            ))
-            self._intervals.append((
+                error,
+            )
+            self._queue_interval(
                 point,
                 right,
                 depth + 1,
-            ))
+                error,
+            )
+
+
+class LargestErrorMidpointStrategy(RecursiveMidpointStrategy):
+    """Refine the candidate with the largest inherited midpoint error first.
+
+    All coarse intervals get a measured midpoint before refinement begins.
+    A child interval's priority is its parent's measured interpolation error;
+    its own error becomes known only after acquiring its midpoint. Ties keep
+    insertion order, and every observation immediately re-ranks new children.
+    """
+
+    def _priority(self, error: float, depth: int) -> float:
+        return -error
 
 
 StrategyFactory = Callable[[Sequence[SweepPoint], AdaptiveSettings], AdaptiveStrategy]
 # Add a factory here to expose another planner in the GUI without editing acquisition.
 STRATEGIES: dict[str, StrategyFactory] = {
     "Complex midpoint": RecursiveMidpointStrategy,
+    "Largest error first": LargestErrorMidpointStrategy,
 }

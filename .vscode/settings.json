@@ -7,6 +7,6 @@
   "clangd.arguments": [
     "--background-index",
     "--clang-tidy",
-    "--query-driver=/usr/bin/c++,/usr/bin/g++,/usr/bin/g++-*,/usr/bin/cc,/usr/bin/gcc,/usr/bin/gcc-*"
+    "--query-driver=/usr/bin/c++,/usr/bin/g++,/usr/bin/g++-*,/usr/bin/cc,/usr/bin/gcc,/usr/bin/gcc-*,/usr/bin/arm-none-eabi-gcc,/usr/bin/arm-none-eabi-g++,/opt/st/stm32cubeclt_*/GNU-tools-for-STM32/bin/arm-none-eabi-gcc,/opt/st/stm32cubeclt_*/GNU-tools-for-STM32/bin/arm-none-eabi-g++"
   ]
 }

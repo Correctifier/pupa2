@@ -73,7 +73,7 @@ int main(int argc, char** argv) try {
 
     next_frame = now + frame_interval;
 
-    parameters = gui.render(parameters);
+    parameters = gui.render(parameters, frontend.status());
 
     frontend.set_parameters(parameters);
   }

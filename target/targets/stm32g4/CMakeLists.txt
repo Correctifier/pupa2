@@ -51,7 +51,13 @@ target_compile_definitions(stm32g4_hal PUBLIC USE_HAL_DRIVER STM32G431xx)
 add_executable(pickup_stm32_target
   main.cpp
   runtime.cpp
-  ../../bsp/stm32/nucleo_g431kb.cpp
+  ../../bsp/stm32/clock.cpp
+  ../../bsp/stm32/board.cpp
+  ../../bsp/stm32/serial_transport.cpp
+  ../../bsp/stm32/generator.cpp
+  ../../bsp/stm32/acquisition.cpp
+  ../../bsp/stm32/ranges.cpp
+  ../../bsp/stm32/frontend.cpp
   ${DEVICE_ROOT}/Source/Templates/gcc/startup_stm32g431xx.s
 )
 target_include_directories(pickup_stm32_target PRIVATE ../../bsp/stm32)

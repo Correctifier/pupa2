@@ -72,6 +72,8 @@ def main():
             if event.get("object") == "measurement":
                 measurement = Measurement.from_event(event)
 
+                assert measurement.range_index == 2
+                assert measurement.sense_resistor_ohm == 100000
                 assert math.isfinite(measurement.z.re)
                 assert math.isfinite(measurement.z.im)
                 frequencies.append(measurement.frequency_hz)

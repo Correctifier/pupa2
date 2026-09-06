@@ -3,7 +3,7 @@ import threading
 import unittest
 
 from pickup_analyzer.acquisition import SweepCancelled, adaptive_sweep, measure_sweep
-from pickup_analyzer.adaptive import AdaptiveSettings, RecursiveMidpointStrategy
+from pickup_analyzer.adaptive import AdaptiveSettings, RecursiveMidpointStrategy, STRATEGIES
 from pickup_analyzer.sweep import logarithmic_frequencies
 
 
@@ -80,6 +80,26 @@ class AcquisitionTests(unittest.TestCase):
                 100,
             ),
         )
+        self.assertTrue(all(a == b and n == 1 for a, b, n in client.requests[1:]))
+        self.assertEqual(points, sorted(observed, key=lambda p: p.frequency_hz))
+        self.assertTrue(client.events.empty())
+
+    def test_registered_largest_error_strategy_runs_through_acquisition(self):
+        client = FakeClient()
+        observed = []
+        points, reason = adaptive_sweep(
+            client,
+            20,
+            20000,
+            AdaptiveSettings(),
+            STRATEGIES["Largest error first"],
+            threading.Event(),
+            observed.append,
+        )
+
+        self.assertEqual(reason, "tolerance met")
+        self.assertEqual(len(points), 199)
+        self.assertEqual(len(client.requests), 100)
         self.assertTrue(all(a == b and n == 1 for a, b, n in client.requests[1:]))
         self.assertEqual(points, sorted(observed, key=lambda p: p.frequency_hz))
         self.assertTrue(client.events.empty())

@@ -31,7 +31,7 @@ VirtualGui::VirtualGui(
 
   window_ = glfwCreateWindow(
       720,
-      390,
+      460,
       "Pickup virtual target",
       nullptr,
       nullptr
@@ -65,7 +65,7 @@ bool VirtualGui::should_close() const {
   return glfwWindowShouldClose(window_);
 }
 
-PickupParameters VirtualGui::render(PickupParameters p) {
+PickupParameters VirtualGui::render(PickupParameters p, const SimulatorStatus& status) {
   const double dcr_min = 100.0, dcr_max = 30000.0;
   const double inductance_min = 0.01, inductance_max = 20.0;
   const double capacitance_min = 1.0, capacitance_max = 1000.0;
@@ -89,6 +89,15 @@ PickupParameters VirtualGui::render(PickupParameters p) {
   ImGui::Text("Endpoints");
   ImGui::BulletText("TCP: 127.0.0.1:%u", port_);
   ImGui::BulletText("Serial: %s", serial_path_.c_str());
+  ImGui::Separator();
+  ImGui::Text("Generator: %.3f Hz", static_cast<double>(status.frequency_hz));
+  ImGui::Text("Amplitude: %.3f V peak", static_cast<double>(status.amplitude_v));
+  ImGui::Text(
+      "Range %u: %.0f ohm (%s)",
+      status.range_index,
+      static_cast<double>(status.sense_resistor_ohm),
+      status.automatic_range ? "automatic" : "fixed"
+  );
   ImGui::Separator();
   ImGui::SliderScalar(
       "DCR (ohm)",

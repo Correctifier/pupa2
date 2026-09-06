@@ -9,3 +9,5 @@ __pycache__/
 !.vscode/settings.json
 !.vscode/extensions.json
 /.cache/
+
+!.vscode/tasks.json

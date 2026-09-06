@@ -106,3 +106,20 @@ Messages retain fixed 1,024-byte buffers and `StaticJsonDocument`. Processing
 requires no dynamic allocation, exceptions, or RTTI. Encoding rejects overflowing
 documents instead of sending partial JSON. Keep new payloads within both their
 JSON document capacity and the wire limit.
+
+## Sense range encoding
+
+`range/set` with `{"mode":"manual","range":N}` selects a fixed range.
+The mapping is shared by the STM32 and virtual BSPs in
+`target/source/range_selection.hpp`:
+
+| Index / S1:S0 | Sense resistance |
+| --- | --- |
+| 0 / 00 | 1 kΩ |
+| 1 / 01 | 10 kΩ |
+| 2 / 10 | 100 kΩ (fixed startup default) |
+| 3 / 11 | 1 MΩ |
+
+`{"mode":"auto"}` explicitly enables auto-ranging. Selection uses the completed
+capture and takes effect at the next generator setting, before settling.
+The measurement event's `range` and `rsense` fields identify its selected range.

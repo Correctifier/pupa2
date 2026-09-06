@@ -23,10 +23,14 @@ ST-LINK VCP, SWD, and the debug LED available. The LED toggles every 500 ms;
 peripheral initialization/DMA failures stop execution and hold it on.
 
 The range outputs assume an external four-way analog switch or decoder:
-S1:S0 = 00 selects 100 ohm, 01 selects 1 kohm, 10 selects 10 kohm, and 11 selects
-100 kohm. They do not switch sense resistors directly. Boot selects 10 kohm.
-The resistor values are defined in `nucleo_g431kb.cpp` and must match the
-external circuit. Auto-ranging estimates impedance from the completed capture's
+S1:S0 = 00 selects 1 kohm, 01 selects 10 kohm, 10 selects 100 kohm, and 11 selects
+1 Mohm. They do not switch sense resistors directly. Boot selects **fixed 100 kohm**;
+auto-ranging requires an explicit `range/set` request with mode `auto`.
+The shared `target/source/range_selection.hpp` defines the protocol indices,
+resistor values, and startup selection for both hardware and simulator. These
+values must match the external circuit. Until switching hardware is installed,
+use a physical 100 kohm sense resistor and leave the range fixed at index 2.
+Auto-ranging estimates impedance from the completed capture's
 channel RMS ratio and applies the closest range at the next frequency setting,
 before settling. It does not reacquire the current point.
 
@@ -84,6 +88,22 @@ ADC inputs and range outputs, and measure a known resistor before a pickup.
 Cross-build and host tests do not verify physical pin routing, analog settling,
 DMA operation on silicon, or measurement accuracy. No board has been flashed or
 hardware-tested by this change.
+
+## BSP organization
+
+`nucleo_g431kb.hpp` is the public umbrella header. Implementation is split by
+peripheral ownership:
+
+- `clock.cpp`: HAL initialization, system clock setup, early clock failure handling, and SysTick IRQ.
+- `board.cpp`: board initialization, LED heartbeat, idle wait, and fatal HAL error handling.
+- `serial_transport.cpp`: ST-LINK UART transport, receive buffer, and UART IRQ.
+- `generator.cpp`: DAC waveform, timer, DAC DMA, and its IRQ/callbacks.
+- `acquisition.cpp`: dual ADC capture, calibration, ADC DMA, and its IRQ/callbacks.
+- `ranges.cpp`: range GPIO, resistor selection, and autorange decisions.
+- `frontend.cpp`: coordinates generator, acquisition, and ranges for the analyzer.
+
+Peripheral handles and interrupt state stay private to their owning source file.
+`hal_support.hpp` shares only HAL checking helpers.
 
 ## References
 

@@ -1,25 +1,29 @@
 #pragma once
 
-#include <complex>
 #include <random>
 
 #include "interfaces/impedance_analyzer.hpp"
+#include "pickup_circuit.hpp"
+#include "range_selection.hpp"
 
 namespace pickup::bsp::pc {
 
-struct PickupParameters {
-  double dcr_ohm{7000.0};
-  double inductance_h{3.0};
-  double capacitance_pf{120.0};
-  double noise_percent{0.15};
+struct SimulatorStatus {
+  float frequency_hz{};
+  float amplitude_v{};
+  std::uint32_t range_index{};
+  float sense_resistor_ohm{};
+  bool automatic_range{};
 };
 
 class SimulatedPickup final : public ImpedanceAnalyzer {
  public:
-  void set_parameters(PickupParameters parameters) {
-    parameters_ = parameters;
-  }
+  // Seconds from a monotonic clock; injectable for deterministic tests.
+  using Clock = double (*)();
 
+  explicit SimulatedPickup(Clock clock = steady_seconds);
+  void set_parameters(PickupParameters parameters);
+  SimulatorStatus status() const;
   std::uint32_t milliseconds() const override;
   void set_control(float frequency_hz, float amplitude_v) override;
   bool start_acquisition(std::uint16_t* buffer, std::size_t buffer_count) override;
@@ -30,10 +34,7 @@ class SimulatedPickup final : public ImpedanceAnalyzer {
     return sample_rate_hz_;
   }
 
-  void set_range_auto() override {
-    automatic_range_ = true;
-  }
-
+  void set_range_auto() override;
   bool set_range_manual(std::uint32_t range_index) override;
 
   std::uint32_t range_index() const override {
@@ -45,20 +46,29 @@ class SimulatedPickup final : public ImpedanceAnalyzer {
   void calibrate() override {}
 
  private:
+  static double steady_seconds();
+  void advance_to_now() const;
+  void update_next_range() const;
+  Clock clock_;
   PickupParameters parameters_;
-  void advance_dma() const;
+  mutable PickupCircuit circuit_;
+  mutable double circuit_time_{};
   float generator_frequency_hz_{1000.0F};
   float generator_amplitude_v_{0.25F};
-  float sample_rate_hz_{192000.0F};
-  bool automatic_range_{true};
-  std::uint32_t range_index_{2};
+  float sample_rate_hz_{64000.0F};
+  bool automatic_range_{};
+  std::uint32_t range_index_{startup_range_index};
+  mutable std::uint32_t next_range_index_{startup_range_index};
   mutable std::mt19937 generator_{std::random_device{}()};
   mutable std::uint16_t* dma_buffer_{};
   mutable std::size_t dma_buffer_count_{};
   mutable std::size_t clean_count_{};
   mutable bool acquisition_active_{};
-  mutable std::complex<double> v_signal_{};
-  mutable std::complex<double> vsense_signal_{};
+  mutable bool acquisition_invalid_{};
+  mutable double next_sample_time_{};
+  mutable double acquisition_sample_interval_{};
+  mutable double voltage_power_{};
+  mutable double sense_power_{};
 };
 
 }  // namespace pickup::bsp::pc

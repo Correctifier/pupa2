@@ -24,7 +24,7 @@ class VirtualGui {
 
   bool should_close() const;
   // Edit a snapshot; the caller owns and applies the returned parameters.
-  PickupParameters render(PickupParameters parameters);
+  PickupParameters render(PickupParameters parameters, const SimulatorStatus& status);
 
  private:
   GLFWwindow* window_{};

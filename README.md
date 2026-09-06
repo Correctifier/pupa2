@@ -61,14 +61,21 @@ ctest --test-dir build --output-on-failure
 ```
 
 The virtual target listens on `127.0.0.1:8765` and prints its pseudo-terminal
-path at startup. Its ImGui window controls DCR, inductance, parallel parasitic
-capacitance, and measurement noise.
+path at startup. Its ImGui window shows the active generator frequency,
+amplitude, and range, and controls DCR, inductance, parallel parasitic capacitance,
+and measurement noise. Both targets start in **fixed 100 kΩ** range (index 2).
+Range indices 0–3 select 1 kΩ, 10 kΩ, 100 kΩ, and 1 MΩ, respectively, as defined
+in `target/source/range_selection.hpp`. Auto-ranging is opt-in.
+
+The [simulator circuit model](docs/simulator.md) retains capacitor voltage,
+inductor current, and source phase across generator and range changes, including
+during idle and settling time.
 Pass `--headless` to run the transport/model without opening a window (useful
 for CI), or pass a numeric argument to select a different TCP port. On Linux,
 the GUI prefers X11/XWayland for reliable minimize/restore behavior; pass
 `--wayland` to explicitly use GLFW's native Wayland backend.
 Acquisition advances between redraws; the virtual target window redraws at
-about 60 FPS without tying each simulated DMA chunk to monitor refresh.
+about 60 FPS; simulated ADC sampling follows elapsed time independently of redraws.
 
 In another terminal, launch the client directly. The TCP client uses only the
 Python standard library, so a virtual environment and package installation are
@@ -133,6 +140,14 @@ order. Completed sweep names record whether tolerance was met or a point or
 refinement limit was reached; save/load and RLC fitting work as for fixed sweeps.
 Each continuous pass starts with a fresh coarse grid.
 
+The **Largest error first** strategy checks the same initial midpoints, then
+uses a priority queue to acquire the candidate with the greatest estimated
+error. Each new child midpoint inherits its parent's measured relative complex
+interpolation error until it is measured itself. After every acquisition the
+new child candidates are ranked against all remaining candidates, so refinement
+can switch between features immediately. Equal errors keep insertion order.
+The tolerance and point/depth/spacing limits apply to both strategies.
+
 Even a smooth curve needs 199 measurements to check all 99 initial intervals.
 A cap below 199 stops before that first check is complete. The error uses both
 real and imaginary impedance, so phase changes matter too. Tolerance describes
@@ -148,26 +163,30 @@ planner or error metric without changing the GUI worker or firmware.
 
 See [coding style](docs/coding-style.md) for multiline argument formatting.
 
-Configure with `cmake -S . -B build` using Ninja or Unix Makefiles. CMake exports
-`build/compile_commands.json` by default, and the root `compile_commands.json`
-symlink exposes it to clangd for sources and headers throughout the workspace.
-Run `cmake --build build -j` to produce any generated headers as well.
+Select the active compilation database with either command:
 
-In VS Code, install the recommended clangd and CMake Tools extensions. Workspace
-settings use `build` and disable the Microsoft C/C++ IntelliSense engine to
-avoid duplicate diagnostics. If clangd was running before the first configure,
-run **clangd: Restart language server** after configuring.
+```sh
+python scripts/select_clangd.py pc
+python scripts/select_clangd.py stm32
+```
 
-The clangd arguments allow querying the system GCC drivers under `/usr/bin`
-for their standard-library include paths. Other editors should pass the same
-`--query-driver` argument from `.vscode/settings.json`; if you select a compiler
-elsewhere, add its trusted executable path to that allowlist.
+The selector configures and builds the target (including generated headers), then
+switches an ignored local symlink. PC uses `build`; STM32 uses `build-stm32` and
+requires the Arm toolchain on `PATH`. Use `--build-dir build-stm32-debug` to select
+another build directory; existing build types are preserved. Use separate build
+directories for PC and STM32. A failed configure/build leaves the selection intact.
 
-For a different build directory, point the root symlink at that directory's
-`compile_commands.json` (for example,
-`ln -sfn build-debug/compile_commands.json compile_commands.json`). The selected
-database determines the active target and compiler flags; the default desktop
-build does not include the STM32 target; use the separate cross-build below.
+In VS Code, install the recommended clangd and CMake Tools extensions. Run
+**Tasks: Run Task → clangd: Use PC target** or **clangd: Use STM32 target**, then
+**clangd: Restart language server**. CMake Tools continues to use the PC `build`
+directory; these tasks independently select clangd's target.
+
+The root `compile_commands.json` points to the local selection under `.cache`.
+Run the selector once after cloning. Workspace settings allow clangd to query
+system GCC and Arm GCC installed under `/usr/bin` or STM32CubeCLT under `/opt/st`
+for system headers. For another toolchain location, add its trusted executable
+path to `--query-driver` in `.vscode/settings.json`. Other editors should use the
+same argument; see [clangd system headers](https://clangd.llvm.org/guides/system-headers).
 
 ## NUCLEO-G431KB firmware
 

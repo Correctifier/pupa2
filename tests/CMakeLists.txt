@@ -5,6 +5,7 @@ add_test(NAME application_tests COMMAND application_tests)
 add_executable(simulator_sweep_tests
   simulator_sweep_tests.cpp
   ../target/bsp/pc/simulated_pickup.cpp
+  ../target/bsp/pc/pickup_circuit.cpp
 )
 target_include_directories(simulator_sweep_tests PRIVATE ../target/bsp/pc)
 target_link_libraries(simulator_sweep_tests PRIVATE pickup_application)
@@ -15,3 +16,11 @@ add_executable(protocol_tests protocol_tests.cpp)
 target_link_libraries(protocol_tests PRIVATE pickup_application)
 target_compile_options(protocol_tests PRIVATE -UNDEBUG)
 add_test(NAME protocol_tests COMMAND protocol_tests)
+
+add_executable(pickup_circuit_tests
+  pickup_circuit_tests.cpp
+  ../target/bsp/pc/pickup_circuit.cpp
+)
+target_include_directories(pickup_circuit_tests PRIVATE ../target/bsp/pc ../target/source)
+target_compile_options(pickup_circuit_tests PRIVATE -UNDEBUG -Wall -Wextra -Wpedantic)
+add_test(NAME pickup_circuit_tests COMMAND pickup_circuit_tests)
