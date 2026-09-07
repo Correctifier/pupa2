@@ -17,8 +17,9 @@ PickupCircuit::PickupCircuit() : sense_resistor_ohm_(sense_resistors_ohm[startup
 void PickupCircuit::set_parameters(PickupParameters parameters) {
   if (!std::isfinite(parameters.dcr_ohm) || parameters.dcr_ohm <= 0 ||
       !std::isfinite(parameters.inductance_h) || parameters.inductance_h <= 0 ||
-      !std::isfinite(parameters.capacitance_pf) || parameters.capacitance_pf <= 0) {
-    throw std::invalid_argument("circuit R, L and C must be positive and finite");
+      !std::isfinite(parameters.capacitance_pf) || parameters.capacitance_pf <= 0 ||
+      !std::isfinite(parameters.parallel_loss_ohm) || parameters.parallel_loss_ohm <= 0) {
+    throw std::invalid_argument("circuit R, L, C and parallel loss must be positive and finite");
   }
 
   parameters_ = parameters;
@@ -50,13 +51,14 @@ void PickupCircuit::set_sense_resistor(double resistance_ohm) {
 
 void PickupCircuit::update_coefficients() {
   const double capacitance = parameters_.capacitance_pf * 1e-12;
-  a_ = -1.0 / (sense_resistor_ohm_ * capacitance);
+  a_ = -(1.0 / sense_resistor_ohm_ + 1.0 / parameters_.parallel_loss_ohm) / capacitance;
   b_ = -1.0 / capacitance;
   c_ = 1.0 / parameters_.inductance_h;
   d_ = -parameters_.dcr_ohm / parameters_.inductance_h;
   const std::complex<double> jw(0.0, tau * frequency_hz_);
   const auto branch = parameters_.dcr_ohm + jw * parameters_.inductance_h;
-  const auto impedance = 1.0 / (1.0 / branch + jw * capacitance);
+  const auto impedance =
+      1.0 / (1.0 / branch + jw * capacitance + 1.0 / parameters_.parallel_loss_ohm);
   forced_voltage_ = amplitude_v_ * impedance / (sense_resistor_ohm_ + impedance);
   forced_current_ = forced_voltage_ / branch;
 }
@@ -83,9 +85,7 @@ CircuitSample PickupCircuit::advance(double seconds) {
   if (discriminant > 0) {
     const double root = std::sqrt(discriminant);
     const double fast_pole = mean - root;
-    const double determinant =
-        (parameters_.dcr_ohm + sense_resistor_ohm_) /
-        (sense_resistor_ohm_ * parameters_.inductance_h * parameters_.capacitance_pf * 1e-12);
+    const double determinant = a_ * d_ - b_ * c_;
     const double slow_pole = determinant / fast_pole;
     const double slow = std::exp(slow_pole * seconds);
     const double fast = std::exp(fast_pole * seconds);

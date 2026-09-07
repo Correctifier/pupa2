@@ -11,19 +11,20 @@ class RlcFit:
     resistance_ohm: float
     inductance_h: float
     capacitance_f: float
+    parallel_resistance_ohm: float
     r_squared: float
     standard_deviation_ohm: float
 
     def evaluate(self, frequency_hz: float) -> complex:
         s = complex(0.0, 2.0 * math.pi * frequency_hz)
-        numerator = self.resistance_ohm + s * self.inductance_h
-        denominator = (
-            1.0
-            + s * self.resistance_ohm * self.capacitance_f
-            + self.inductance_h * self.capacitance_f * s * s
+        series_branch = self.resistance_ohm + s * self.inductance_h
+        admittance = (
+            1.0 / series_branch
+            + 1.0 / self.parallel_resistance_ohm
+            + s * self.capacitance_f
         )
 
-        return numerator / denominator
+        return 1.0 / admittance
 
     def as_sweep(self, source: Sweep) -> Sweep:
         points = []
@@ -68,11 +69,14 @@ def _solve(matrix: list[list[float]], vector: list[float]) -> list[float]:
 
 
 def _values(log_parameters: list[float], frequencies: list[float]) -> list[complex]:
-    resistance, inductance, capacitance = (math.exp(value) for value in log_parameters)
+    resistance, inductance, capacitance, parallel_resistance = (
+        math.exp(value) for value in log_parameters
+    )
     fit = RlcFit(
         resistance,
         inductance,
         capacitance,
+        parallel_resistance,
         0.0,
         0.0,
     )
@@ -84,7 +88,7 @@ def _residual_vector(predicted: list[complex], observed: list[complex]) -> list[
     result = []
 
     for model, actual in zip(predicted, observed):
-        difference = model - actual
+        difference = (model - actual) / max(abs(actual), 1e-12)
 
         result.extend((difference.real, difference.imag))
 
@@ -108,6 +112,7 @@ def fit_rlc(sweep: Sweep) -> RlcFit:
         math.log(resistance),
         math.log(inductance),
         math.log(capacitance),
+        math.log(max(peak.magnitude_ohm * 2.0, resistance * 10.0)),
     ]
     damping = 1e-3
 
@@ -119,7 +124,7 @@ def fit_rlc(sweep: Sweep) -> RlcFit:
         epsilon = 1e-5
         jacobian_columns = []
 
-        for parameter_index in range(3):
+        for parameter_index in range(4):
             plus, minus = parameters.copy(), parameters.copy()
             plus[parameter_index] += epsilon
             minus[parameter_index] -= epsilon
@@ -136,16 +141,16 @@ def fit_rlc(sweep: Sweep) -> RlcFit:
                     jacobian_columns[i][row] * jacobian_columns[j][row]
                     for row in range(len(residual))
                 )
-                for j in range(3)
+                for j in range(4)
             ]
-            for i in range(3)
+            for i in range(4)
         ]
         gradient = [
             sum(jacobian_columns[i][row] * residual[row] for row in range(len(residual)))
-            for i in range(3)
+            for i in range(4)
         ]
 
-        for index in range(3):
+        for index in range(4):
             normal[index][index] += damping * max(normal[index][index], 1.0)
 
         step = _solve(normal, [-value for value in gradient])
@@ -175,16 +180,20 @@ def fit_rlc(sweep: Sweep) -> RlcFit:
         else:
             damping *= 10.0
 
-    resistance, inductance, capacitance = (math.exp(value) for value in parameters)
+    resistance, inductance, capacitance, parallel_resistance = (
+        math.exp(value) for value in parameters
+    )
+    absolute_cost = sum(abs(model - actual) ** 2 for model, actual in zip(predicted, observed))
     mean = sum(observed) / len(observed)
     total_sum = sum(abs(value - mean) ** 2 for value in observed)
-    r_squared = 1.0 - cost / total_sum if total_sum > 0 else 1.0
-    deviation = math.sqrt(cost / max(1, 2 * len(observed) - 3))
+    r_squared = 1.0 - absolute_cost / total_sum if total_sum > 0 else 1.0
+    deviation = math.sqrt(absolute_cost / max(1, 2 * len(observed) - 4))
 
     return RlcFit(
         resistance,
         inductance,
         capacitance,
+        parallel_resistance,
         r_squared,
         deviation,
     )

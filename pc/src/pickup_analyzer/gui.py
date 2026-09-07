@@ -492,6 +492,7 @@ class AnalyzerGui:
             "resistance",
             "inductance",
             "capacitance",
+            "parallel_resistance",
             "r2",
             "sigma",
         )
@@ -510,6 +511,7 @@ class AnalyzerGui:
             "resistance": "R (Ω)",
             "inductance": "L (H)",
             "capacitance": "C (pF)",
+            "parallel_resistance": "Rp (Ω)",
             "r2": "R²",
             "sigma": "σ (Ω)",
         }
@@ -539,6 +541,7 @@ class AnalyzerGui:
             "resistance",
             "inductance",
             "capacitance",
+            "parallel_resistance",
             "r2",
             "sigma",
         ):
@@ -1176,11 +1179,12 @@ class AnalyzerGui:
                     f"{fit.resistance_ohm:.6g}",
                     f"{fit.inductance_h:.6g}",
                     f"{fit.capacitance_f * 1e12:.6g}",
+                    f"{fit.parallel_resistance_ohm:.6g}",
                     f"{fit.r_squared:.6f}",
                     f"{fit.standard_deviation_ohm:.6g}",
                 )
                 if fit
-                else ("—",) * 5
+                else ("—",) * 6
             )
 
             self.sweep_table.insert(

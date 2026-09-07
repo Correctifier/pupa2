@@ -33,7 +33,8 @@ void test_steady_state() {
       }
 
       const std::complex<double> jw(0, tau * frequency);
-      const auto expected = 1.0 / (1.0 / (7000.0 + jw * 3.0) + jw * 120e-12);
+      const auto expected =
+          1.0 / (1.0 / (7000.0 + jw * 3.0) + jw * 120e-12 + 1.0 / 1000000.0);
       const auto measured = resistance * voltage / sense;
 
       assert(std::abs(measured / expected - 1.0) < 1e-8);
@@ -81,8 +82,8 @@ void test_switch_transient_derivative() {
   circuit.set_sense_resistor(1000);
 
   const auto before = circuit.sample();
-  const double dv =
-      (before.source_v - before.v) / (1000 * 120e-12) - before.inductor_current_a / 120e-12;
+  const double dv = (before.source_v - before.v) / (1000 * 120e-12) -
+                    before.v / (1000000 * 120e-12) - before.inductor_current_a / 120e-12;
   const double di = (before.v - 7000 * before.inductor_current_a) / 3;
   constexpr double dt = 1e-11;
   const auto after = circuit.advance(dt);

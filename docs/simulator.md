@@ -2,11 +2,12 @@
 
 The virtual target models an ideal voltage source driving a sense resistor in
 series with a pickup. The pickup is a series DCR/inductance branch in parallel
-with capacitance:
+with capacitance and an independent loss resistance:
 
 ```text
 source ── Rsense ──┬── DCR ── L ──┬── ground
-                  └────── C ──────┘
+                  ├────── C ──────┤
+                  └───── Rloss ───┘
 ```
 
 `target/bsp/pc/pickup_circuit.*` owns the circuit model, separately from the
@@ -18,7 +19,7 @@ The persistent states are the capacitor/pickup voltage `v` and inductor current
 `i`. For source voltage `u`, they satisfy:
 
 ```text
-dv/dt = (u - v) / (Rsense * C) - i / C
+dv/dt = (u - v) / (Rsense * C) - v / (Rloss * C) - i / C
 di/dt = (v - DCR * i) / L
 Vexciter = u
 Vdut = u - Vsense = v

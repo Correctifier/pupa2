@@ -69,6 +69,7 @@ PickupParameters VirtualGui::render(PickupParameters p, const SimulatorStatus& s
   const double dcr_min = 100.0, dcr_max = 30000.0;
   const double inductance_min = 0.01, inductance_max = 20.0;
   const double capacitance_min = 1.0, capacitance_max = 1000.0;
+  const double parallel_loss_min = 10000.0, parallel_loss_max = 10000000.0;
   const double noise_min = 0.0, noise_max = 10.0;
 
   glfwPollEvents();
@@ -122,6 +123,15 @@ PickupParameters VirtualGui::render(PickupParameters p, const SimulatorStatus& s
       &capacitance_min,
       &capacitance_max,
       "%.1f"
+  );
+  ImGui::SliderScalar(
+      "Parallel loss (ohm)",
+      ImGuiDataType_Double,
+      &p.parallel_loss_ohm,
+      &parallel_loss_min,
+      &parallel_loss_max,
+      "%.0f",
+      ImGuiSliderFlags_Logarithmic
   );
   ImGui::SliderScalar(
       "Noise (%)",

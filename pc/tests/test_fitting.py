@@ -10,6 +10,7 @@ class FittingTests(unittest.TestCase):
             7000.0,
             3.0,
             120e-12,
+            450000.0,
             0.0,
             0.0,
         )
@@ -48,6 +49,11 @@ class FittingTests(unittest.TestCase):
             result.capacitance_f,
             expected.capacitance_f,
             places=18,
+        )
+        self.assertAlmostEqual(
+            result.parallel_resistance_ohm,
+            expected.parallel_resistance_ohm,
+            places=1,
         )
 
 

@@ -63,7 +63,8 @@ ctest --test-dir build --output-on-failure
 The virtual target listens on `127.0.0.1:8765` and prints its pseudo-terminal
 path at startup. Its ImGui window shows the active generator frequency,
 amplitude, and range, and controls DCR, inductance, parallel parasitic capacitance,
-and measurement noise. Both targets start in **fixed 100 kΩ** range (index 2).
+parallel loss resistance, and measurement noise. Both targets start in **fixed
+100 kΩ** range (index 2).
 Range indices 0–3 select 1 kΩ, 10 kΩ, 100 kΩ, and 1 MΩ, respectively, as defined
 in `target/source/range_selection.hpp`. Auto-ranging is opt-in.
 The PC app's Performance tab displays per-context execution counts, exclusive
@@ -109,10 +110,12 @@ this project.
 The PC app can acquire logarithmically spaced sweeps once or continuously. It
 shows magnitude, phase, real/imaginary, and Nyquist plots. The loaded-sweep list
 can independently hide or delete traces using checkbox cells. Every completed
-or loaded sweep is automatically fitted to the pickup model
-`Z(s)=(R+sL)/(1+sRC+LC*s^2)`. Fitted DCR, inductance, capacitance,
-complex-domain R-squared, and residual standard deviation appear in the sweep
-table, where a second checkbox toggles the fitted trace overlay. Sweeps can be
+or loaded sweep is automatically fitted to a series DCR/inductance branch in
+parallel with capacitance and an independent loss resistance. The optimizer uses
+relative complex residuals so the resonance does not overwhelm the low-frequency
+DCR. Fitted DCR, inductance, capacitance, parallel resistance, complex-domain
+R-squared, and residual standard deviation appear in the sweep table, where a
+second checkbox toggles the fitted trace overlay. Sweeps can be
 saved together as versioned JSON and loaded later.
 Magnitude uses logarithmic axes and supports automatic or user-selected
 vertical limits. Phase is fixed at -180 to 180 degrees. Nyquist plots maintain

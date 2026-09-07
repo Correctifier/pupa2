@@ -72,7 +72,8 @@ void test_frontend_timing_and_ranges() {
 
   // Compare a settled capture against the independent frequency-domain circuit.
   const std::complex<double> jw(0, 2 * 3.14159265358979323846 * 1000);
-  const auto impedance = 1.0 / (1.0 / (7000.0 + jw * 3.0) + jw * 120e-12);
+  const auto impedance =
+      1.0 / (1.0 / (7000.0 + jw * 3.0) + jw * 120e-12 + 1.0 / 1000000.0);
   const auto voltage = 0.5 * impedance / (100000.0 + impedance);
   const auto sense = 0.5 - voltage;
 

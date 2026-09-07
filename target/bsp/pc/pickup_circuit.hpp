@@ -9,6 +9,7 @@ struct PickupParameters {
   double inductance_h{3.0};
   double capacitance_pf{120.0};
   double noise_percent{0.15};
+  double parallel_loss_ohm{1000000.0};
 };
 
 struct CircuitSample {
@@ -18,7 +19,7 @@ struct CircuitSample {
   double inductor_current_a{};
 };
 
-// Ideal voltage source -> Rsense -> ((R + L) in parallel with C) -> ground.
+// Ideal voltage source -> Rsense -> ((R + L) in parallel with C and Rloss) -> ground.
 // Physical state and source phase persist across coefficient changes.
 class PickupCircuit {
  public:
