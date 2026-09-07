@@ -103,6 +103,11 @@ STM32_Programmer_CLI -c port=SWD \
   -w build-stm32/target/targets/stm32g4/pickup_stm32_target.elf -v -rst
 ```
 
+VS Code also provides **STM32: Debug at main** and **STM32: Flash and run** in
+the Run and Debug panel. Both use Cortex-Debug with ST-LINK over SWD and rebuild
+`build-stm32-debug` before programming. See the root README for tool paths and
+the required host GDB package.
+
 On hardware, first check the LED heartbeat and a `device/info` request over VCP.
 Then scope A3 at the default 1 kHz / 0.25 V peak setting and at both frequency
 limits, verify that updates stay at 200 ksample/s and DMA refills meet their

@@ -214,6 +214,31 @@ ELF, HEX, BIN, and linker-map files are generated under
 and tests for this build. The shared application is compiled into the firmware.
 CI also cross-builds the firmware and uploads these artifacts.
 
+### Run and debug from VS Code
+
+Install the recommended Cortex-Debug extension and `gdb-multiarch`. On Ubuntu or
+Pop!_OS:
+
+```sh
+sudo apt install gdb-multiarch
+```
+
+The Run and Debug panel provides two configurations:
+
+- **STM32: Debug at main** builds and flashes the Debug firmware, then stops at
+  `main` with breakpoints and stepping enabled.
+- **STM32: Flash and run** builds and flashes the same firmware, then immediately
+  continues execution. Cortex-Debug remains attached, so Pause and Stop remain
+  available.
+
+Both configurations run the **STM32: Build Debug** task first. That task performs
+a fresh CMake configure, so it also works before `build-stm32-debug` exists.
+The checked-in paths select STM32CubeCLT 1.19.0 under `/opt/st`; update
+`gdbPath`, `armToolchainPath`, `serverpath`, and `stm32cubeprogrammer` in
+`.vscode/launch.json` if those tools are installed elsewhere. If multiple
+ST-LINK probes are connected, add the desired `serialNumber` to each launch
+configuration.
+
 
 ## License
 

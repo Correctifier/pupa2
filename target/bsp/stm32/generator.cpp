@@ -44,7 +44,9 @@ void initialize() {
   dac_dma.Init.Direction = DMA_MEMORY_TO_PERIPH;
   dac_dma.Init.PeriphInc = DMA_PINC_DISABLE;
   dac_dma.Init.MemInc = DMA_MINC_ENABLE;
-  dac_dma.Init.PeriphDataAlignment = DMA_PDATAALIGN_HALFWORD;
+  // STM32G4 DAC data registers require 32-bit bus accesses. DMA expands each
+  // 16-bit waveform sample to a word for the peripheral write.
+  dac_dma.Init.PeriphDataAlignment = DMA_PDATAALIGN_WORD;
   dac_dma.Init.MemDataAlignment = DMA_MDATAALIGN_HALFWORD;
   dac_dma.Init.Mode = DMA_CIRCULAR;
   dac_dma.Init.Priority = DMA_PRIORITY_HIGH;
