@@ -62,10 +62,12 @@ strategies choose additional frequencies without embedding a strategy in firmwar
 unknown values.
 
 Each acquired point is authoritative raw complex channel data plus diagnostics.
-`z` is provided for convenience and is calculated as `rsense * v / vsense`.
+`v` is the exciter voltage and `vsense` is the voltage across the sense resistor.
+`z` is provided for convenience and is calculated as
+`rsense * (v - vsense) / vsense`.
 
 ```json
-{"type":"event","object":"measurement","data":{"f":1032.4,"range":2,"rsense":10000.0,"v":{"re":0.214,"im":-0.003},"vsense":{"re":0.041,"im":-0.018},"v_min":812,"v_max":3267,"vsense_min":1450,"vsense_max":2710,"z":{"re":42100.0,"im":18300.0}}}
+{"type":"event","object":"measurement","data":{"f":1032.4,"range":2,"rsense":10000.0,"v":{"re":0.214,"im":-0.003},"vsense":{"re":0.041,"im":-0.018},"v_min":812,"v_max":3267,"vsense_min":1450,"vsense_max":2710,"z":{"re":34030.0,"im":18600.0}}}
 {"type":"event","object":"sweep","action":"complete","data":{"points":100}}
 ```
 

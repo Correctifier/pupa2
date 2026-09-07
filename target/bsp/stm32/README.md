@@ -9,7 +9,7 @@ No external oscillator or board solder-bridge changes are needed for clocks.
 
 | Function | Arduino header | MCU pin | Peripheral |
 | --- | --- | --- | --- |
-| Vdut input | A0 | PA0 | ADC1 channel 1 |
+| Vexciter input | A0 | PA0 | ADC1 channel 1 |
 | Vsense input | A1 | PA1 | ADC2 channel 2 |
 | Generator output | A3 | PA4 | DAC1 channel 1 |
 | Range select S0 (least significant bit) | D0 | PA10 | GPIO output |
@@ -30,14 +30,15 @@ The shared `target/source/range_selection.hpp` defines the protocol indices,
 resistor values, and startup selection for both hardware and simulator. These
 values must match the external circuit. Until switching hardware is installed,
 use a physical 100 kohm sense resistor and leave the range fixed at index 2.
-Auto-ranging estimates impedance from the completed capture's
-channel RMS ratio and applies the closest range at the next frequency setting,
+Auto-ranging estimates impedance from the completed complex channel ratio and
+applies the closest range at the next frequency setting,
 before settling. It does not reacquire the current point.
 
 ADC inputs must be conditioned, single-ended signals biased at approximately
 1.65 V, within 0–3.3 V, sharing board ground. The DAC likewise generates a
-1.65 V-biased waveform. The analog frontend must supply the differential
-Vdut/Vsense signals with the gain assumed by the shared DSP. The Nucleo alone
+1.65 V-biased waveform. The analog frontend must supply Vexciter and Vsense
+signals with the gain assumed by the shared DSP. Vdut is calculated as Vexciter
+minus Vsense. The Nucleo alone
 is not the complete pickup measurement circuit.
 
 ## Timing and transport

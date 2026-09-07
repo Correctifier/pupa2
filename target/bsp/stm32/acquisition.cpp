@@ -173,14 +173,6 @@ bool result(DemodulatedSignals& output) {
   return acquisition_done && !acquisition_error && detector.result(output);
 }
 
-float voltage_power() {
-  return detector.voltage_power();
-}
-
-float sense_power() {
-  return detector.sense_power();
-}
-
 bool active() {
   return acquisition_active;
 }

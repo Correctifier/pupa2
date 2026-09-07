@@ -1,0 +1,3516 @@
+{
+  "format": "pickup-analyzer-sweeps",
+  "version": 1,
+  "sweeps": [
+    {
+      "name": "Sweep 2026-09-07 16:36:12",
+      "points": [
+        {
+          "frequency_hz": 20.0,
+          "real_ohm": 7427.395508,
+          "imaginary_ohm": 618.3674927,
+          "voltage_v": 0.25159239414637835,
+          "sense_voltage_v": 0.2341937311437921
+        },
+        {
+          "frequency_hz": 20.56260681,
+          "real_ohm": 7430.247559,
+          "imaginary_ohm": 575.5141602,
+          "voltage_v": 0.2513355769878353,
+          "sense_voltage_v": 0.2339489819669513
+        },
+        {
+          "frequency_hz": 21.14104462,
+          "real_ohm": 7473.882813,
+          "imaginary_ohm": 621.5817261,
+          "voltage_v": 0.2513559372632709,
+          "sense_voltage_v": 0.23387238667300614
+        },
+        {
+          "frequency_hz": 21.73574829,
+          "real_ohm": 7454.859863,
+          "imaginary_ohm": 657.5404053,
+          "voltage_v": 0.2512174779650289,
+          "sense_voltage_v": 0.23378447045282322
+        },
+        {
+          "frequency_hz": 22.34718132,
+          "real_ohm": 7466.379395,
+          "imaginary_ohm": 641.5739746,
+          "voltage_v": 0.25128698915781167,
+          "sense_voltage_v": 0.23382430199524223
+        },
+        {
+          "frequency_hz": 22.97581863,
+          "real_ohm": 7475.077148,
+          "imaginary_ohm": 673.3517456,
+          "voltage_v": 0.25123439834992123,
+          "sense_voltage_v": 0.23375602417231348
+        },
+        {
+          "frequency_hz": 23.62213516,
+          "real_ohm": 7458.107422,
+          "imaginary_ohm": 702.4469604,
+          "voltage_v": 0.2513406823181692,
+          "sense_voltage_v": 0.23389143670545537
+        },
+        {
+          "frequency_hz": 24.28663445,
+          "real_ohm": 7448.990723,
+          "imaginary_ohm": 712.0864868,
+          "voltage_v": 0.25144293514962607,
+          "sense_voltage_v": 0.23400630436284128
+        },
+        {
+          "frequency_hz": 24.96982956,
+          "real_ohm": 7448.952148,
+          "imaginary_ohm": 710.1448975,
+          "voltage_v": 0.25138765073358105,
+          "sense_voltage_v": 0.23395496754194797
+        },
+        {
+          "frequency_hz": 25.6722393,
+          "real_ohm": 7460.15332,
+          "imaginary_ohm": 740.1762085,
+          "voltage_v": 0.2513452584864418,
+          "sense_voltage_v": 0.23389069088702094
+        },
+        {
+          "frequency_hz": 26.39440536,
+          "real_ohm": 7481.157715,
+          "imaginary_ohm": 783.1209717,
+          "voltage_v": 0.25128289957861405,
+          "sense_voltage_v": 0.23378630873547537
+        },
+        {
+          "frequency_hz": 27.13689613,
+          "real_ohm": 7479.504883,
+          "imaginary_ohm": 813.0356445,
+          "voltage_v": 0.2511902637502221,
+          "sense_voltage_v": 0.23370323316884226
+        },
+        {
+          "frequency_hz": 27.90026474,
+          "real_ohm": 7479.713379,
+          "imaginary_ohm": 814.0786743,
+          "voltage_v": 0.2513372871504458,
+          "sense_voltage_v": 0.23383954993195163
+        },
+        {
+          "frequency_hz": 28.68510818,
+          "real_ohm": 7478.666016,
+          "imaginary_ohm": 846.4011841,
+          "voltage_v": 0.2512788794417691,
+          "sense_voltage_v": 0.23378694251308751
+        },
+        {
+          "frequency_hz": 29.49203491,
+          "real_ohm": 7467.107422,
+          "imaginary_ohm": 868.2047119,
+          "voltage_v": 0.25130544107113745,
+          "sense_voltage_v": 0.23383642461420784
+        },
+        {
+          "frequency_hz": 30.32165527,
+          "real_ohm": 7466.103516,
+          "imaginary_ohm": 889.9710083,
+          "voltage_v": 0.2513307309329057,
+          "sense_voltage_v": 0.23386175286185126
+        },
+        {
+          "frequency_hz": 31.17461205,
+          "real_ohm": 7484.203613,
+          "imaginary_ohm": 891.5722046,
+          "voltage_v": 0.2513292196978123,
+          "sense_voltage_v": 0.2338209388533973
+        },
+        {
+          "frequency_hz": 32.05157089,
+          "real_ohm": 7463.276367,
+          "imaginary_ohm": 915.2028198,
+          "voltage_v": 0.2512966974924812,
+          "sense_voltage_v": 0.23383577526813573
+        },
+        {
+          "frequency_hz": 32.95318985,
+          "real_ohm": 7473.620605,
+          "imaginary_ohm": 957.80896,
+          "voltage_v": 0.25135643075583786,
+          "sense_voltage_v": 0.23386804048865079
+        },
+        {
+          "frequency_hz": 33.88017273,
+          "real_ohm": 7471.527344,
+          "imaginary_ohm": 971.7824097,
+          "voltage_v": 0.2513274228806162,
+          "sense_voltage_v": 0.2338453302549202
+        },
+        {
+          "frequency_hz": 34.83323288,
+          "real_ohm": 7446.621582,
+          "imaginary_ohm": 1022.83905,
+          "voltage_v": 0.2513992067449383,
+          "sense_voltage_v": 0.23396530588640066
+        },
+        {
+          "frequency_hz": 35.81311035,
+          "real_ohm": 7497.20752,
+          "imaginary_ohm": 1065.464355,
+          "voltage_v": 0.25127232664610333,
+          "sense_voltage_v": 0.2337362902461492
+        },
+        {
+          "frequency_hz": 36.8205452,
+          "real_ohm": 7452.049316,
+          "imaginary_ohm": 1075.267456,
+          "voltage_v": 0.25124915935442194,
+          "sense_voltage_v": 0.23381274007606523
+        },
+        {
+          "frequency_hz": 37.85632706,
+          "real_ohm": 7438.194824,
+          "imaginary_ohm": 1077.702148,
+          "voltage_v": 0.25134845560758423,
+          "sense_voltage_v": 0.23393525123066644
+        },
+        {
+          "frequency_hz": 38.92123795,
+          "real_ohm": 7412.060059,
+          "imaginary_ohm": 1141.761597,
+          "voltage_v": 0.251435843639642,
+          "sense_voltage_v": 0.23407207571941493
+        },
+        {
+          "frequency_hz": 40.01610184,
+          "real_ohm": 7389.557129,
+          "imaginary_ohm": 1151.108398,
+          "voltage_v": 0.2514267139529387,
+          "sense_voltage_v": 0.2341124000935408
+        },
+        {
+          "frequency_hz": 41.14177704,
+          "real_ohm": 7417.35791,
+          "imaginary_ohm": 1257.9198,
+          "voltage_v": 0.2514060811032457,
+          "sense_voltage_v": 0.23403000153721756
+        },
+        {
+          "frequency_hz": 42.29911041,
+          "real_ohm": 7505.941895,
+          "imaginary_ohm": 1135.984741,
+          "voltage_v": 0.2513173922036262,
+          "sense_voltage_v": 0.23375764991194878
+        },
+        {
+          "frequency_hz": 43.4889946,
+          "real_ohm": 7392.209961,
+          "imaginary_ohm": 1280.665039,
+          "voltage_v": 0.2512982410131217,
+          "sense_voltage_v": 0.2339838009528852
+        },
+        {
+          "frequency_hz": 44.7123642,
+          "real_ohm": 7531.540039,
+          "imaginary_ohm": 1385.091675,
+          "voltage_v": 0.251366951072388,
+          "sense_voltage_v": 0.2337417478314366
+        },
+        {
+          "frequency_hz": 45.97013855,
+          "real_ohm": 7349.888672,
+          "imaginary_ohm": 1375.607056,
+          "voltage_v": 0.2513746861778619,
+          "sense_voltage_v": 0.23414467638477532
+        },
+        {
+          "frequency_hz": 47.26329041,
+          "real_ohm": 7441.339355,
+          "imaginary_ohm": 1526.237427,
+          "voltage_v": 0.25129912073988747,
+          "sense_voltage_v": 0.23387065981505892
+        },
+        {
+          "frequency_hz": 48.59281921,
+          "real_ohm": 7575.79248,
+          "imaginary_ohm": 1294.943726,
+          "voltage_v": 0.25143374246274963,
+          "sense_voltage_v": 0.23371013315809852
+        },
+        {
+          "frequency_hz": 49.95976257,
+          "real_ohm": 7454.566895,
+          "imaginary_ohm": 1311.154053,
+          "voltage_v": 0.2513323528010495,
+          "sense_voltage_v": 0.23387898140439597
+        },
+        {
+          "frequency_hz": 51.36514664,
+          "real_ohm": 7328.266602,
+          "imaginary_ohm": 1395.370605,
+          "voltage_v": 0.25148534998962657,
+          "sense_voltage_v": 0.2342943827563408
+        },
+        {
+          "frequency_hz": 52.81007385,
+          "real_ohm": 7595.503906,
+          "imaginary_ohm": 1685.075317,
+          "voltage_v": 0.2514044975117809,
+          "sense_voltage_v": 0.23362841619407024
+        },
+        {
+          "frequency_hz": 54.29563904,
+          "real_ohm": 7356.134277,
+          "imaginary_ohm": 1722.527222,
+          "voltage_v": 0.25143583952052573,
+          "sense_voltage_v": 0.23417709964954048
+        },
+        {
+          "frequency_hz": 55.82299042,
+          "real_ohm": 7477.60791,
+          "imaginary_ohm": 1831.284424,
+          "voltage_v": 0.2513643779356738,
+          "sense_voltage_v": 0.23384210274794098
+        },
+        {
+          "frequency_hz": 57.39330673,
+          "real_ohm": 7569.571289,
+          "imaginary_ohm": 1504.464478,
+          "voltage_v": 0.2514629787882625,
+          "sense_voltage_v": 0.23374490099020462
+        },
+        {
+          "frequency_hz": 59.00782776,
+          "real_ohm": 7505.648438,
+          "imaginary_ohm": 1927.241943,
+          "voltage_v": 0.251389304170617,
+          "sense_voltage_v": 0.233800663212528
+        },
+        {
+          "frequency_hz": 60.66770554,
+          "real_ohm": 7504.702148,
+          "imaginary_ohm": 1952.688721,
+          "voltage_v": 0.2514378644082555,
+          "sense_voltage_v": 0.2338468854664912
+        },
+        {
+          "frequency_hz": 62.37433624,
+          "real_ohm": 7651.739746,
+          "imaginary_ohm": 1704.786499,
+          "voltage_v": 0.25140553342158917,
+          "sense_voltage_v": 0.23350669193559748
+        },
+        {
+          "frequency_hz": 64.1289444,
+          "real_ohm": 7405.456055,
+          "imaginary_ohm": 2036.761719,
+          "voltage_v": 0.2513146638754518,
+          "sense_voltage_v": 0.2339448081738795
+        },
+        {
+          "frequency_hz": 65.93291473,
+          "real_ohm": 7306.431641,
+          "imaginary_ohm": 1979.181885,
+          "voltage_v": 0.2514321587687468,
+          "sense_voltage_v": 0.23427244675670844
+        },
+        {
+          "frequency_hz": 67.78762054,
+          "real_ohm": 7405.201172,
+          "imaginary_ohm": 2146.04126,
+          "voltage_v": 0.25142059938481504,
+          "sense_voltage_v": 0.2340393430841693
+        },
+        {
+          "frequency_hz": 69.69451141,
+          "real_ohm": 7539.938477,
+          "imaginary_ohm": 2177.003906,
+          "voltage_v": 0.2514210673516905,
+          "sense_voltage_v": 0.23374531281693445
+        },
+        {
+          "frequency_hz": 71.65507507,
+          "real_ohm": 7327.101074,
+          "imaginary_ohm": 2087.427734,
+          "voltage_v": 0.2515045962248766,
+          "sense_voltage_v": 0.23429035097714324
+        },
+        {
+          "frequency_hz": 73.67075348,
+          "real_ohm": 7328.62793,
+          "imaginary_ohm": 2122.983398,
+          "voltage_v": 0.25146491726690656,
+          "sense_voltage_v": 0.23424853461474865
+        },
+        {
+          "frequency_hz": 75.74313354,
+          "real_ohm": 7445.209473,
+          "imaginary_ohm": 2332.720703,
+          "voltage_v": 0.25143993960543376,
+          "sense_voltage_v": 0.23396175661016766
+        },
+        {
+          "frequency_hz": 77.87380981,
+          "real_ohm": 7588.890137,
+          "imaginary_ohm": 2160.930176,
+          "voltage_v": 0.2514197567753194,
+          "sense_voltage_v": 0.23363849186227015
+        },
+        {
+          "frequency_hz": 80.06442261,
+          "real_ohm": 7593.686523,
+          "imaginary_ohm": 2474.023193,
+          "voltage_v": 0.2513029214604354,
+          "sense_voltage_v": 0.2335048826103581
+        },
+        {
+          "frequency_hz": 82.31669617,
+          "real_ohm": 7581.985352,
+          "imaginary_ohm": 2500.190186,
+          "voltage_v": 0.25137091593553373,
+          "sense_voltage_v": 0.23359213934579104
+        },
+        {
+          "frequency_hz": 84.6322937,
+          "real_ohm": 7609.723145,
+          "imaginary_ohm": 2429.109375,
+          "voltage_v": 0.251464974435144,
+          "sense_voltage_v": 0.23362287646956195
+        },
+        {
+          "frequency_hz": 87.01302338,
+          "real_ohm": 7414.453125,
+          "imaginary_ohm": 2472.000244,
+          "voltage_v": 0.2514614340505371,
+          "sense_voltage_v": 0.23404193991149766
+        },
+        {
+          "frequency_hz": 89.46072388,
+          "real_ohm": 7616.760742,
+          "imaginary_ohm": 2537.073242,
+          "voltage_v": 0.2513023098911878,
+          "sense_voltage_v": 0.23345109241184636
+        },
+        {
+          "frequency_hz": 91.97727966,
+          "real_ohm": 7634.736816,
+          "imaginary_ohm": 2636.636719,
+          "voltage_v": 0.2515175461813678,
+          "sense_voltage_v": 0.23360684928148703
+        },
+        {
+          "frequency_hz": 94.5646286,
+          "real_ohm": 7561.339844,
+          "imaginary_ohm": 2638.786621,
+          "voltage_v": 0.2513831381722186,
+          "sense_voltage_v": 0.23364112471530615
+        },
+        {
+          "frequency_hz": 97.22476196,
+          "real_ohm": 7459.246582,
+          "imaginary_ohm": 2887.477051,
+          "voltage_v": 0.2513876643422628,
+          "sense_voltage_v": 0.23385326947655655
+        },
+        {
+          "frequency_hz": 99.9597702,
+          "real_ohm": 7547.0625,
+          "imaginary_ohm": 2838.645508,
+          "voltage_v": 0.25147134423278356,
+          "sense_voltage_v": 0.2337430585207939
+        },
+        {
+          "frequency_hz": 102.7716675,
+          "real_ohm": 7610.07373,
+          "imaginary_ohm": 2952.331299,
+          "voltage_v": 0.2514276570865126,
+          "sense_voltage_v": 0.2335590673532896
+        },
+        {
+          "frequency_hz": 105.6626663,
+          "real_ohm": 7603.325195,
+          "imaginary_ohm": 3017.450195,
+          "voltage_v": 0.25141049351272876,
+          "sense_voltage_v": 0.23355384302847743
+        },
+        {
+          "frequency_hz": 108.6349869,
+          "real_ohm": 7505.339355,
+          "imaginary_ohm": 3089.233398,
+          "voltage_v": 0.25136718359558863,
+          "sense_voltage_v": 0.23372184880746877
+        },
+        {
+          "frequency_hz": 111.690918,
+          "real_ohm": 7559.06543,
+          "imaginary_ohm": 3189.48291,
+          "voltage_v": 0.25144465278795414,
+          "sense_voltage_v": 0.23367084298296853
+        },
+        {
+          "frequency_hz": 114.8328781,
+          "real_ohm": 7633.664063,
+          "imaginary_ohm": 3363.138916,
+          "voltage_v": 0.25142049608436445,
+          "sense_voltage_v": 0.23347514401951888
+        },
+        {
+          "frequency_hz": 118.0631027,
+          "real_ohm": 7606.481445,
+          "imaginary_ohm": 3473.956787,
+          "voltage_v": 0.25134587612019443,
+          "sense_voltage_v": 0.2334571223087327
+        },
+        {
+          "frequency_hz": 121.3843079,
+          "real_ohm": 7646.075684,
+          "imaginary_ohm": 3538.908691,
+          "voltage_v": 0.251395831143385,
+          "sense_voltage_v": 0.2334131430931904
+        },
+        {
+          "frequency_hz": 124.7988892,
+          "real_ohm": 7545.072754,
+          "imaginary_ohm": 3586.216797,
+          "voltage_v": 0.2513489740477681,
+          "sense_voltage_v": 0.23358517382163405
+        },
+        {
+          "frequency_hz": 128.3095245,
+          "real_ohm": 7645.442383,
+          "imaginary_ohm": 3701.46875,
+          "voltage_v": 0.2514861074973637,
+          "sense_voltage_v": 0.23348648855507068
+        },
+        {
+          "frequency_hz": 131.9188995,
+          "real_ohm": 7631.649902,
+          "imaginary_ohm": 3873.823242,
+          "voltage_v": 0.25140782715667165,
+          "sense_voltage_v": 0.23343054867308288
+        },
+        {
+          "frequency_hz": 135.6298218,
+          "real_ohm": 7611.268066,
+          "imaginary_ohm": 3983.622314,
+          "voltage_v": 0.25147958959839645,
+          "sense_voltage_v": 0.23353265786047428
+        },
+        {
+          "frequency_hz": 139.4451904,
+          "real_ohm": 7661.755371,
+          "imaginary_ohm": 4035.056641,
+          "voltage_v": 0.25143124693481533,
+          "sense_voltage_v": 0.23337427597950663
+        },
+        {
+          "frequency_hz": 143.3678284,
+          "real_ohm": 7601.92334,
+          "imaginary_ohm": 4095.297607,
+          "voltage_v": 0.25139496415915674,
+          "sense_voltage_v": 0.23346523545302622
+        },
+        {
+          "frequency_hz": 147.4008179,
+          "real_ohm": 7684.643555,
+          "imaginary_ohm": 4223.474609,
+          "voltage_v": 0.25136219553249395,
+          "sense_voltage_v": 0.23324503824452048
+        },
+        {
+          "frequency_hz": 151.5472412,
+          "real_ohm": 7615.160156,
+          "imaginary_ohm": 4376.389648,
+          "voltage_v": 0.25137704778988196,
+          "sense_voltage_v": 0.23339596438816654
+        },
+        {
+          "frequency_hz": 155.8103027,
+          "real_ohm": 7602.501465,
+          "imaginary_ohm": 4491.663574,
+          "voltage_v": 0.2513495149426848,
+          "sense_voltage_v": 0.2333875236821919
+        },
+        {
+          "frequency_hz": 160.1933746,
+          "real_ohm": 7644.746582,
+          "imaginary_ohm": 4660.164551,
+          "voltage_v": 0.2514443832949437,
+          "sense_voltage_v": 0.2333686437193686
+        },
+        {
+          "frequency_hz": 164.699585,
+          "real_ohm": 7716.774902,
+          "imaginary_ohm": 4706.175781,
+          "voltage_v": 0.2513757104937435,
+          "sense_voltage_v": 0.23314486973771548
+        },
+        {
+          "frequency_hz": 169.3327179,
+          "real_ohm": 7727.958984,
+          "imaginary_ohm": 4877.665039,
+          "voltage_v": 0.25141797342867833,
+          "sense_voltage_v": 0.23314342865013762
+        },
+        {
+          "frequency_hz": 174.0960999,
+          "real_ohm": 7711.258789,
+          "imaginary_ohm": 5011.026855,
+          "voltage_v": 0.2514631106155221,
+          "sense_voltage_v": 0.23320813928052303
+        },
+        {
+          "frequency_hz": 178.9934692,
+          "real_ohm": 7739.943359,
+          "imaginary_ohm": 5142.904297,
+          "voltage_v": 0.25143580369912455,
+          "sense_voltage_v": 0.23310745021008134
+        },
+        {
+          "frequency_hz": 184.0286102,
+          "real_ohm": 7706.383301,
+          "imaginary_ohm": 5288.319336,
+          "voltage_v": 0.2514542945853347,
+          "sense_voltage_v": 0.23318185737956743
+        },
+        {
+          "frequency_hz": 189.2053833,
+          "real_ohm": 7746.707031,
+          "imaginary_ohm": 5461.462402,
+          "voltage_v": 0.2514597836687209,
+          "sense_voltage_v": 0.23308124898086793
+        },
+        {
+          "frequency_hz": 194.5278931,
+          "real_ohm": 7790.154785,
+          "imaginary_ohm": 5647.100098,
+          "voltage_v": 0.25128545430007726,
+          "sense_voltage_v": 0.2328054097815515
+        },
+        {
+          "frequency_hz": 200.0000153,
+          "real_ohm": 7834.307617,
+          "imaginary_ohm": 5715.231934,
+          "voltage_v": 0.2515366879181762,
+          "sense_voltage_v": 0.23293527966078806
+        },
+        {
+          "frequency_hz": 205.6260681,
+          "real_ohm": 7775.036133,
+          "imaginary_ohm": 5958.202148,
+          "voltage_v": 0.25130913423300966,
+          "sense_voltage_v": 0.232823839404504
+        },
+        {
+          "frequency_hz": 211.4104004,
+          "real_ohm": 7814.047852,
+          "imaginary_ohm": 6113.570801,
+          "voltage_v": 0.25138649937365576,
+          "sense_voltage_v": 0.23279277467444204
+        },
+        {
+          "frequency_hz": 217.3574371,
+          "real_ohm": 7848.399902,
+          "imaginary_ohm": 6246.056152,
+          "voltage_v": 0.25138747473713735,
+          "sense_voltage_v": 0.23270343875691482
+        },
+        {
+          "frequency_hz": 223.4718628,
+          "real_ohm": 7843.858887,
+          "imaginary_ohm": 6404.331055,
+          "voltage_v": 0.25150076806912636,
+          "sense_voltage_v": 0.2327981108546402
+        },
+        {
+          "frequency_hz": 229.7580872,
+          "real_ohm": 7887.813477,
+          "imaginary_ohm": 6586.131348,
+          "voltage_v": 0.25136647490791175,
+          "sense_voltage_v": 0.2325558348579798
+        },
+        {
+          "frequency_hz": 236.2213745,
+          "real_ohm": 7925.697754,
+          "imaginary_ohm": 6785.393555,
+          "voltage_v": 0.25132471612097407,
+          "sense_voltage_v": 0.2324094037999592
+        },
+        {
+          "frequency_hz": 242.8663483,
+          "real_ohm": 7933.455078,
+          "imaginary_ohm": 6980.408691,
+          "voltage_v": 0.2513409470913438,
+          "sense_voltage_v": 0.2323811067095098
+        },
+        {
+          "frequency_hz": 249.6982422,
+          "real_ohm": 7931.664551,
+          "imaginary_ohm": 7167.978027,
+          "voltage_v": 0.2514999193207102,
+          "sense_voltage_v": 0.23250555688399702
+        },
+        {
+          "frequency_hz": 256.7223206,
+          "real_ohm": 7963.670898,
+          "imaginary_ohm": 7339.294434,
+          "voltage_v": 0.251420321790443,
+          "sense_voltage_v": 0.23233870674811558
+        },
+        {
+          "frequency_hz": 263.9440002,
+          "real_ohm": 8029.38916,
+          "imaginary_ohm": 7544.280762,
+          "voltage_v": 0.25134828049522784,
+          "sense_voltage_v": 0.2321012858241738
+        },
+        {
+          "frequency_hz": 271.3689575,
+          "real_ohm": 8013.119141,
+          "imaginary_ohm": 7782.960938,
+          "voltage_v": 0.2514658807670371,
+          "sense_voltage_v": 0.2322084630627022
+        },
+        {
+          "frequency_hz": 279.002655,
+          "real_ohm": 8032.20752,
+          "imaginary_ohm": 7952.972168,
+          "voltage_v": 0.25140090387006153,
+          "sense_voltage_v": 0.23208119408668135
+        },
+        {
+          "frequency_hz": 286.8510742,
+          "real_ohm": 8090.402344,
+          "imaginary_ohm": 8186.829102,
+          "voltage_v": 0.2512690726234071,
+          "sense_voltage_v": 0.23179804531921175
+        },
+        {
+          "frequency_hz": 294.9202881,
+          "real_ohm": 8160.197266,
+          "imaginary_ohm": 8429.917969,
+          "voltage_v": 0.25129288285035456,
+          "sense_voltage_v": 0.23163151259697615
+        },
+        {
+          "frequency_hz": 303.2164917,
+          "real_ohm": 8162.285156,
+          "imaginary_ohm": 8676.916016,
+          "voltage_v": 0.25156223440527326,
+          "sense_voltage_v": 0.23183373175094935
+        },
+        {
+          "frequency_hz": 311.7462158,
+          "real_ohm": 8210.707031,
+          "imaginary_ohm": 8839.503906,
+          "voltage_v": 0.25128681887096194,
+          "sense_voltage_v": 0.23144898784689558
+        },
+        {
+          "frequency_hz": 320.515564,
+          "real_ohm": 8261.25,
+          "imaginary_ohm": 9151.626953,
+          "voltage_v": 0.2513222705773819,
+          "sense_voltage_v": 0.23131924446813135
+        },
+        {
+          "frequency_hz": 329.5319214,
+          "real_ohm": 8270.669922,
+          "imaginary_ohm": 9358.172852,
+          "voltage_v": 0.2513388640860288,
+          "sense_voltage_v": 0.23127709093991483
+        },
+        {
+          "frequency_hz": 338.8017578,
+          "real_ohm": 8326.986328,
+          "imaginary_ohm": 9578.52832,
+          "voltage_v": 0.2513475970365561,
+          "sense_voltage_v": 0.23112499253447796
+        },
+        {
+          "frequency_hz": 348.3323364,
+          "real_ohm": 8311.837891,
+          "imaginary_ohm": 9855.299805,
+          "voltage_v": 0.25135916850779905,
+          "sense_voltage_v": 0.23111514486671692
+        },
+        {
+          "frequency_hz": 358.1312256,
+          "real_ohm": 8371.765625,
+          "imaginary_ohm": 10088.1748,
+          "voltage_v": 0.2513726000769342,
+          "sense_voltage_v": 0.23095544554796194
+        },
+        {
+          "frequency_hz": 368.2053833,
+          "real_ohm": 8489.518555,
+          "imaginary_ohm": 10428.15137,
+          "voltage_v": 0.25128785128313114,
+          "sense_voltage_v": 0.2305614169664545
+        },
+        {
+          "frequency_hz": 378.5632935,
+          "real_ohm": 8517.234375,
+          "imaginary_ohm": 10712.54004,
+          "voltage_v": 0.25129550679916923,
+          "sense_voltage_v": 0.23045180964933476
+        },
+        {
+          "frequency_hz": 389.2121887,
+          "real_ohm": 8585.145508,
+          "imaginary_ohm": 10982.98535,
+          "voltage_v": 0.2515045848074468,
+          "sense_voltage_v": 0.2304439104983212
+        },
+        {
+          "frequency_hz": 400.1610413,
+          "real_ohm": 8652.511719,
+          "imaginary_ohm": 11325.46973,
+          "voltage_v": 0.2513307652740452,
+          "sense_voltage_v": 0.23006962639972608
+        },
+        {
+          "frequency_hz": 411.4176941,
+          "real_ohm": 8711.34375,
+          "imaginary_ohm": 11604.90625,
+          "voltage_v": 0.2514085069701866,
+          "sense_voltage_v": 0.2299559209981796
+        },
+        {
+          "frequency_hz": 422.9909973,
+          "real_ohm": 8714.823242,
+          "imaginary_ohm": 11924.18652,
+          "voltage_v": 0.2513763716933521,
+          "sense_voltage_v": 0.22984703659088843
+        },
+        {
+          "frequency_hz": 434.8900757,
+          "real_ohm": 8767.938477,
+          "imaginary_ohm": 12229.31445,
+          "voltage_v": 0.25132538495202383,
+          "sense_voltage_v": 0.2296188688199614
+        },
+        {
+          "frequency_hz": 447.1234436,
+          "real_ohm": 8849.150391,
+          "imaginary_ohm": 12541.74121,
+          "voltage_v": 0.2513831669654836,
+          "sense_voltage_v": 0.22942845739700665
+        },
+        {
+          "frequency_hz": 459.701355,
+          "real_ohm": 8963.871094,
+          "imaginary_ohm": 12910.73438,
+          "voltage_v": 0.2512089760422023,
+          "sense_voltage_v": 0.22894190574327658
+        },
+        {
+          "frequency_hz": 472.6326904,
+          "real_ohm": 8994.304688,
+          "imaginary_ohm": 13258.70313,
+          "voltage_v": 0.2512412460270371,
+          "sense_voltage_v": 0.22882179740841688
+        },
+        {
+          "frequency_hz": 485.9282227,
+          "real_ohm": 9088.606445,
+          "imaginary_ohm": 13631.3418,
+          "voltage_v": 0.2511700856494408,
+          "sense_voltage_v": 0.22846735033344
+        },
+        {
+          "frequency_hz": 499.5977478,
+          "real_ohm": 9170.524414,
+          "imaginary_ohm": 13947.63184,
+          "voltage_v": 0.25119543387634297,
+          "sense_voltage_v": 0.22823936112350499
+        },
+        {
+          "frequency_hz": 513.6513672,
+          "real_ohm": 9197.708008,
+          "imaginary_ohm": 14332.60742,
+          "voltage_v": 0.2513731251027381,
+          "sense_voltage_v": 0.22824236690383218
+        },
+        {
+          "frequency_hz": 528.100769,
+          "real_ohm": 9362.547852,
+          "imaginary_ohm": 14709.58789,
+          "voltage_v": 0.25129318910046256,
+          "sense_voltage_v": 0.22772923630232333
+        },
+        {
+          "frequency_hz": 542.9561157,
+          "real_ohm": 9426.107422,
+          "imaginary_ohm": 15074.34961,
+          "voltage_v": 0.2511881123164013,
+          "sense_voltage_v": 0.22740283206486245
+        },
+        {
+          "frequency_hz": 558.2299194,
+          "real_ohm": 9518.900391,
+          "imaginary_ohm": 15460.19043,
+          "voltage_v": 0.2513334184989803,
+          "sense_voltage_v": 0.22723567989742482
+        },
+        {
+          "frequency_hz": 573.9331055,
+          "real_ohm": 9639.868164,
+          "imaginary_ohm": 15891.11133,
+          "voltage_v": 0.2512355850879005,
+          "sense_voltage_v": 0.22677658385401095
+        },
+        {
+          "frequency_hz": 590.0780029,
+          "real_ohm": 9717.001953,
+          "imaginary_ohm": 16363.73535,
+          "voltage_v": 0.2511623732590294,
+          "sense_voltage_v": 0.2264140233637233
+        },
+        {
+          "frequency_hz": 606.6773682,
+          "real_ohm": 9854.15918,
+          "imaginary_ohm": 16775.20703,
+          "voltage_v": 0.2513453129649456,
+          "sense_voltage_v": 0.22617721216095604
+        },
+        {
+          "frequency_hz": 623.743103,
+          "real_ohm": 9937.736328,
+          "imaginary_ohm": 17230.5918,
+          "voltage_v": 0.2512256684118087,
+          "sense_voltage_v": 0.225760305164033
+        },
+        {
+          "frequency_hz": 641.2894897,
+          "real_ohm": 10003.4082,
+          "imaginary_ohm": 17676.99023,
+          "voltage_v": 0.25113070807381355,
+          "sense_voltage_v": 0.2254018591060394
+        },
+        {
+          "frequency_hz": 659.3291016,
+          "real_ohm": 10188.83203,
+          "imaginary_ohm": 18112.11328,
+          "voltage_v": 0.25112674435925286,
+          "sense_voltage_v": 0.22488797275618147
+        },
+        {
+          "frequency_hz": 677.8762817,
+          "real_ohm": 10298.75879,
+          "imaginary_ohm": 18585.99023,
+          "voltage_v": 0.2511049888769262,
+          "sense_voltage_v": 0.22449408127192919
+        },
+        {
+          "frequency_hz": 696.9451294,
+          "real_ohm": 10431.39258,
+          "imaginary_ohm": 19114.38672,
+          "voltage_v": 0.2512266570086404,
+          "sense_voltage_v": 0.2241625634770503
+        },
+        {
+          "frequency_hz": 716.550415,
+          "real_ohm": 10512.29395,
+          "imaginary_ohm": 19567.60547,
+          "voltage_v": 0.2512706747987654,
+          "sense_voltage_v": 0.2238865073937026
+        },
+        {
+          "frequency_hz": 736.7075195,
+          "real_ohm": 10719.11426,
+          "imaginary_ohm": 20118.02539,
+          "voltage_v": 0.2511013417318668,
+          "sense_voltage_v": 0.2231376686563865
+        },
+        {
+          "frequency_hz": 757.4309692,
+          "real_ohm": 10860.30176,
+          "imaginary_ohm": 20572.25781,
+          "voltage_v": 0.25126632338476595,
+          "sense_voltage_v": 0.2228468158147397
+        },
+        {
+          "frequency_hz": 778.7380981,
+          "real_ohm": 11008.61133,
+          "imaginary_ohm": 21135.21289,
+          "voltage_v": 0.2511767662441449,
+          "sense_voltage_v": 0.22227502329311172
+        },
+        {
+          "frequency_hz": 800.6438599,
+          "real_ohm": 11159.90039,
+          "imaginary_ohm": 21672.875,
+          "voltage_v": 0.25116127213021505,
+          "sense_voltage_v": 0.22177012660488069
+        },
+        {
+          "frequency_hz": 823.166626,
+          "real_ohm": 11386.11719,
+          "imaginary_ohm": 22329.15234,
+          "voltage_v": 0.25107902599024073,
+          "sense_voltage_v": 0.2210160052680708
+        },
+        {
+          "frequency_hz": 846.322937,
+          "real_ohm": 11513.53516,
+          "imaginary_ohm": 22911.38672,
+          "voltage_v": 0.2509987428731584,
+          "sense_voltage_v": 0.22047821756651115
+        },
+        {
+          "frequency_hz": 870.1298218,
+          "real_ohm": 11768.46094,
+          "imaginary_ohm": 23374.16211,
+          "voltage_v": 0.25119185294846147,
+          "sense_voltage_v": 0.2199839846205846
+        },
+        {
+          "frequency_hz": 894.6072998,
+          "real_ohm": 11976.28613,
+          "imaginary_ohm": 24026.49414,
+          "voltage_v": 0.2510613730193637,
+          "sense_voltage_v": 0.21921982883921734
+        },
+        {
+          "frequency_hz": 919.7723999,
+          "real_ohm": 12082.39258,
+          "imaginary_ohm": 24658.86914,
+          "voltage_v": 0.25128233517285037,
+          "sense_voltage_v": 0.21895781716760843
+        },
+        {
+          "frequency_hz": 945.6463013,
+          "real_ohm": 12364.44727,
+          "imaginary_ohm": 25328.57227,
+          "voltage_v": 0.2511456229180552,
+          "sense_voltage_v": 0.21803903394847526
+        },
+        {
+          "frequency_hz": 972.2476196,
+          "real_ohm": 12533.82422,
+          "imaginary_ohm": 25970.33594,
+          "voltage_v": 0.25114783842647076,
+          "sense_voltage_v": 0.2174597455893758
+        },
+        {
+          "frequency_hz": 999.597229,
+          "real_ohm": 12741.99512,
+          "imaginary_ohm": 26706.72656,
+          "voltage_v": 0.2509239784151307,
+          "sense_voltage_v": 0.21657139126355338
+        },
+        {
+          "frequency_hz": 1027.716675,
+          "real_ohm": 13040.40039,
+          "imaginary_ohm": 27281.60547,
+          "voltage_v": 0.2510935957924528,
+          "sense_voltage_v": 0.21592774858234373
+        },
+        {
+          "frequency_hz": 1056.626221,
+          "real_ohm": 13346.38281,
+          "imaginary_ohm": 28083.05664,
+          "voltage_v": 0.25109697763069494,
+          "sense_voltage_v": 0.21502899535581105
+        },
+        {
+          "frequency_hz": 1086.349854,
+          "real_ohm": 13610.42871,
+          "imaginary_ohm": 28770.1543,
+          "voltage_v": 0.25100125346156094,
+          "sense_voltage_v": 0.2141710418022189
+        },
+        {
+          "frequency_hz": 1116.909302,
+          "real_ohm": 13753.25977,
+          "imaginary_ohm": 29506.44531,
+          "voltage_v": 0.25100288675307997,
+          "sense_voltage_v": 0.21358711407755773
+        },
+        {
+          "frequency_hz": 1148.328247,
+          "real_ohm": 14124.36328,
+          "imaginary_ohm": 30466.07813,
+          "voltage_v": 0.25086741501272436,
+          "sense_voltage_v": 0.21238186156384337
+        },
+        {
+          "frequency_hz": 1180.631104,
+          "real_ohm": 14457.42383,
+          "imaginary_ohm": 31067.10352,
+          "voltage_v": 0.25097029066627885,
+          "sense_voltage_v": 0.21161290393606538
+        },
+        {
+          "frequency_hz": 1213.842529,
+          "real_ohm": 14767.36328,
+          "imaginary_ohm": 31936.30469,
+          "voltage_v": 0.25092519030460686,
+          "sense_voltage_v": 0.21063497900039577
+        },
+        {
+          "frequency_hz": 1247.988281,
+          "real_ohm": 15136.72949,
+          "imaginary_ohm": 32724.99023,
+          "voltage_v": 0.25077278265325675,
+          "sense_voltage_v": 0.20950617949384617
+        },
+        {
+          "frequency_hz": 1283.095215,
+          "real_ohm": 15430.74414,
+          "imaginary_ohm": 33485.26563,
+          "voltage_v": 0.25068536967572924,
+          "sense_voltage_v": 0.2085750716945412
+        },
+        {
+          "frequency_hz": 1319.189087,
+          "real_ohm": 15731.69336,
+          "imaginary_ohm": 34402.1875,
+          "voltage_v": 0.2507967165500385,
+          "sense_voltage_v": 0.2077221338686313
+        },
+        {
+          "frequency_hz": 1356.29834,
+          "real_ohm": 16240.74707,
+          "imaginary_ohm": 35350.63281,
+          "voltage_v": 0.25091869438206227,
+          "sense_voltage_v": 0.20652213992952947
+        },
+        {
+          "frequency_hz": 1394.451416,
+          "real_ohm": 16584.14258,
+          "imaginary_ohm": 36147.44141,
+          "voltage_v": 0.251017788436615,
+          "sense_voltage_v": 0.2056521374458088
+        },
+        {
+          "frequency_hz": 1433.677734,
+          "real_ohm": 16980.75977,
+          "imaginary_ohm": 37281.64063,
+          "voltage_v": 0.2505982909145789,
+          "sense_voltage_v": 0.20410696048192392
+        },
+        {
+          "frequency_hz": 1474.008179,
+          "real_ohm": 17429.55664,
+          "imaginary_ohm": 38322.46875,
+          "voltage_v": 0.2505797744265907,
+          "sense_voltage_v": 0.20285829273300823
+        },
+        {
+          "frequency_hz": 1515.472412,
+          "real_ohm": 17989.47656,
+          "imaginary_ohm": 39122.875,
+          "voltage_v": 0.2505310123747417,
+          "sense_voltage_v": 0.20154290705393446
+        },
+        {
+          "frequency_hz": 1558.103149,
+          "real_ohm": 18341.22656,
+          "imaginary_ohm": 40362.83594,
+          "voltage_v": 0.25047139526681306,
+          "sense_voltage_v": 0.20032068316226787
+        },
+        {
+          "frequency_hz": 1601.933105,
+          "real_ohm": 18933.07227,
+          "imaginary_ohm": 41301.27344,
+          "voltage_v": 0.2507253511230379,
+          "sense_voltage_v": 0.1991460412892215
+        },
+        {
+          "frequency_hz": 1646.99585,
+          "real_ohm": 19379.27539,
+          "imaginary_ohm": 42419.96875,
+          "voltage_v": 0.2505793932217626,
+          "sense_voltage_v": 0.19778626754593842
+        },
+        {
+          "frequency_hz": 1693.326416,
+          "real_ohm": 19946.09766,
+          "imaginary_ohm": 43392.01563,
+          "voltage_v": 0.2503871530188604,
+          "sense_voltage_v": 0.19629948648329654
+        },
+        {
+          "frequency_hz": 1740.960938,
+          "real_ohm": 20631.36719,
+          "imaginary_ohm": 44647.02344,
+          "voltage_v": 0.2505076631283254,
+          "sense_voltage_v": 0.1947528899608747
+        },
+        {
+          "frequency_hz": 1789.934814,
+          "real_ohm": 21077.04492,
+          "imaginary_ohm": 45836.32813,
+          "voltage_v": 0.2505596382786915,
+          "sense_voltage_v": 0.1935379207189212
+        },
+        {
+          "frequency_hz": 1840.286133,
+          "real_ohm": 21686.18359,
+          "imaginary_ohm": 47050.47656,
+          "voltage_v": 0.2501451055026851,
+          "sense_voltage_v": 0.19173260108400106
+        },
+        {
+          "frequency_hz": 1892.053955,
+          "real_ohm": 22338.97656,
+          "imaginary_ohm": 48491.04297,
+          "voltage_v": 0.250208300287957,
+          "sense_voltage_v": 0.19012982973160064
+        },
+        {
+          "frequency_hz": 1945.277954,
+          "real_ohm": 23197.32813,
+          "imaginary_ohm": 49566.05078,
+          "voltage_v": 0.25016206256769075,
+          "sense_voltage_v": 0.18838286946850127
+        },
+        {
+          "frequency_hz": 2000.000244,
+          "real_ohm": 23925.14063,
+          "imaginary_ohm": 51083.44141,
+          "voltage_v": 0.25002155851714797,
+          "sense_voltage_v": 0.18652634575451518
+        },
+        {
+          "frequency_hz": 2056.259766,
+          "real_ohm": 24818.42969,
+          "imaginary_ohm": 52311.23047,
+          "voltage_v": 0.250061395940684,
+          "sense_voltage_v": 0.18476941839608774
+        },
+        {
+          "frequency_hz": 2114.103027,
+          "real_ohm": 25596.68359,
+          "imaginary_ohm": 53820.21875,
+          "voltage_v": 0.24996988437527656,
+          "sense_voltage_v": 0.18293728577359358
+        },
+        {
+          "frequency_hz": 2173.574463,
+          "real_ohm": 26612.87109,
+          "imaginary_ohm": 55454.80859,
+          "voltage_v": 0.249831307333018,
+          "sense_voltage_v": 0.18074294393534623
+        },
+        {
+          "frequency_hz": 2234.717773,
+          "real_ohm": 27350.46289,
+          "imaginary_ohm": 56820.50781,
+          "voltage_v": 0.2499285414129949,
+          "sense_voltage_v": 0.17922260179141972
+        },
+        {
+          "frequency_hz": 2297.582031,
+          "real_ohm": 28297.46484,
+          "imaginary_ohm": 58504.78516,
+          "voltage_v": 0.24973543436865903,
+          "sense_voltage_v": 0.17710820395942845
+        },
+        {
+          "frequency_hz": 2362.212646,
+          "real_ohm": 29448.73242,
+          "imaginary_ohm": 59965.46094,
+          "voltage_v": 0.2497395945852854,
+          "sense_voltage_v": 0.17505519083397209
+        },
+        {
+          "frequency_hz": 2428.662354,
+          "real_ohm": 30561.50586,
+          "imaginary_ohm": 61685.33984,
+          "voltage_v": 0.24958036495171848,
+          "sense_voltage_v": 0.17283947381780865
+        },
+        {
+          "frequency_hz": 2496.982422,
+          "real_ohm": 31812.76758,
+          "imaginary_ohm": 63409.63672,
+          "voltage_v": 0.24965482066675979,
+          "sense_voltage_v": 0.17067891423735157
+        },
+        {
+          "frequency_hz": 2567.223389,
+          "real_ohm": 33137.70703,
+          "imaginary_ohm": 65097.15625,
+          "voltage_v": 0.24936703012061778,
+          "sense_voltage_v": 0.16826366986158542
+        },
+        {
+          "frequency_hz": 2639.440186,
+          "real_ohm": 34587.01563,
+          "imaginary_ohm": 67297.75781,
+          "voltage_v": 0.249029244469237,
+          "sense_voltage_v": 0.1654956899496215
+        },
+        {
+          "frequency_hz": 2713.688477,
+          "real_ohm": 36322.14453,
+          "imaginary_ohm": 69411.97656,
+          "voltage_v": 0.24923402795661187,
+          "sense_voltage_v": 0.1629232915490677
+        },
+        {
+          "frequency_hz": 2790.025391,
+          "real_ohm": 37625.45313,
+          "imaginary_ohm": 71077.36719,
+          "voltage_v": 0.24913869371711445,
+          "sense_voltage_v": 0.16084260632990147
+        },
+        {
+          "frequency_hz": 2868.510986,
+          "real_ohm": 39723.58984,
+          "imaginary_ohm": 73445.97656,
+          "voltage_v": 0.24889456174650812,
+          "sense_voltage_v": 0.1576767227298972
+        },
+        {
+          "frequency_hz": 2949.203125,
+          "real_ohm": 41813.57422,
+          "imaginary_ohm": 75436.875,
+          "voltage_v": 0.24867999261457283,
+          "sense_voltage_v": 0.1548159653602181
+        },
+        {
+          "frequency_hz": 3032.166504,
+          "real_ohm": 43437.94531,
+          "imaginary_ohm": 78020.71875,
+          "voltage_v": 0.2484861723867936,
+          "sense_voltage_v": 0.15218032277162744
+        },
+        {
+          "frequency_hz": 3117.460693,
+          "real_ohm": 45848.36328,
+          "imaginary_ohm": 79811.64844,
+          "voltage_v": 0.24855360050483502,
+          "sense_voltage_v": 0.1494989407913332
+        },
+        {
+          "frequency_hz": 3205.154297,
+          "real_ohm": 48080.05078,
+          "imaginary_ohm": 81937.51563,
+          "voltage_v": 0.24849040307361775,
+          "sense_voltage_v": 0.14682907800499875
+        },
+        {
+          "frequency_hz": 3295.317871,
+          "real_ohm": 50700.60938,
+          "imaginary_ohm": 84744.01563,
+          "voltage_v": 0.2482578936958641,
+          "sense_voltage_v": 0.14358992728505177
+        },
+        {
+          "frequency_hz": 3388.017578,
+          "real_ohm": 53875.70313,
+          "imaginary_ohm": 87265.02344,
+          "voltage_v": 0.2481867997249552,
+          "sense_voltage_v": 0.14029935718751757
+        },
+        {
+          "frequency_hz": 3483.321777,
+          "real_ohm": 56947.45313,
+          "imaginary_ohm": 90326.92188,
+          "voltage_v": 0.24770690189975592,
+          "sense_voltage_v": 0.13679107278213987
+        },
+        {
+          "frequency_hz": 3581.310547,
+          "real_ohm": 59986.41016,
+          "imaginary_ohm": 92896.51563,
+          "voltage_v": 0.24775114276399884,
+          "sense_voltage_v": 0.1339187226430172
+        },
+        {
+          "frequency_hz": 3682.052002,
+          "real_ohm": 63889.13281,
+          "imaginary_ohm": 95691.46094,
+          "voltage_v": 0.2476607438829314,
+          "sense_voltage_v": 0.13049876858667867
+        },
+        {
+          "frequency_hz": 3785.631104,
+          "real_ohm": 68467.20313,
+          "imaginary_ohm": 98542.82031,
+          "voltage_v": 0.2473036094795199,
+          "sense_voltage_v": 0.1267109684401514
+        },
+        {
+          "frequency_hz": 3892.124023,
+          "real_ohm": 72545.46094,
+          "imaginary_ohm": 101745.2891,
+          "voltage_v": 0.24685313327452257,
+          "sense_voltage_v": 0.12323563913159542
+        },
+        {
+          "frequency_hz": 4001.608643,
+          "real_ohm": 77553.60156,
+          "imaginary_ohm": 103418.0156,
+          "voltage_v": 0.24693282010300868,
+          "sense_voltage_v": 0.1201757352115304
+        },
+        {
+          "frequency_hz": 4114.17334,
+          "real_ohm": 83127.23438,
+          "imaginary_ohm": 107759.7969,
+          "voltage_v": 0.24665811756283706,
+          "sense_voltage_v": 0.11608532281186548
+        },
+        {
+          "frequency_hz": 4229.908203,
+          "real_ohm": 88671.14063,
+          "imaginary_ohm": 109967.6719,
+          "voltage_v": 0.24638465176162416,
+          "sense_voltage_v": 0.11282397699694201
+        },
+        {
+          "frequency_hz": 4348.898926,
+          "real_ohm": 96361.85156,
+          "imaginary_ohm": 113181.5547,
+          "voltage_v": 0.24593836788378046,
+          "sense_voltage_v": 0.10851250103007529
+        },
+        {
+          "frequency_hz": 4471.236816,
+          "real_ohm": 103058.0156,
+          "imaginary_ohm": 114603.6797,
+          "voltage_v": 0.2459430964869053,
+          "sense_voltage_v": 0.10547965226987116
+        },
+        {
+          "frequency_hz": 4597.011719,
+          "real_ohm": 112460.7969,
+          "imaginary_ohm": 116826.0078,
+          "voltage_v": 0.2457958033896003,
+          "sense_voltage_v": 0.10137491151134893
+        },
+        {
+          "frequency_hz": 4726.324707,
+          "real_ohm": 121727.4531,
+          "imaginary_ohm": 119917.2656,
+          "voltage_v": 0.24509903292668142,
+          "sense_voltage_v": 0.09723150565934764
+        },
+        {
+          "frequency_hz": 4859.279785,
+          "real_ohm": 131544.8906,
+          "imaginary_ohm": 120138.2891,
+          "voltage_v": 0.24478023606047722,
+          "sense_voltage_v": 0.09383703222360196
+        },
+        {
+          "frequency_hz": 4995.975586,
+          "real_ohm": 144742.1406,
+          "imaginary_ohm": 120399.1094,
+          "voltage_v": 0.24447617501143382,
+          "sense_voltage_v": 0.08963253077603253
+        },
+        {
+          "frequency_hz": 5136.516113,
+          "real_ohm": 156957.125,
+          "imaginary_ohm": 118513.2422,
+          "voltage_v": 0.2440412119569238,
+          "sense_voltage_v": 0.08624260695447869
+        },
+        {
+          "frequency_hz": 5281.005371,
+          "real_ohm": 172712.5625,
+          "imaginary_ohm": 114816.6719,
+          "voltage_v": 0.2437831112964993,
+          "sense_voltage_v": 0.08238783952933647
+        },
+        {
+          "frequency_hz": 5429.559082,
+          "real_ohm": 185239.1875,
+          "imaginary_ohm": 109885.3438,
+          "voltage_v": 0.2430583780600359,
+          "sense_voltage_v": 0.07951573303983445
+        },
+        {
+          "frequency_hz": 5582.296875,
+          "real_ohm": 202980.3281,
+          "imaginary_ohm": 103749.7891,
+          "voltage_v": 0.24261895783297252,
+          "sense_voltage_v": 0.07575885604220106
+        },
+        {
+          "frequency_hz": 5739.331055,
+          "real_ohm": 218354.1094,
+          "imaginary_ohm": 92365.45313,
+          "voltage_v": 0.2421901142486702,
+          "sense_voltage_v": 0.07306269212564989
+        },
+        {
+          "frequency_hz": 5900.777344,
+          "real_ohm": 233860.7344,
+          "imaginary_ohm": 78940.52344,
+          "voltage_v": 0.2415305687476962,
+          "sense_voltage_v": 0.07040343702878081
+        },
+        {
+          "frequency_hz": 6066.770996,
+          "real_ohm": 249290.3281,
+          "imaginary_ohm": 63671.87109,
+          "voltage_v": 0.24105304738701178,
+          "sense_voltage_v": 0.06789341921518509
+        },
+        {
+          "frequency_hz": 6237.428223,
+          "real_ohm": 257707.875,
+          "imaginary_ohm": 41739.13672,
+          "voltage_v": 0.24078148503649457,
+          "sense_voltage_v": 0.06685870897656658
+        },
+        {
+          "frequency_hz": 6412.891602,
+          "real_ohm": 266720.0,
+          "imaginary_ohm": 19225.95898,
+          "voltage_v": 0.24022243008158287,
+          "sense_voltage_v": 0.0654158437813652
+        },
+        {
+          "frequency_hz": 6593.291504,
+          "real_ohm": 271569.9375,
+          "imaginary_ohm": -5181.523438,
+          "voltage_v": 0.23928471391653713,
+          "sense_voltage_v": 0.0643920352020842
+        },
+        {
+          "frequency_hz": 6778.759766,
+          "real_ohm": 265082.2813,
+          "imaginary_ohm": -34205.73438,
+          "voltage_v": 0.23884474993546073,
+          "sense_voltage_v": 0.06513689018800582
+        },
+        {
+          "frequency_hz": 6969.451172,
+          "real_ohm": 260345.7813,
+          "imaginary_ohm": -56424.66406,
+          "voltage_v": 0.2386174944553063,
+          "sense_voltage_v": 0.06542186104808792
+        },
+        {
+          "frequency_hz": 7165.500977,
+          "real_ohm": 248594.0469,
+          "imaginary_ohm": -79210.85156,
+          "voltage_v": 0.23810113048411188,
+          "sense_voltage_v": 0.06660538833931093
+        },
+        {
+          "frequency_hz": 7367.072266,
+          "real_ohm": 233637.0781,
+          "imaginary_ohm": -97488.77344,
+          "voltage_v": 0.2369235473136395,
+          "sense_voltage_v": 0.06816208336467601
+        },
+        {
+          "frequency_hz": 7574.313477,
+          "real_ohm": 217909.3906,
+          "imaginary_ohm": -113211.1875,
+          "voltage_v": 0.23661357786920623,
+          "sense_voltage_v": 0.07011483403360942
+        },
+        {
+          "frequency_hz": 7787.377441,
+          "real_ohm": 200194.1875,
+          "imaginary_ohm": -125348.8047,
+          "voltage_v": 0.2352933667490752,
+          "sense_voltage_v": 0.07232818880322368
+        },
+        {
+          "frequency_hz": 8006.442383,
+          "real_ohm": 182776.4063,
+          "imaginary_ohm": -133199.1406,
+          "voltage_v": 0.23476414081563637,
+          "sense_voltage_v": 0.07510597435150347
+        },
+        {
+          "frequency_hz": 8231.662109,
+          "real_ohm": 163943.3125,
+          "imaginary_ohm": -140904.2656,
+          "voltage_v": 0.23348700189191282,
+          "sense_voltage_v": 0.07803734111010469
+        },
+        {
+          "frequency_hz": 8463.225586,
+          "real_ohm": 146714.1406,
+          "imaginary_ohm": -140895.3281,
+          "voltage_v": 0.23276360495201273,
+          "sense_voltage_v": 0.08192684029947452
+        },
+        {
+          "frequency_hz": 8701.302734,
+          "real_ohm": 132637.7969,
+          "imaginary_ohm": -140639.25,
+          "voltage_v": 0.232046947656949,
+          "sense_voltage_v": 0.08535999922167371
+        },
+        {
+          "frequency_hz": 8946.068359,
+          "real_ohm": 117920.8047,
+          "imaginary_ohm": -139140.7344,
+          "voltage_v": 0.23103667363616345,
+          "sense_voltage_v": 0.0893575939158841
+        },
+        {
+          "frequency_hz": 9197.719727,
+          "real_ohm": 105128.1406,
+          "imaginary_ohm": -136250.625,
+          "voltage_v": 0.23010121615859874,
+          "sense_voltage_v": 0.09344001920503525
+        },
+        {
+          "frequency_hz": 9456.458984,
+          "real_ohm": 94672.32031,
+          "imaginary_ohm": -133615.2969,
+          "voltage_v": 0.22840934020577322,
+          "sense_voltage_v": 0.09673642142674202
+        },
+        {
+          "frequency_hz": 9722.476563,
+          "real_ohm": 85374.88281,
+          "imaginary_ohm": -129270.3984,
+          "voltage_v": 0.22743602123285464,
+          "sense_voltage_v": 0.100636706124778
+        },
+        {
+          "frequency_hz": 9995.977539,
+          "real_ohm": 78406.46875,
+          "imaginary_ohm": -124434.1172,
+          "voltage_v": 0.2268422367882703,
+          "sense_voltage_v": 0.10428815003640646
+        },
+        {
+          "frequency_hz": 10277.16211,
+          "real_ohm": 71286.71875,
+          "imaginary_ohm": -120936.2891,
+          "voltage_v": 0.225381905133054,
+          "sense_voltage_v": 0.10748970275844262
+        },
+        {
+          "frequency_hz": 10566.25684,
+          "real_ohm": 63599.99219,
+          "imaginary_ohm": -116186.25,
+          "voltage_v": 0.22405835427405724,
+          "sense_voltage_v": 0.11166102065752838
+        },
+        {
+          "frequency_hz": 10863.49414,
+          "real_ohm": 58803.875,
+          "imaginary_ohm": -111768.1797,
+          "voltage_v": 0.22234644595751887,
+          "sense_voltage_v": 0.11449785431048104
+        },
+        {
+          "frequency_hz": 11169.09277,
+          "real_ohm": 52830.60156,
+          "imaginary_ohm": -107753.0938,
+          "voltage_v": 0.22094741197620377,
+          "sense_voltage_v": 0.11815552001920561
+        },
+        {
+          "frequency_hz": 11483.27734,
+          "real_ohm": 49400.56641,
+          "imaginary_ohm": -103149.0,
+          "voltage_v": 0.22002313196849224,
+          "sense_voltage_v": 0.12119177300558491
+        },
+        {
+          "frequency_hz": 11806.31055,
+          "real_ohm": 44760.09375,
+          "imaginary_ohm": -99822.13281,
+          "voltage_v": 0.21827306652023723,
+          "sense_voltage_v": 0.12413115592695323
+        },
+        {
+          "frequency_hz": 12138.41992,
+          "real_ohm": 41969.9375,
+          "imaginary_ohm": -96001.54688,
+          "voltage_v": 0.21626389762539353,
+          "sense_voltage_v": 0.1261882862883929
+        },
+        {
+          "frequency_hz": 12479.88379,
+          "real_ohm": 38874.92188,
+          "imaginary_ohm": -91588.60156,
+          "voltage_v": 0.21524739578136093,
+          "sense_voltage_v": 0.12938869045934875
+        },
+        {
+          "frequency_hz": 12830.95313,
+          "real_ohm": 35484.33203,
+          "imaginary_ohm": -88660.4375,
+          "voltage_v": 0.21267402826451395,
+          "sense_voltage_v": 0.1313486571682633
+        },
+        {
+          "frequency_hz": 13191.88477,
+          "real_ohm": 33635.76953,
+          "imaginary_ohm": -85637.52344,
+          "voltage_v": 0.2111666140212144,
+          "sense_voltage_v": 0.13304277869423792
+        },
+        {
+          "frequency_hz": 13562.98242,
+          "real_ohm": 31094.31055,
+          "imaginary_ohm": -81744.16406,
+          "voltage_v": 0.20929954374212106,
+          "sense_voltage_v": 0.13547583995051857
+        },
+        {
+          "frequency_hz": 13944.50684,
+          "real_ohm": 29353.07422,
+          "imaginary_ohm": -78521.42969,
+          "voltage_v": 0.20773394692942349,
+          "sense_voltage_v": 0.1372809550462212
+        },
+        {
+          "frequency_hz": 14336.77734,
+          "real_ohm": 28190.28711,
+          "imaginary_ohm": -75460.19531,
+          "voltage_v": 0.20572676745455706,
+          "sense_voltage_v": 0.13830236911660423
+        },
+        {
+          "frequency_hz": 14740.08203,
+          "real_ohm": 26323.58789,
+          "imaginary_ohm": -72237.48438,
+          "voltage_v": 0.20425816978050093,
+          "sense_voltage_v": 0.1403648866296927
+        },
+        {
+          "frequency_hz": 15154.71777,
+          "real_ohm": 25155.64648,
+          "imaginary_ohm": -69957.09375,
+          "voltage_v": 0.2019641396329308,
+          "sense_voltage_v": 0.14085898755001927
+        },
+        {
+          "frequency_hz": 15581.03223,
+          "real_ohm": 23585.25391,
+          "imaginary_ohm": -67212.03906,
+          "voltage_v": 0.19966172384819517,
+          "sense_voltage_v": 0.1419264834138344
+        },
+        {
+          "frequency_hz": 16019.32324,
+          "real_ohm": 22680.50977,
+          "imaginary_ohm": -65091.49219,
+          "voltage_v": 0.19748803163817832,
+          "sense_voltage_v": 0.1422013863293145
+        },
+        {
+          "frequency_hz": 16469.95898,
+          "real_ohm": 21918.62109,
+          "imaginary_ohm": -63235.09375,
+          "voltage_v": 0.1950378847009288,
+          "sense_voltage_v": 0.14200890915476005
+        },
+        {
+          "frequency_hz": 16933.27344,
+          "real_ohm": 20288.45508,
+          "imaginary_ohm": -60496.27344,
+          "voltage_v": 0.1922090462176374,
+          "sense_voltage_v": 0.142753104542877
+        },
+        {
+          "frequency_hz": 17409.60156,
+          "real_ohm": 19802.71094,
+          "imaginary_ohm": -58287.33984,
+          "voltage_v": 0.18969044680337457,
+          "sense_voltage_v": 0.14237869573767586
+        },
+        {
+          "frequency_hz": 17899.33008,
+          "real_ohm": 19138.61523,
+          "imaginary_ohm": -56476.92969,
+          "voltage_v": 0.18782027986425065,
+          "sense_voltage_v": 0.14245312032898869
+        },
+        {
+          "frequency_hz": 18402.85352,
+          "real_ohm": 18604.79102,
+          "imaginary_ohm": -53881.64844,
+          "voltage_v": 0.18543689882386802,
+          "sense_voltage_v": 0.14234788789510658
+        },
+        {
+          "frequency_hz": 18920.53906,
+          "real_ohm": 17889.6875,
+          "imaginary_ohm": -52638.18359,
+          "voltage_v": 0.18232556738418876,
+          "sense_voltage_v": 0.14121992313950685
+        },
+        {
+          "frequency_hz": 19452.78906,
+          "real_ohm": 16967.93359,
+          "imaginary_ohm": -50616.52734,
+          "voltage_v": 0.18009796071689785,
+          "sense_voltage_v": 0.14130859869674883
+        },
+        {
+          "frequency_hz": 20000.0,
+          "real_ohm": 16700.02734,
+          "imaginary_ohm": -49133.37891,
+          "voltage_v": 0.17715324886646772,
+          "sense_voltage_v": 0.13990780369660055
+        }
+      ]
+    },
+    {
+      "name": "Sweep 2026-09-07 16:37:44",
+      "points": [
+        {
+          "frequency_hz": 20.0,
+          "real_ohm": 7450.495605,
+          "imaginary_ohm": 618.5440674,
+          "voltage_v": 0.25154909676820514,
+          "sense_voltage_v": 0.23410308934566246
+        },
+        {
+          "frequency_hz": 20.56260681,
+          "real_ohm": 7461.93457,
+          "imaginary_ohm": 621.0196533,
+          "voltage_v": 0.251604250390174,
+          "sense_voltage_v": 0.23412946302746224
+        },
+        {
+          "frequency_hz": 21.14104462,
+          "real_ohm": 7482.975586,
+          "imaginary_ohm": 590.2276611,
+          "voltage_v": 0.2512256394065416,
+          "sense_voltage_v": 0.23373176172770166
+        },
+        {
+          "frequency_hz": 21.73574829,
+          "real_ohm": 7523.518555,
+          "imaginary_ohm": 626.9464111,
+          "voltage_v": 0.25134923661286124,
+          "sense_voltage_v": 0.23375812807095053
+        },
+        {
+          "frequency_hz": 22.34718132,
+          "real_ohm": 7476.087891,
+          "imaginary_ohm": 669.8019409,
+          "voltage_v": 0.25134107385595633,
+          "sense_voltage_v": 0.23385312753667611
+        },
+        {
+          "frequency_hz": 22.97581863,
+          "real_ohm": 7469.630859,
+          "imaginary_ohm": 669.2012939,
+          "voltage_v": 0.25145151285397926,
+          "sense_voltage_v": 0.23396994704817722
+        },
+        {
+          "frequency_hz": 23.62213516,
+          "real_ohm": 7488.092285,
+          "imaginary_ohm": 702.5326538,
+          "voltage_v": 0.25138272124642913,
+          "sense_voltage_v": 0.2338653013990823
+        },
+        {
+          "frequency_hz": 24.28663445,
+          "real_ohm": 7465.409668,
+          "imaginary_ohm": 707.8773804,
+          "voltage_v": 0.25139897878468886,
+          "sense_voltage_v": 0.23392971439179647
+        },
+        {
+          "frequency_hz": 24.96982956,
+          "real_ohm": 7494.466309,
+          "imaginary_ohm": 706.65271,
+          "voltage_v": 0.2513574392648182,
+          "sense_voltage_v": 0.23382785852487403
+        },
+        {
+          "frequency_hz": 25.6722393,
+          "real_ohm": 7484.529785,
+          "imaginary_ohm": 745.9403076,
+          "voltage_v": 0.25132769810658345,
+          "sense_voltage_v": 0.2338212274594473
+        },
+        {
+          "frequency_hz": 26.39440536,
+          "real_ohm": 7515.745605,
+          "imaginary_ohm": 767.8046265,
+          "voltage_v": 0.2512668535458893,
+          "sense_voltage_v": 0.23369641889961637
+        },
+        {
+          "frequency_hz": 27.13689613,
+          "real_ohm": 7506.814941,
+          "imaginary_ohm": 812.7678833,
+          "voltage_v": 0.25120432010983534,
+          "sense_voltage_v": 0.23365694770565365
+        },
+        {
+          "frequency_hz": 27.90026474,
+          "real_ohm": 7480.850586,
+          "imaginary_ohm": 826.0228271,
+          "voltage_v": 0.2512914082696346,
+          "sense_voltage_v": 0.2337941941566274
+        },
+        {
+          "frequency_hz": 28.68510818,
+          "real_ohm": 7480.314453,
+          "imaginary_ohm": 852.4146118,
+          "voltage_v": 0.2513499441867685,
+          "sense_voltage_v": 0.23384937196344094
+        },
+        {
+          "frequency_hz": 29.49203491,
+          "real_ohm": 7486.071289,
+          "imaginary_ohm": 862.7376099,
+          "voltage_v": 0.25142573980251165,
+          "sense_voltage_v": 0.233907182027182
+        },
+        {
+          "frequency_hz": 30.32165527,
+          "real_ohm": 7500.688477,
+          "imaginary_ohm": 888.5303345,
+          "voltage_v": 0.25127341901289124,
+          "sense_voltage_v": 0.23373323482844174
+        },
+        {
+          "frequency_hz": 31.17461205,
+          "real_ohm": 7500.447266,
+          "imaginary_ohm": 882.9174805,
+          "voltage_v": 0.25132185339795365,
+          "sense_voltage_v": 0.2337789129626982
+        },
+        {
+          "frequency_hz": 32.05157089,
+          "real_ohm": 7502.888672,
+          "imaginary_ohm": 918.9276123,
+          "voltage_v": 0.25130630261997655,
+          "sense_voltage_v": 0.2337584832672874
+        },
+        {
+          "frequency_hz": 32.95318985,
+          "real_ohm": 7493.797363,
+          "imaginary_ohm": 958.5599365,
+          "voltage_v": 0.2513341167753088,
+          "sense_voltage_v": 0.23380337289353317
+        },
+        {
+          "frequency_hz": 33.88017273,
+          "real_ohm": 7487.561523,
+          "imaginary_ohm": 992.9406128,
+          "voltage_v": 0.25143563735026897,
+          "sense_voltage_v": 0.2339107015731063
+        },
+        {
+          "frequency_hz": 34.83323288,
+          "real_ohm": 7465.893555,
+          "imaginary_ohm": 1011.515442,
+          "voltage_v": 0.25142242520863645,
+          "sense_voltage_v": 0.23394518985357046
+        },
+        {
+          "frequency_hz": 35.81311035,
+          "real_ohm": 7519.385254,
+          "imaginary_ohm": 1062.068359,
+          "voltage_v": 0.25128365623440085,
+          "sense_voltage_v": 0.2336986931143631
+        },
+        {
+          "frequency_hz": 36.8205452,
+          "real_ohm": 7500.835938,
+          "imaginary_ohm": 1039.725342,
+          "voltage_v": 0.25134756048166335,
+          "sense_voltage_v": 0.23379893143593494
+        },
+        {
+          "frequency_hz": 37.85632706,
+          "real_ohm": 7500.496094,
+          "imaginary_ohm": 1064.943604,
+          "voltage_v": 0.25145713056469865,
+          "sense_voltage_v": 0.23390105257020644
+        },
+        {
+          "frequency_hz": 38.92123795,
+          "real_ohm": 7443.509277,
+          "imaginary_ohm": 1143.785156,
+          "voltage_v": 0.2514292871760869,
+          "sense_voltage_v": 0.23399742159107562
+        },
+        {
+          "frequency_hz": 40.01610184,
+          "real_ohm": 7436.943359,
+          "imaginary_ohm": 1159.049438,
+          "voltage_v": 0.25136056570860765,
+          "sense_voltage_v": 0.23394740310210876
+        },
+        {
+          "frequency_hz": 41.14177704,
+          "real_ohm": 7567.151367,
+          "imaginary_ohm": 1198.191162,
+          "voltage_v": 0.251268890198647,
+          "sense_voltage_v": 0.23357809542396238
+        },
+        {
+          "frequency_hz": 42.29911041,
+          "real_ohm": 7421.049805,
+          "imaginary_ohm": 1247.998901,
+          "voltage_v": 0.2513960746373014,
+          "sense_voltage_v": 0.23401289555849994
+        },
+        {
+          "frequency_hz": 43.4889946,
+          "real_ohm": 7475.535645,
+          "imaginary_ohm": 1327.017822,
+          "voltage_v": 0.2513224504464645,
+          "sense_voltage_v": 0.23382371901657895
+        },
+        {
+          "frequency_hz": 44.7123642,
+          "real_ohm": 7580.333008,
+          "imaginary_ohm": 1293.363892,
+          "voltage_v": 0.2514347038326365,
+          "sense_voltage_v": 0.23370120555958868
+        },
+        {
+          "frequency_hz": 45.97013855,
+          "real_ohm": 7440.786621,
+          "imaginary_ohm": 1422.767578,
+          "voltage_v": 0.2514441457972088,
+          "sense_voltage_v": 0.23400992317373936
+        },
+        {
+          "frequency_hz": 47.26329041,
+          "real_ohm": 7553.673828,
+          "imaginary_ohm": 1489.495972,
+          "voltage_v": 0.25142862484476575,
+          "sense_voltage_v": 0.23374795821513997
+        },
+        {
+          "frequency_hz": 48.59281921,
+          "real_ohm": 7507.358398,
+          "imaginary_ohm": 1279.605103,
+          "voltage_v": 0.25132248647043476,
+          "sense_voltage_v": 0.2337558001537955
+        },
+        {
+          "frequency_hz": 49.95976257,
+          "real_ohm": 7646.65625,
+          "imaginary_ohm": 1373.062134,
+          "voltage_v": 0.2513530286648447,
+          "sense_voltage_v": 0.23347922987658667
+        },
+        {
+          "frequency_hz": 51.36514664,
+          "real_ohm": 7561.780273,
+          "imaginary_ohm": 1369.029297,
+          "voltage_v": 0.2514080619107333,
+          "sense_voltage_v": 0.23371470772100203
+        },
+        {
+          "frequency_hz": 52.81007385,
+          "real_ohm": 7596.474121,
+          "imaginary_ohm": 1416.906982,
+          "voltage_v": 0.2513843442371957,
+          "sense_voltage_v": 0.2336159726980438
+        },
+        {
+          "frequency_hz": 54.29563904,
+          "real_ohm": 7647.466309,
+          "imaginary_ohm": 1629.177856,
+          "voltage_v": 0.2513971309317938,
+          "sense_voltage_v": 0.2335106934440025
+        },
+        {
+          "frequency_hz": 55.82299042,
+          "real_ohm": 7682.229004,
+          "imaginary_ohm": 1575.669067,
+          "voltage_v": 0.25137724423221075,
+          "sense_voltage_v": 0.2334185863209089
+        },
+        {
+          "frequency_hz": 57.39330673,
+          "real_ohm": 7335.070801,
+          "imaginary_ohm": 1632.744385,
+          "voltage_v": 0.2514658837132756,
+          "sense_voltage_v": 0.23425409189151186
+        },
+        {
+          "frequency_hz": 59.00782776,
+          "real_ohm": 7591.835449,
+          "imaginary_ohm": 1555.018433,
+          "voltage_v": 0.25134063920601546,
+          "sense_voltage_v": 0.23358128456837804
+        },
+        {
+          "frequency_hz": 60.66770554,
+          "real_ohm": 7563.028809,
+          "imaginary_ohm": 1591.874268,
+          "voltage_v": 0.2515165619308576,
+          "sense_voltage_v": 0.23380619308766665
+        },
+        {
+          "frequency_hz": 62.37433624,
+          "real_ohm": 7345.152832,
+          "imaginary_ohm": 1888.421631,
+          "voltage_v": 0.25146780933518875,
+          "sense_voltage_v": 0.2342247418623125
+        },
+        {
+          "frequency_hz": 64.1289444,
+          "real_ohm": 7602.936523,
+          "imaginary_ohm": 1704.85144,
+          "voltage_v": 0.2514795392625955,
+          "sense_voltage_v": 0.23368133727631554
+        },
+        {
+          "frequency_hz": 65.93291473,
+          "real_ohm": 7683.265625,
+          "imaginary_ohm": 1886.836792,
+          "voltage_v": 0.2513118697266785,
+          "sense_voltage_v": 0.23334479847918144
+        },
+        {
+          "frequency_hz": 67.78762054,
+          "real_ohm": 7594.10791,
+          "imaginary_ohm": 1822.022827,
+          "voltage_v": 0.2513716298626558,
+          "sense_voltage_v": 0.23359605907499145
+        },
+        {
+          "frequency_hz": 69.69451141,
+          "real_ohm": 7406.291992,
+          "imaginary_ohm": 2130.057373,
+          "voltage_v": 0.2514078035115005,
+          "sense_voltage_v": 0.23402574810476912
+        },
+        {
+          "frequency_hz": 71.65507507,
+          "real_ohm": 7472.651855,
+          "imaginary_ohm": 1943.675049,
+          "voltage_v": 0.25138240022563124,
+          "sense_voltage_v": 0.23386535560568494
+        },
+        {
+          "frequency_hz": 73.67075348,
+          "real_ohm": 7532.090332,
+          "imaginary_ohm": 1990.026367,
+          "voltage_v": 0.25141210646593076,
+          "sense_voltage_v": 0.23376190708756728
+        },
+        {
+          "frequency_hz": 75.74313354,
+          "real_ohm": 7669.209473,
+          "imaginary_ohm": 2217.200928,
+          "voltage_v": 0.25140881036433277,
+          "sense_voltage_v": 0.23345162648069276
+        },
+        {
+          "frequency_hz": 77.87380981,
+          "real_ohm": 7405.519043,
+          "imaginary_ohm": 2217.631104,
+          "voltage_v": 0.25144680459943275,
+          "sense_voltage_v": 0.23405987469888045
+        },
+        {
+          "frequency_hz": 80.06442261,
+          "real_ohm": 7621.050781,
+          "imaginary_ohm": 2233.494629,
+          "voltage_v": 0.2513098626662515,
+          "sense_voltage_v": 0.23346339642895167
+        },
+        {
+          "frequency_hz": 82.31669617,
+          "real_ohm": 7637.626465,
+          "imaginary_ohm": 2314.466309,
+          "voltage_v": 0.2513777150309724,
+          "sense_voltage_v": 0.23348677551292799
+        },
+        {
+          "frequency_hz": 84.6322937,
+          "real_ohm": 7480.245605,
+          "imaginary_ohm": 2329.570801,
+          "voltage_v": 0.25151943487515527,
+          "sense_voltage_v": 0.2339596216631613
+        },
+        {
+          "frequency_hz": 87.01302338,
+          "real_ohm": 7546.187012,
+          "imaginary_ohm": 2661.737549,
+          "voltage_v": 0.2513759097490344,
+          "sense_voltage_v": 0.23366607672215547
+        },
+        {
+          "frequency_hz": 89.46072388,
+          "real_ohm": 7455.297363,
+          "imaginary_ohm": 2558.335938,
+          "voltage_v": 0.25143794195532415,
+          "sense_voltage_v": 0.23392677355279337
+        },
+        {
+          "frequency_hz": 91.97727966,
+          "real_ohm": 7481.464844,
+          "imaginary_ohm": 2622.301025,
+          "voltage_v": 0.2514114926953947,
+          "sense_voltage_v": 0.23384190057481316
+        },
+        {
+          "frequency_hz": 94.5646286,
+          "real_ohm": 7630.179199,
+          "imaginary_ohm": 2732.137695,
+          "voltage_v": 0.2514534461536621,
+          "sense_voltage_v": 0.23355203167931354
+        },
+        {
+          "frequency_hz": 97.22476196,
+          "real_ohm": 7505.153809,
+          "imaginary_ohm": 2768.440186,
+          "voltage_v": 0.25146871224099127,
+          "sense_voltage_v": 0.23383564825366326
+        },
+        {
+          "frequency_hz": 99.9597702,
+          "real_ohm": 7677.231934,
+          "imaginary_ohm": 2897.119141,
+          "voltage_v": 0.251341375792143,
+          "sense_voltage_v": 0.2333366547700809
+        },
+        {
+          "frequency_hz": 102.7716675,
+          "real_ohm": 7631.268555,
+          "imaginary_ohm": 3037.265869,
+          "voltage_v": 0.25133212906902724,
+          "sense_voltage_v": 0.2334192671930475
+        },
+        {
+          "frequency_hz": 105.6626663,
+          "real_ohm": 7654.185059,
+          "imaginary_ohm": 3132.499023,
+          "voltage_v": 0.25148316497346496,
+          "sense_voltage_v": 0.23350394578606803
+        },
+        {
+          "frequency_hz": 108.6349869,
+          "real_ohm": 7609.753418,
+          "imaginary_ohm": 3102.286865,
+          "voltage_v": 0.2514077358812632,
+          "sense_voltage_v": 0.23353210833310342
+        },
+        {
+          "frequency_hz": 111.690918,
+          "real_ohm": 7523.152344,
+          "imaginary_ohm": 3270.446777,
+          "voltage_v": 0.2514824351912118,
+          "sense_voltage_v": 0.23377866285941848
+        },
+        {
+          "frequency_hz": 114.8328781,
+          "real_ohm": 7592.085938,
+          "imaginary_ohm": 3275.71582,
+          "voltage_v": 0.25149305407058753,
+          "sense_voltage_v": 0.23363853746314733
+        },
+        {
+          "frequency_hz": 118.0631027,
+          "real_ohm": 7621.718262,
+          "imaginary_ohm": 3392.813477,
+          "voltage_v": 0.2513955323893588,
+          "sense_voltage_v": 0.23347583116996087
+        },
+        {
+          "frequency_hz": 121.3843079,
+          "real_ohm": 7652.351074,
+          "imaginary_ohm": 3468.049072,
+          "voltage_v": 0.25138851360505243,
+          "sense_voltage_v": 0.23339775157631792
+        },
+        {
+          "frequency_hz": 124.7988892,
+          "real_ohm": 7573.492188,
+          "imaginary_ohm": 3639.560547,
+          "voltage_v": 0.2515218823928882,
+          "sense_voltage_v": 0.2336802908986848
+        },
+        {
+          "frequency_hz": 128.3095245,
+          "real_ohm": 7647.467285,
+          "imaginary_ohm": 3680.753174,
+          "voltage_v": 0.25138276962629513,
+          "sense_voltage_v": 0.23338769964033035
+        },
+        {
+          "frequency_hz": 131.9188995,
+          "real_ohm": 7646.620605,
+          "imaginary_ohm": 3791.494385,
+          "voltage_v": 0.25148152921619904,
+          "sense_voltage_v": 0.23347289926012854
+        },
+        {
+          "frequency_hz": 135.6298218,
+          "real_ohm": 7680.079102,
+          "imaginary_ohm": 3898.132568,
+          "voltage_v": 0.2514581619960356,
+          "sense_voltage_v": 0.23337051334531717
+        },
+        {
+          "frequency_hz": 139.4451904,
+          "real_ohm": 7654.468262,
+          "imaginary_ohm": 3989.387939,
+          "voltage_v": 0.2514193024818924,
+          "sense_voltage_v": 0.23338265017088697
+        },
+        {
+          "frequency_hz": 143.3678284,
+          "real_ohm": 7637.459961,
+          "imaginary_ohm": 4163.174805,
+          "voltage_v": 0.2513669906414521,
+          "sense_voltage_v": 0.23335666177495737
+        },
+        {
+          "frequency_hz": 147.4008179,
+          "real_ohm": 7630.069336,
+          "imaginary_ohm": 4243.016602,
+          "voltage_v": 0.2513714206712505,
+          "sense_voltage_v": 0.23337002399085494
+        },
+        {
+          "frequency_hz": 151.5472412,
+          "real_ohm": 7633.533691,
+          "imaginary_ohm": 4391.053711,
+          "voltage_v": 0.2514550392154409,
+          "sense_voltage_v": 0.23342729551479344
+        },
+        {
+          "frequency_hz": 155.8103027,
+          "real_ohm": 7655.965332,
+          "imaginary_ohm": 4501.674805,
+          "voltage_v": 0.2514421575987835,
+          "sense_voltage_v": 0.23335689555542982
+        },
+        {
+          "frequency_hz": 160.1933746,
+          "real_ohm": 7703.006348,
+          "imaginary_ohm": 4662.199707,
+          "voltage_v": 0.25130740124257106,
+          "sense_voltage_v": 0.2331153868738471
+        },
+        {
+          "frequency_hz": 164.699585,
+          "real_ohm": 7685.44043,
+          "imaginary_ohm": 4750.088867,
+          "voltage_v": 0.2514205246369869,
+          "sense_voltage_v": 0.23324999039194563
+        },
+        {
+          "frequency_hz": 169.3327179,
+          "real_ohm": 7753.029297,
+          "imaginary_ohm": 4833.109863,
+          "voltage_v": 0.2512760617066235,
+          "sense_voltage_v": 0.23296206132174999
+        },
+        {
+          "frequency_hz": 174.0960999,
+          "real_ohm": 7724.049316,
+          "imaginary_ohm": 5036.032227,
+          "voltage_v": 0.25150817405598697,
+          "sense_voltage_v": 0.23321977741384597
+        },
+        {
+          "frequency_hz": 178.9934692,
+          "real_ohm": 7716.246094,
+          "imaginary_ohm": 5141.205078,
+          "voltage_v": 0.25148385046503885,
+          "sense_voltage_v": 0.2332033456193647
+        },
+        {
+          "frequency_hz": 184.0286102,
+          "real_ohm": 7729.615723,
+          "imaginary_ohm": 5314.265137,
+          "voltage_v": 0.25143870187589235,
+          "sense_voltage_v": 0.2331144791735253
+        },
+        {
+          "frequency_hz": 189.2053833,
+          "real_ohm": 7807.904297,
+          "imaginary_ohm": 5466.528809,
+          "voltage_v": 0.2513861523510264,
+          "sense_voltage_v": 0.23288051323438824
+        },
+        {
+          "frequency_hz": 194.5278931,
+          "real_ohm": 7833.105957,
+          "imaginary_ohm": 5631.230469,
+          "voltage_v": 0.2513623524036085,
+          "sense_voltage_v": 0.23278593560253744
+        },
+        {
+          "frequency_hz": 200.0000153,
+          "real_ohm": 7849.483887,
+          "imaginary_ohm": 5709.620605,
+          "voltage_v": 0.2514246409920987,
+          "sense_voltage_v": 0.23279948677091544
+        },
+        {
+          "frequency_hz": 205.6260681,
+          "real_ohm": 7820.882813,
+          "imaginary_ohm": 5928.805176,
+          "voltage_v": 0.2512326753284183,
+          "sense_voltage_v": 0.23265782100979895
+        },
+        {
+          "frequency_hz": 211.4104004,
+          "real_ohm": 7859.39209,
+          "imaginary_ohm": 6123.207031,
+          "voltage_v": 0.2513998906381066,
+          "sense_voltage_v": 0.23270644264344714
+        },
+        {
+          "frequency_hz": 217.3574371,
+          "real_ohm": 7888.939453,
+          "imaginary_ohm": 6260.953125,
+          "voltage_v": 0.2514359049946514,
+          "sense_voltage_v": 0.23265925018590575
+        },
+        {
+          "frequency_hz": 223.4718628,
+          "real_ohm": 7899.858398,
+          "imaginary_ohm": 6416.302246,
+          "voltage_v": 0.2515697529347604,
+          "sense_voltage_v": 0.23274000703817907
+        },
+        {
+          "frequency_hz": 229.7580872,
+          "real_ohm": 7927.075195,
+          "imaginary_ohm": 6618.273926,
+          "voltage_v": 0.2514661509203594,
+          "sense_voltage_v": 0.23255951162433738
+        },
+        {
+          "frequency_hz": 236.2213745,
+          "real_ohm": 7942.080566,
+          "imaginary_ohm": 6764.447266,
+          "voltage_v": 0.2514160725195202,
+          "sense_voltage_v": 0.2324615561730391
+        },
+        {
+          "frequency_hz": 242.8663483,
+          "real_ohm": 7967.171875,
+          "imaginary_ohm": 6969.985352,
+          "voltage_v": 0.2513376471603682,
+          "sense_voltage_v": 0.2323072305478876
+        },
+        {
+          "frequency_hz": 249.6982422,
+          "real_ohm": 7977.25293,
+          "imaginary_ohm": 7140.769531,
+          "voltage_v": 0.2514025150973412,
+          "sense_voltage_v": 0.2323216739945649
+        },
+        {
+          "frequency_hz": 256.7223206,
+          "real_ohm": 7990.24707,
+          "imaginary_ohm": 7399.304688,
+          "voltage_v": 0.25134373185178976,
+          "sense_voltage_v": 0.2322022679167249
+        },
+        {
+          "frequency_hz": 263.9440002,
+          "real_ohm": 8043.377441,
+          "imaginary_ohm": 7569.396973,
+          "voltage_v": 0.2513787655882311,
+          "sense_voltage_v": 0.23209577442337959
+        },
+        {
+          "frequency_hz": 271.3689575,
+          "real_ohm": 8096.681152,
+          "imaginary_ohm": 7704.081055,
+          "voltage_v": 0.25140435270405753,
+          "sense_voltage_v": 0.23198517588478065
+        },
+        {
+          "frequency_hz": 279.002655,
+          "real_ohm": 8120.958008,
+          "imaginary_ohm": 7989.794922,
+          "voltage_v": 0.2512691038180029,
+          "sense_voltage_v": 0.23176435817465627
+        },
+        {
+          "frequency_hz": 286.8510742,
+          "real_ohm": 8133.086914,
+          "imaginary_ohm": 8165.633789,
+          "voltage_v": 0.2513600364225508,
+          "sense_voltage_v": 0.23179436477808182
+        },
+        {
+          "frequency_hz": 294.9202881,
+          "real_ohm": 8175.354492,
+          "imaginary_ohm": 8422.360352,
+          "voltage_v": 0.25133285232295927,
+          "sense_voltage_v": 0.23163734386900187
+        },
+        {
+          "frequency_hz": 303.2164917,
+          "real_ohm": 8183.225098,
+          "imaginary_ohm": 8607.911133,
+          "voltage_v": 0.25136303846661745,
+          "sense_voltage_v": 0.23161733346771593
+        },
+        {
+          "frequency_hz": 311.7462158,
+          "real_ohm": 8250.698242,
+          "imaginary_ohm": 8863.455078,
+          "voltage_v": 0.2513630017584455,
+          "sense_voltage_v": 0.23143003267389342
+        },
+        {
+          "frequency_hz": 320.515564,
+          "real_ohm": 8250.863281,
+          "imaginary_ohm": 9084.548828,
+          "voltage_v": 0.25127982652499,
+          "sense_voltage_v": 0.23131420006986758
+        },
+        {
+          "frequency_hz": 329.5319214,
+          "real_ohm": 8327.373047,
+          "imaginary_ohm": 9371.921875,
+          "voltage_v": 0.2513194754237065,
+          "sense_voltage_v": 0.23113657727250778
+        },
+        {
+          "frequency_hz": 338.8017578,
+          "real_ohm": 8331.605469,
+          "imaginary_ohm": 9601.995117,
+          "voltage_v": 0.2513054201844059,
+          "sense_voltage_v": 0.23107203564093523
+        },
+        {
+          "frequency_hz": 348.3323364,
+          "real_ohm": 8404.448242,
+          "imaginary_ohm": 9857.517578,
+          "voltage_v": 0.25146470106615637,
+          "sense_voltage_v": 0.23101584383940402
+        },
+        {
+          "frequency_hz": 358.1312256,
+          "real_ohm": 8405.414063,
+          "imaginary_ohm": 10111.00879,
+          "voltage_v": 0.2514432892614441,
+          "sense_voltage_v": 0.23094481024232916
+        },
+        {
+          "frequency_hz": 368.2053833,
+          "real_ohm": 8496.464844,
+          "imaginary_ohm": 10394.79297,
+          "voltage_v": 0.2513671810685977,
+          "sense_voltage_v": 0.23062631513391174
+        },
+        {
+          "frequency_hz": 378.5632935,
+          "real_ohm": 8578.410156,
+          "imaginary_ohm": 10699.41016,
+          "voltage_v": 0.25138114973044684,
+          "sense_voltage_v": 0.23040443466114208
+        },
+        {
+          "frequency_hz": 389.2121887,
+          "real_ohm": 8626.382813,
+          "imaginary_ohm": 11031.04883,
+          "voltage_v": 0.2514408319589482,
+          "sense_voltage_v": 0.2302887014770737
+        },
+        {
+          "frequency_hz": 400.1610413,
+          "real_ohm": 8622.408203,
+          "imaginary_ohm": 11303.78223,
+          "voltage_v": 0.25134456970841346,
+          "sense_voltage_v": 0.23015007655454195
+        },
+        {
+          "frequency_hz": 411.4176941,
+          "real_ohm": 8751.192383,
+          "imaginary_ohm": 11460.98535,
+          "voltage_v": 0.25139197980791517,
+          "sense_voltage_v": 0.22988940045429876
+        },
+        {
+          "frequency_hz": 422.9909973,
+          "real_ohm": 8877.038086,
+          "imaginary_ohm": 11942.16895,
+          "voltage_v": 0.25129213377209697,
+          "sense_voltage_v": 0.2294276393524911
+        },
+        {
+          "frequency_hz": 434.8900757,
+          "real_ohm": 8793.422852,
+          "imaginary_ohm": 12116.63965,
+          "voltage_v": 0.25129812681912134,
+          "sense_voltage_v": 0.22956712641873714
+        },
+        {
+          "frequency_hz": 447.1234436,
+          "real_ohm": 8902.056641,
+          "imaginary_ohm": 12512.13281,
+          "voltage_v": 0.25134775287439154,
+          "sense_voltage_v": 0.22929322644720082
+        },
+        {
+          "frequency_hz": 459.701355,
+          "real_ohm": 8940.959961,
+          "imaginary_ohm": 12913.85059,
+          "voltage_v": 0.25129891124016807,
+          "sense_voltage_v": 0.2290706016051069
+        },
+        {
+          "frequency_hz": 472.6326904,
+          "real_ohm": 9064.361328,
+          "imaginary_ohm": 13261.0,
+          "voltage_v": 0.251331340667709,
+          "sense_voltage_v": 0.2287583841254108
+        },
+        {
+          "frequency_hz": 485.9282227,
+          "real_ohm": 9102.25293,
+          "imaginary_ohm": 13529.3125,
+          "voltage_v": 0.25140487282215135,
+          "sense_voltage_v": 0.22867896523389725
+        },
+        {
+          "frequency_hz": 499.5977478,
+          "real_ohm": 9216.313477,
+          "imaginary_ohm": 13940.73633,
+          "voltage_v": 0.25140208803487696,
+          "sense_voltage_v": 0.22833471125636687
+        },
+        {
+          "frequency_hz": 513.6513672,
+          "real_ohm": 9296.610352,
+          "imaginary_ohm": 14276.78516,
+          "voltage_v": 0.25132510036877903,
+          "sense_voltage_v": 0.2280107431874334
+        },
+        {
+          "frequency_hz": 528.100769,
+          "real_ohm": 9434.206055,
+          "imaginary_ohm": 14672.94238,
+          "voltage_v": 0.2512671408243347,
+          "sense_voltage_v": 0.22756922325012313
+        },
+        {
+          "frequency_hz": 542.9561157,
+          "real_ohm": 9459.679688,
+          "imaginary_ohm": 15046.74316,
+          "voltage_v": 0.25126944102426985,
+          "sense_voltage_v": 0.22741573412567972
+        },
+        {
+          "frequency_hz": 558.2299194,
+          "real_ohm": 9633.734375,
+          "imaginary_ohm": 15446.09375,
+          "voltage_v": 0.25131616584416616,
+          "sense_voltage_v": 0.22699076104729263
+        },
+        {
+          "frequency_hz": 573.9331055,
+          "real_ohm": 9719.900391,
+          "imaginary_ohm": 15850.8125,
+          "voltage_v": 0.25116724298731447,
+          "sense_voltage_v": 0.22656471444775464
+        },
+        {
+          "frequency_hz": 590.0780029,
+          "real_ohm": 9754.634766,
+          "imaginary_ohm": 16305.15332,
+          "voltage_v": 0.25121935394924705,
+          "sense_voltage_v": 0.22640701826726203
+        },
+        {
+          "frequency_hz": 606.6773682,
+          "real_ohm": 9846.825195,
+          "imaginary_ohm": 16751.33984,
+          "voltage_v": 0.2511747037112649,
+          "sense_voltage_v": 0.22604576005350896
+        },
+        {
+          "frequency_hz": 623.743103,
+          "real_ohm": 9965.852539,
+          "imaginary_ohm": 17148.01172,
+          "voltage_v": 0.25130427161308244,
+          "sense_voltage_v": 0.22580045637104038
+        },
+        {
+          "frequency_hz": 641.2894897,
+          "real_ohm": 10131.60645,
+          "imaginary_ohm": 17549.31836,
+          "voltage_v": 0.251381808568921,
+          "sense_voltage_v": 0.22541193902902365
+        },
+        {
+          "frequency_hz": 659.3291016,
+          "real_ohm": 10167.24902,
+          "imaginary_ohm": 18070.83203,
+          "voltage_v": 0.25114027644916737,
+          "sense_voltage_v": 0.22495646871283054
+        },
+        {
+          "frequency_hz": 677.8762817,
+          "real_ohm": 10345.98633,
+          "imaginary_ohm": 18629.12891,
+          "voltage_v": 0.2511225133463894,
+          "sense_voltage_v": 0.22440192832757108
+        },
+        {
+          "frequency_hz": 696.9451294,
+          "real_ohm": 10445.6543,
+          "imaginary_ohm": 19104.74219,
+          "voltage_v": 0.25112684122372697,
+          "sense_voltage_v": 0.22404869335300745
+        },
+        {
+          "frequency_hz": 716.550415,
+          "real_ohm": 10582.46289,
+          "imaginary_ohm": 19554.48828,
+          "voltage_v": 0.25125478992295674,
+          "sense_voltage_v": 0.22373916422895332
+        },
+        {
+          "frequency_hz": 736.7075195,
+          "real_ohm": 10805.58398,
+          "imaginary_ohm": 20012.00977,
+          "voltage_v": 0.2511610805894018,
+          "sense_voltage_v": 0.2230595578588984
+        },
+        {
+          "frequency_hz": 757.4309692,
+          "real_ohm": 10914.4043,
+          "imaginary_ohm": 20578.96875,
+          "voltage_v": 0.25120899189487444,
+          "sense_voltage_v": 0.22268849037587415
+        },
+        {
+          "frequency_hz": 778.7380981,
+          "real_ohm": 11094.50488,
+          "imaginary_ohm": 21113.5625,
+          "voltage_v": 0.2512708032742903,
+          "sense_voltage_v": 0.22220027587533428
+        },
+        {
+          "frequency_hz": 800.6438599,
+          "real_ohm": 11247.49414,
+          "imaginary_ohm": 21626.85156,
+          "voltage_v": 0.2512508780447006,
+          "sense_voltage_v": 0.2216981543716037
+        },
+        {
+          "frequency_hz": 823.166626,
+          "real_ohm": 11405.14258,
+          "imaginary_ohm": 22171.37695,
+          "voltage_v": 0.25128288909717755,
+          "sense_voltage_v": 0.2212193058965182
+        },
+        {
+          "frequency_hz": 846.322937,
+          "real_ohm": 11641.2373,
+          "imaginary_ohm": 22774.31836,
+          "voltage_v": 0.2510613366116364,
+          "sense_voltage_v": 0.2203442643204811
+        },
+        {
+          "frequency_hz": 870.1298218,
+          "real_ohm": 11858.80469,
+          "imaginary_ohm": 23388.28906,
+          "voltage_v": 0.2509798658347624,
+          "sense_voltage_v": 0.21962268488038378
+        },
+        {
+          "frequency_hz": 894.6072998,
+          "real_ohm": 12005.16016,
+          "imaginary_ohm": 23906.28906,
+          "voltage_v": 0.25119366907226404,
+          "sense_voltage_v": 0.21932945021864186
+        },
+        {
+          "frequency_hz": 919.7723999,
+          "real_ohm": 12160.45117,
+          "imaginary_ohm": 24568.85547,
+          "voltage_v": 0.251161393615394,
+          "sense_voltage_v": 0.21874389862404844
+        },
+        {
+          "frequency_hz": 945.6463013,
+          "real_ohm": 12363.66895,
+          "imaginary_ohm": 25237.78906,
+          "voltage_v": 0.25115791245245705,
+          "sense_voltage_v": 0.2180888718169762
+        },
+        {
+          "frequency_hz": 972.2476196,
+          "real_ohm": 12532.72559,
+          "imaginary_ohm": 25846.66602,
+          "voltage_v": 0.25112993819771184,
+          "sense_voltage_v": 0.2174985164781959
+        },
+        {
+          "frequency_hz": 999.597229,
+          "real_ohm": 12850.25586,
+          "imaginary_ohm": 26574.17773,
+          "voltage_v": 0.25107350260750483,
+          "sense_voltage_v": 0.21656045603402083
+        },
+        {
+          "frequency_hz": 1027.716675,
+          "real_ohm": 13135.69922,
+          "imaginary_ohm": 27156.06445,
+          "voltage_v": 0.25082932077643927,
+          "sense_voltage_v": 0.21558317899957588
+        },
+        {
+          "frequency_hz": 1056.626221,
+          "real_ohm": 13453.79688,
+          "imaginary_ohm": 28059.8125,
+          "voltage_v": 0.2508819399720727,
+          "sense_voltage_v": 0.21466344024502093
+        },
+        {
+          "frequency_hz": 1086.349854,
+          "real_ohm": 13709.9668,
+          "imaginary_ohm": 28675.28125,
+          "voltage_v": 0.25105517883164574,
+          "sense_voltage_v": 0.2140832293387321
+        },
+        {
+          "frequency_hz": 1116.909302,
+          "real_ohm": 13907.75781,
+          "imaginary_ohm": 29233.9707,
+          "voltage_v": 0.2509699989350127,
+          "sense_voltage_v": 0.21341107982719587
+        },
+        {
+          "frequency_hz": 1148.328247,
+          "real_ohm": 14278.04199,
+          "imaginary_ohm": 30230.15234,
+          "voltage_v": 0.25087766739400835,
+          "sense_voltage_v": 0.21223255463699345
+        },
+        {
+          "frequency_hz": 1180.631104,
+          "real_ohm": 14555.44141,
+          "imaginary_ohm": 30812.46484,
+          "voltage_v": 0.2509486209182209,
+          "sense_voltage_v": 0.21154432869487433
+        },
+        {
+          "frequency_hz": 1213.842529,
+          "real_ohm": 14893.22852,
+          "imaginary_ohm": 31714.33984,
+          "voltage_v": 0.25073297129497774,
+          "sense_voltage_v": 0.21036412109228908
+        },
+        {
+          "frequency_hz": 1247.988281,
+          "real_ohm": 15223.29785,
+          "imaginary_ohm": 32435.87695,
+          "voltage_v": 0.2508385596449051,
+          "sense_voltage_v": 0.20955306573541083
+        },
+        {
+          "frequency_hz": 1283.095215,
+          "real_ohm": 15489.35254,
+          "imaginary_ohm": 33310.80078,
+          "voltage_v": 0.25080732023933594,
+          "sense_voltage_v": 0.20866296059676454
+        },
+        {
+          "frequency_hz": 1319.189087,
+          "real_ohm": 15891.04297,
+          "imaginary_ohm": 34280.86719,
+          "voltage_v": 0.251007848677266,
+          "sense_voltage_v": 0.20769352875553682
+        },
+        {
+          "frequency_hz": 1356.29834,
+          "real_ohm": 16292.82617,
+          "imaginary_ohm": 35070.51172,
+          "voltage_v": 0.25091562631775227,
+          "sense_voltage_v": 0.20657291498749783
+        },
+        {
+          "frequency_hz": 1394.451416,
+          "real_ohm": 16579.40625,
+          "imaginary_ohm": 36046.13281,
+          "voltage_v": 0.2506513126140988,
+          "sense_voltage_v": 0.20540993312224265
+        },
+        {
+          "frequency_hz": 1433.677734,
+          "real_ohm": 17103.21094,
+          "imaginary_ohm": 37001.78906,
+          "voltage_v": 0.25037956708947745,
+          "sense_voltage_v": 0.20387556497435522
+        },
+        {
+          "frequency_hz": 1474.008179,
+          "real_ohm": 17591.09375,
+          "imaginary_ohm": 37996.14844,
+          "voltage_v": 0.25076884642526925,
+          "sense_voltage_v": 0.20292452822501753
+        },
+        {
+          "frequency_hz": 1515.472412,
+          "real_ohm": 18080.45898,
+          "imaginary_ohm": 38771.21875,
+          "voltage_v": 0.25055315550455487,
+          "sense_voltage_v": 0.2015993004806124
+        },
+        {
+          "frequency_hz": 1558.103149,
+          "real_ohm": 18484.73828,
+          "imaginary_ohm": 39970.29688,
+          "voltage_v": 0.25054308321839264,
+          "sense_voltage_v": 0.20036230148803344
+        },
+        {
+          "frequency_hz": 1601.933105,
+          "real_ohm": 19112.10938,
+          "imaginary_ohm": 41059.93359,
+          "voltage_v": 0.25044348511962355,
+          "sense_voltage_v": 0.19877961564602148
+        },
+        {
+          "frequency_hz": 1646.99585,
+          "real_ohm": 19394.86328,
+          "imaginary_ohm": 42047.25,
+          "voltage_v": 0.25070480625011093,
+          "sense_voltage_v": 0.19805660628263372
+        },
+        {
+          "frequency_hz": 1693.326416,
+          "real_ohm": 20066.23242,
+          "imaginary_ohm": 42951.89063,
+          "voltage_v": 0.25046380509125976,
+          "sense_voltage_v": 0.1964149242255323
+        },
+        {
+          "frequency_hz": 1740.960938,
+          "real_ohm": 20657.26367,
+          "imaginary_ohm": 44235.65625,
+          "voltage_v": 0.2502003482983255,
+          "sense_voltage_v": 0.19469241599556925
+        },
+        {
+          "frequency_hz": 1789.934814,
+          "real_ohm": 21137.39063,
+          "imaginary_ohm": 45384.6875,
+          "voltage_v": 0.2502579896339935,
+          "sense_voltage_v": 0.1934583999559672
+        },
+        {
+          "frequency_hz": 1840.286133,
+          "real_ohm": 21769.41797,
+          "imaginary_ohm": 46585.09375,
+          "voltage_v": 0.25046883673315395,
+          "sense_voltage_v": 0.1921123437491557
+        },
+        {
+          "frequency_hz": 1892.053955,
+          "real_ohm": 22432.29688,
+          "imaginary_ohm": 47940.375,
+          "voltage_v": 0.2502881318094114,
+          "sense_voltage_v": 0.19035686843414756
+        },
+        {
+          "frequency_hz": 1945.277954,
+          "real_ohm": 23262.31055,
+          "imaginary_ohm": 49040.91016,
+          "voltage_v": 0.2501227003779617,
+          "sense_voltage_v": 0.18854453306396052
+        },
+        {
+          "frequency_hz": 2000.000244,
+          "real_ohm": 23935.74023,
+          "imaginary_ohm": 50555.29688,
+          "voltage_v": 0.2503374121822626,
+          "sense_voltage_v": 0.187027891089983
+        },
+        {
+          "frequency_hz": 2056.259766,
+          "real_ohm": 24760.94922,
+          "imaginary_ohm": 51791.49609,
+          "voltage_v": 0.2501204829725735,
+          "sense_voltage_v": 0.18515939023194833
+        },
+        {
+          "frequency_hz": 2114.103027,
+          "real_ohm": 25736.86719,
+          "imaginary_ohm": 53238.71875,
+          "voltage_v": 0.25009568857846987,
+          "sense_voltage_v": 0.18316194512216735
+        },
+        {
+          "frequency_hz": 2173.574463,
+          "real_ohm": 26540.2832,
+          "imaginary_ohm": 54826.78906,
+          "voltage_v": 0.24978895032244514,
+          "sense_voltage_v": 0.18112817354532385
+        },
+        {
+          "frequency_hz": 2234.717773,
+          "real_ohm": 27464.99805,
+          "imaginary_ohm": 56129.80859,
+          "voltage_v": 0.24997076926728204,
+          "sense_voltage_v": 0.17947835823327118
+        },
+        {
+          "frequency_hz": 2297.582031,
+          "real_ohm": 28256.54297,
+          "imaginary_ohm": 57588.12109,
+          "voltage_v": 0.2498648703644344,
+          "sense_voltage_v": 0.17772329222581967
+        },
+        {
+          "frequency_hz": 2362.212646,
+          "real_ohm": 29446.50195,
+          "imaginary_ohm": 59158.14844,
+          "voltage_v": 0.2498603884428352,
+          "sense_voltage_v": 0.17555761716455862
+        },
+        {
+          "frequency_hz": 2428.662354,
+          "real_ohm": 30623.61328,
+          "imaginary_ohm": 60954.80469,
+          "voltage_v": 0.24955916882722146,
+          "sense_voltage_v": 0.1731296665746408
+        },
+        {
+          "frequency_hz": 2496.982422,
+          "real_ohm": 31772.06836,
+          "imaginary_ohm": 62626.48047,
+          "voltage_v": 0.24949431086066648,
+          "sense_voltage_v": 0.17100707857041963
+        },
+        {
+          "frequency_hz": 2567.223389,
+          "real_ohm": 32978.1875,
+          "imaginary_ohm": 64214.41797,
+          "voltage_v": 0.2494140638119103,
+          "sense_voltage_v": 0.1688986033353324
+        },
+        {
+          "frequency_hz": 2639.440186,
+          "real_ohm": 34347.88672,
+          "imaginary_ohm": 66130.27344,
+          "voltage_v": 0.24945346925418818,
+          "sense_voltage_v": 0.16658920946585182
+        },
+        {
+          "frequency_hz": 2713.688477,
+          "real_ohm": 36131.22656,
+          "imaginary_ohm": 68214.36719,
+          "voltage_v": 0.24892320890657424,
+          "sense_voltage_v": 0.16347926423940726
+        },
+        {
+          "frequency_hz": 2790.025391,
+          "real_ohm": 37817.99219,
+          "imaginary_ohm": 69721.80469,
+          "voltage_v": 0.24900000407532796,
+          "sense_voltage_v": 0.1612167982138952
+        },
+        {
+          "frequency_hz": 2868.510986,
+          "real_ohm": 38922.52734,
+          "imaginary_ohm": 72309.99219,
+          "voltage_v": 0.24911426473447973,
+          "sense_voltage_v": 0.15906173742831917
+        },
+        {
+          "frequency_hz": 2949.203125,
+          "real_ohm": 41127.82422,
+          "imaginary_ohm": 74294.19531,
+          "voltage_v": 0.24849284104621505,
+          "sense_voltage_v": 0.15580578542189288
+        },
+        {
+          "frequency_hz": 3032.166504,
+          "real_ohm": 42687.04688,
+          "imaginary_ohm": 76241.35156,
+          "voltage_v": 0.2486397047491576,
+          "sense_voltage_v": 0.15369127855122172
+        },
+        {
+          "frequency_hz": 3117.460693,
+          "real_ohm": 45153.86328,
+          "imaginary_ohm": 78383.97656,
+          "voltage_v": 0.24852754200302982,
+          "sense_voltage_v": 0.15065404623307005
+        },
+        {
+          "frequency_hz": 3205.154297,
+          "real_ohm": 47142.84766,
+          "imaginary_ohm": 80820.16406,
+          "voltage_v": 0.24852344011031524,
+          "sense_voltage_v": 0.14803840460763776
+        },
+        {
+          "frequency_hz": 3295.317871,
+          "real_ohm": 49642.33203,
+          "imaginary_ohm": 83107.75,
+          "voltage_v": 0.2483154036526052,
+          "sense_voltage_v": 0.14506809041295715
+        },
+        {
+          "frequency_hz": 3388.017578,
+          "real_ohm": 52157.75,
+          "imaginary_ohm": 85366.3125,
+          "voltage_v": 0.2481506932062179,
+          "sense_voltage_v": 0.14223206617199688
+        },
+        {
+          "frequency_hz": 3483.321777,
+          "real_ohm": 55592.98828,
+          "imaginary_ohm": 87790.51563,
+          "voltage_v": 0.24797068233248823,
+          "sense_voltage_v": 0.1388013551570107
+        },
+        {
+          "frequency_hz": 3581.310547,
+          "real_ohm": 58921.30078,
+          "imaginary_ohm": 90230.57813,
+          "voltage_v": 0.24788314079740417,
+          "sense_voltage_v": 0.13564062189273196
+        },
+        {
+          "frequency_hz": 3682.052002,
+          "real_ohm": 62136.83984,
+          "imaginary_ohm": 93359.07813,
+          "voltage_v": 0.2471559354558766,
+          "sense_voltage_v": 0.1321023435699116
+        },
+        {
+          "frequency_hz": 3785.631104,
+          "real_ohm": 65953.51563,
+          "imaginary_ohm": 95855.17188,
+          "voltage_v": 0.2473465616622754,
+          "sense_voltage_v": 0.12906324824183457
+        },
+        {
+          "frequency_hz": 3892.124023,
+          "real_ohm": 70072.10156,
+          "imaginary_ohm": 98495.21875,
+          "voltage_v": 0.24696445413279405,
+          "sense_voltage_v": 0.12565956217266533
+        },
+        {
+          "frequency_hz": 4001.608643,
+          "real_ohm": 74677.17188,
+          "imaginary_ohm": 102098.0859,
+          "voltage_v": 0.24680926431432632,
+          "sense_voltage_v": 0.1219854537486078
+        },
+        {
+          "frequency_hz": 4114.17334,
+          "real_ohm": 80310.11719,
+          "imaginary_ohm": 104348.7891,
+          "voltage_v": 0.24662929428519018,
+          "sense_voltage_v": 0.11838529319408825
+        },
+        {
+          "frequency_hz": 4229.908203,
+          "real_ohm": 84946.89844,
+          "imaginary_ohm": 108178.7422,
+          "voltage_v": 0.24621972526293648,
+          "sense_voltage_v": 0.11491552181824555
+        },
+        {
+          "frequency_hz": 4348.898926,
+          "real_ohm": 92647.59375,
+          "imaginary_ohm": 109367.4531,
+          "voltage_v": 0.24567671779140568,
+          "sense_voltage_v": 0.11090133619019242
+        },
+        {
+          "frequency_hz": 4471.236816,
+          "real_ohm": 98721.77344,
+          "imaginary_ohm": 111630.9219,
+          "voltage_v": 0.24567870940390024,
+          "sense_voltage_v": 0.107787204088136
+        },
+        {
+          "frequency_hz": 4597.011719,
+          "real_ohm": 107092.2969,
+          "imaginary_ohm": 114850.6094,
+          "voltage_v": 0.2450576096250596,
+          "sense_voltage_v": 0.10348380517409689
+        },
+        {
+          "frequency_hz": 4726.324707,
+          "real_ohm": 114306.8203,
+          "imaginary_ohm": 115885.6875,
+          "voltage_v": 0.24495010028267983,
+          "sense_voltage_v": 0.10054072039898758
+        },
+        {
+          "frequency_hz": 4859.279785,
+          "real_ohm": 124181.9141,
+          "imaginary_ohm": 117700.5781,
+          "voltage_v": 0.24486761605701904,
+          "sense_voltage_v": 0.09670862706876115
+        },
+        {
+          "frequency_hz": 4995.975586,
+          "real_ohm": 133591.2188,
+          "imaginary_ohm": 118052.8125,
+          "voltage_v": 0.24461085099619898,
+          "sense_voltage_v": 0.09346010040069916
+        },
+        {
+          "frequency_hz": 5136.516113,
+          "real_ohm": 146820.2031,
+          "imaginary_ohm": 118029.8438,
+          "voltage_v": 0.24394687943851207,
+          "sense_voltage_v": 0.08916527321613199
+        },
+        {
+          "frequency_hz": 5281.005371,
+          "real_ohm": 159609.2188,
+          "imaginary_ohm": 117867.3359,
+          "voltage_v": 0.24336714282331068,
+          "sense_voltage_v": 0.08535801720458792
+        },
+        {
+          "frequency_hz": 5429.559082,
+          "real_ohm": 173822.0469,
+          "imaginary_ohm": 113303.6172,
+          "voltage_v": 0.24307602723990296,
+          "sense_voltage_v": 0.08202660913907994
+        },
+        {
+          "frequency_hz": 5582.296875,
+          "real_ohm": 186624.875,
+          "imaginary_ohm": 108403.2656,
+          "voltage_v": 0.24292513017744183,
+          "sense_voltage_v": 0.07927347229560859
+        },
+        {
+          "frequency_hz": 5739.331055,
+          "real_ohm": 202079.0469,
+          "imaginary_ohm": 101530.5156,
+          "voltage_v": 0.24214570483317824,
+          "sense_voltage_v": 0.07598274754654757
+        },
+        {
+          "frequency_hz": 5900.777344,
+          "real_ohm": 218355.1094,
+          "imaginary_ohm": 91259.21875,
+          "voltage_v": 0.24156877017520567,
+          "sense_voltage_v": 0.07294249187597758
+        },
+        {
+          "frequency_hz": 6066.770996,
+          "real_ohm": 230932.9844,
+          "imaginary_ohm": 78276.67188,
+          "voltage_v": 0.24151693979862968,
+          "sense_voltage_v": 0.07102091861191825
+        },
+        {
+          "frequency_hz": 6237.428223,
+          "real_ohm": 244291.9063,
+          "imaginary_ohm": 61467.48828,
+          "voltage_v": 0.24063356733196953,
+          "sense_voltage_v": 0.06880437680630314
+        },
+        {
+          "frequency_hz": 6412.891602,
+          "real_ohm": 253748.7656,
+          "imaginary_ohm": 41052.10156,
+          "voltage_v": 0.24029094458327574,
+          "sense_voltage_v": 0.06747417755172637
+        },
+        {
+          "frequency_hz": 6593.291504,
+          "real_ohm": 262912.4688,
+          "imaginary_ohm": 17627.92773,
+          "voltage_v": 0.23949780747585994,
+          "sense_voltage_v": 0.06591555556451364
+        },
+        {
+          "frequency_hz": 6778.759766,
+          "real_ohm": 266526.6875,
+          "imaginary_ohm": -7917.700684,
+          "voltage_v": 0.23860954023623665,
+          "sense_voltage_v": 0.06508500080518279
+        },
+        {
+          "frequency_hz": 6969.451172,
+          "real_ohm": 264288.5313,
+          "imaginary_ohm": -32096.63672,
+          "voltage_v": 0.23841538307786517,
+          "sense_voltage_v": 0.0651942929081329
+        },
+        {
+          "frequency_hz": 7165.500977,
+          "real_ohm": 258196.7188,
+          "imaginary_ohm": -54500.95703,
+          "voltage_v": 0.23761896064244784,
+          "sense_voltage_v": 0.06558275894366997
+        },
+        {
+          "frequency_hz": 7367.072266,
+          "real_ohm": 247921.125,
+          "imaginary_ohm": -77959.80469,
+          "voltage_v": 0.2369174898011438,
+          "sense_voltage_v": 0.06644747461715783
+        },
+        {
+          "frequency_hz": 7574.313477,
+          "real_ohm": 233652.2344,
+          "imaginary_ohm": -95879.25781,
+          "voltage_v": 0.23632294597309558,
+          "sense_voltage_v": 0.06807417004878304
+        },
+        {
+          "frequency_hz": 7787.377441,
+          "real_ohm": 218533.7813,
+          "imaginary_ohm": -113029.2969,
+          "voltage_v": 0.2353647765929194,
+          "sense_voltage_v": 0.06963595278363022
+        },
+        {
+          "frequency_hz": 8006.442383,
+          "real_ohm": 200020.9063,
+          "imaginary_ohm": -121798.9844,
+          "voltage_v": 0.23528228864010062,
+          "sense_voltage_v": 0.07266246413820522
+        },
+        {
+          "frequency_hz": 8231.662109,
+          "real_ohm": 182332.9219,
+          "imaginary_ohm": -131694.625,
+          "voltage_v": 0.23396203372377278,
+          "sense_voltage_v": 0.07509925739173941
+        },
+        {
+          "frequency_hz": 8463.225586,
+          "real_ohm": 164439.4531,
+          "imaginary_ohm": -136682.0938,
+          "voltage_v": 0.23259597486581934,
+          "sense_voltage_v": 0.07813764126576721
+        },
+        {
+          "frequency_hz": 8701.302734,
+          "real_ohm": 148624.5469,
+          "imaginary_ohm": -139919.2656,
+          "voltage_v": 0.23146990425043965,
+          "sense_voltage_v": 0.08113436285515392
+        },
+        {
+          "frequency_hz": 8946.068359,
+          "real_ohm": 132959.5156,
+          "imaginary_ohm": -139611.5781,
+          "voltage_v": 0.23104829929475657,
+          "sense_voltage_v": 0.08507223198642543
+        },
+        {
+          "frequency_hz": 9197.719727,
+          "real_ohm": 119740.0391,
+          "imaginary_ohm": -137094.5469,
+          "voltage_v": 0.23050179901740045,
+          "sense_voltage_v": 0.08899709832626738
+        },
+        {
+          "frequency_hz": 9456.458984,
+          "real_ohm": 107228.5156,
+          "imaginary_ohm": -135170.1406,
+          "voltage_v": 0.22873433175757055,
+          "sense_voltage_v": 0.09244932505781227
+        },
+        {
+          "frequency_hz": 9722.476563,
+          "real_ohm": 98094.02344,
+          "imaginary_ohm": -132886.5156,
+          "voltage_v": 0.22776755293259954,
+          "sense_voltage_v": 0.09548506762511567
+        },
+        {
+          "frequency_hz": 9995.977539,
+          "real_ohm": 87435.20313,
+          "imaginary_ohm": -128273.1563,
+          "voltage_v": 0.22720202360675734,
+          "sense_voltage_v": 0.10003372296764097
+        },
+        {
+          "frequency_hz": 10277.16211,
+          "real_ohm": 79879.14844,
+          "imaginary_ohm": -124272.4297,
+          "voltage_v": 0.22542182026890217,
+          "sense_voltage_v": 0.1031053885751328
+        },
+        {
+          "frequency_hz": 10566.25684,
+          "real_ohm": 70574.59375,
+          "imaginary_ohm": -119900.5938,
+          "voltage_v": 0.2231452993206615,
+          "sense_voltage_v": 0.10702462855707448
+        },
+        {
+          "frequency_hz": 10863.49414,
+          "real_ohm": 65571.11719,
+          "imaginary_ohm": -115577.0313,
+          "voltage_v": 0.222657896812148,
+          "sense_voltage_v": 0.11027013985398808
+        },
+        {
+          "frequency_hz": 11169.09277,
+          "real_ohm": 60516.44922,
+          "imaginary_ohm": -110850.2734,
+          "voltage_v": 0.22125010723681715,
+          "sense_voltage_v": 0.11341937659291143
+        },
+        {
+          "frequency_hz": 11483.27734,
+          "real_ohm": 55256.19531,
+          "imaginary_ohm": -106750.9375,
+          "voltage_v": 0.21969302623709808,
+          "sense_voltage_v": 0.116600542025216
+        },
+        {
+          "frequency_hz": 11806.31055,
+          "real_ohm": 50883.10547,
+          "imaginary_ohm": -103166.5781,
+          "voltage_v": 0.21864947204342386,
+          "sense_voltage_v": 0.11962345171868612
+        },
+        {
+          "frequency_hz": 12138.41992,
+          "real_ohm": 46977.37891,
+          "imaginary_ohm": -98271.125,
+          "voltage_v": 0.21661865602333105,
+          "sense_voltage_v": 0.12251927221680399
+        },
+        {
+          "frequency_hz": 12479.88379,
+          "real_ohm": 43497.32031,
+          "imaginary_ohm": -95041.46094,
+          "voltage_v": 0.2152032792418872,
+          "sense_voltage_v": 0.1250329276848804
+        },
+        {
+          "frequency_hz": 12830.95313,
+          "real_ohm": 40805.40234,
+          "imaginary_ohm": -89973.80469,
+          "voltage_v": 0.21426987417349014,
+          "sense_voltage_v": 0.12823074451521466
+        },
+        {
+          "frequency_hz": 13191.88477,
+          "real_ohm": 37886.10547,
+          "imaginary_ohm": -86823.25,
+          "voltage_v": 0.21208293664847266,
+          "sense_voltage_v": 0.13015668292657925
+        },
+        {
+          "frequency_hz": 13562.98242,
+          "real_ohm": 35516.07031,
+          "imaginary_ohm": -84502.71875,
+          "voltage_v": 0.20920869930020455,
+          "sense_voltage_v": 0.13099791726638316
+        },
+        {
+          "frequency_hz": 13944.50684,
+          "real_ohm": 33565.87891,
+          "imaginary_ohm": -80999.96094,
+          "voltage_v": 0.20740771395293772,
+          "sense_voltage_v": 0.13277690779434034
+        },
+        {
+          "frequency_hz": 14336.77734,
+          "real_ohm": 32060.08398,
+          "imaginary_ohm": -77486.14063,
+          "voltage_v": 0.20597180982217347,
+          "sense_voltage_v": 0.1345216661218531
+        },
+        {
+          "frequency_hz": 14740.08203,
+          "real_ohm": 30509.36523,
+          "imaginary_ohm": -74981.30469,
+          "voltage_v": 0.20399048465530625,
+          "sense_voltage_v": 0.13552796852651505
+        },
+        {
+          "frequency_hz": 15154.71777,
+          "real_ohm": 29217.89648,
+          "imaginary_ohm": -72271.17969,
+          "voltage_v": 0.2020591087919684,
+          "sense_voltage_v": 0.13647538050183436
+        },
+        {
+          "frequency_hz": 15581.03223,
+          "real_ohm": 27208.33203,
+          "imaginary_ohm": -70260.26563,
+          "voltage_v": 0.19950239584858917,
+          "sense_voltage_v": 0.13728305711673416
+        },
+        {
+          "frequency_hz": 16019.32324,
+          "real_ohm": 26531.23047,
+          "imaginary_ohm": -68137.02344,
+          "voltage_v": 0.19716059426973084,
+          "sense_voltage_v": 0.1371925692697888
+        },
+        {
+          "frequency_hz": 16469.95898,
+          "real_ohm": 25499.86133,
+          "imaginary_ohm": -66113.25,
+          "voltage_v": 0.1941523584074906,
+          "sense_voltage_v": 0.1368724307725846
+        },
+        {
+          "frequency_hz": 16933.27344,
+          "real_ohm": 24228.41406,
+          "imaginary_ohm": -63280.38281,
+          "voltage_v": 0.19292150165351404,
+          "sense_voltage_v": 0.13837729503814114
+        },
+        {
+          "frequency_hz": 17409.60156,
+          "real_ohm": 23193.54102,
+          "imaginary_ohm": -62009.77344,
+          "voltage_v": 0.18965658657897758,
+          "sense_voltage_v": 0.13751226667641198
+        },
+        {
+          "frequency_hz": 17899.33008,
+          "real_ohm": 22214.61523,
+          "imaginary_ohm": -59281.51953,
+          "voltage_v": 0.1887214710807444,
+          "sense_voltage_v": 0.1389359912673182
+        },
+        {
+          "frequency_hz": 18402.85352,
+          "real_ohm": 20972.98242,
+          "imaginary_ohm": -57596.9375,
+          "voltage_v": 0.1855357332318332,
+          "sense_voltage_v": 0.13847542848594224
+        },
+        {
+          "frequency_hz": 18920.53906,
+          "real_ohm": 20517.90039,
+          "imaginary_ohm": -55697.4375,
+          "voltage_v": 0.18301172137010338,
+          "sense_voltage_v": 0.1378454875904621
+        },
+        {
+          "frequency_hz": 19452.78906,
+          "real_ohm": 19469.14063,
+          "imaginary_ohm": -54305.73828,
+          "voltage_v": 0.17996079541551044,
+          "sense_voltage_v": 0.13713119221224027
+        },
+        {
+          "frequency_hz": 20000.0,
+          "real_ohm": 18210.50195,
+          "imaginary_ohm": -52403.57813,
+          "voltage_v": 0.175840795688634,
+          "sense_voltage_v": 0.13598886519967154
+        }
+      ]
+    }
+  ]
+}

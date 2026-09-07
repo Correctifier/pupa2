@@ -18,13 +18,13 @@ capacitance, with independent Gaussian noise added to the real and imaginary
 measurements.
 
 The target BSP exposes float DAC frequency/amplitude control and asynchronous
-DMA-style acquisition into a caller-owned interleaved ADC buffer. Application
-logic streams newly clean samples through complex demodulation and four
-cascaded 32-sample moving-average stages in `target/source/signal_processing.*` before
-forming `Z = Rsense * Vdut / Vsense`. Each sweep point waits one full filter window (128 frames at the actual sample
-rate, rounded up to milliseconds) after setting the generator before acquisition.
-Acquisition collects 128 frames (256 interleaved ADC entries). Both lengths derive
-from the filter definitions in `signal_processing.hpp`; command handling remains responsive.
+DMA-style acquisition. The STM32 target processes ADC DMA blocks through fixed
+4:1 decimation, complex demodulation, and a five-cycle Gaussian window, retaining
+only one complex output per channel. The virtual target retains a buffered reference
+implementation. Both form
+`Z = Rsense * (Vexciter - Vsense) / Vsense`. Each point waits four generator cycles
+plus a two-millisecond DAC pipeline allowance before acquisition; command handling
+remains responsive.
 Target-side control and DSP use single-precision `float` and
 `std::complex<float>` to use the STM32G4 hardware FPU efficiently. Desktop-only
 plotting and nonlinear fitting retain Python's double-precision arithmetic.

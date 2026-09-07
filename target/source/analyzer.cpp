@@ -162,7 +162,8 @@ void Analyzer::tick() {
           signals.vsense_min,
           signals.vsense_max,
       };
-      result->impedance = result->sense_resistor_ohm * result->v / result->vsense;
+      result->impedance =
+          result->sense_resistor_ohm * (result->v - result->vsense) / result->vsense;
     }
   } else {
     result = sweep.processor->finish(hardware_.range_index(), hardware_.sense_resistor_ohm());

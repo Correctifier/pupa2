@@ -127,13 +127,14 @@ void SimulatedPickup::advance_to_now() const {
   while (acquisition_active_ && next_sample_time_ <= now) {
     const auto sample = circuit_.advance(std::max(0.0, next_sample_time_ - circuit_time_));
     circuit_time_ = next_sample_time_;
-    const double v = sample.v + noise_scale * noise(generator_);
+    const double v = sample.source_v + noise_scale * noise(generator_);
     const double sense = sample.vsense + noise_scale * noise(generator_);
     dma_buffer_[clean_count_] = acquisition_invalid_ ? 2048 : quantize(v);
     dma_buffer_[clean_count_ + 1] = acquisition_invalid_ ? 2048 : quantize(sense);
-    const double measured_v = static_cast<double>(dma_buffer_[clean_count_]) - 2048.0;
+    const double measured_exciter = static_cast<double>(dma_buffer_[clean_count_]) - 2048.0;
     const double measured_sense = static_cast<double>(dma_buffer_[clean_count_ + 1]) - 2048.0;
-    voltage_power_ += measured_v * measured_v;
+    const double measured_dut = measured_exciter - measured_sense;
+    voltage_power_ += measured_dut * measured_dut;
     sense_power_ += measured_sense * measured_sense;
     clean_count_ += 2;
     next_sample_time_ += acquisition_sample_interval_;

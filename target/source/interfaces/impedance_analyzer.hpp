@@ -27,7 +27,7 @@ class ImpedanceAnalyzer {
 
   virtual void set_control(float frequency_hz, float amplitude_v) = 0;
   // buffer_count and clean_data_count are scalar uint16_t entries. Samples are
-  // interleaved [Vdut, Vsense, Vdut, Vsense, ...]. Returns false while busy.
+  // interleaved [Vexciter, Vsense, Vexciter, Vsense, ...]. Returns false while busy.
   virtual bool start_acquisition(std::uint16_t* buffer, std::size_t buffer_count) = 0;
   virtual std::size_t clean_data_count() const = 0;
   virtual bool acquisition_finished() const = 0;

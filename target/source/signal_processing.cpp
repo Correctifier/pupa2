@@ -87,7 +87,7 @@ std::optional<ProcessedMeasurement> AcquisitionProcessor::finish(
       vsense_min_,
       vsense_max_
   };
-  result.impedance = rsense * v_result_ / vsense_result_;
+  result.impedance = rsense * (v_result_ - vsense_result_) / vsense_result_;
 
   return result;
 }

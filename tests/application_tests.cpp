@@ -194,6 +194,9 @@ int main() {
   assert(measurement);
   assert(std::abs(measurement->v - expected_v) < 0.002);
   assert(std::abs(measurement->vsense - expected_sense) < 0.002);
+  const auto expected_impedance =
+      10000.0F * (expected_v - expected_sense) / expected_sense;
+  assert(std::abs(measurement->impedance - expected_impedance) < 1000.0F);
 
   // Chunk boundaries must not change the accumulated measurement.
   processor.begin(frequency, sample_rate);

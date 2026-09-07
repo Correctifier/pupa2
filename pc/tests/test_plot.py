@@ -21,7 +21,7 @@ class PlotTests(unittest.TestCase):
 
         series = voltage_series(sweep, SweepPlot.COLORS[0])
 
-        self.assertEqual(series[0][0], "test Vdut")
+        self.assertEqual(series[0][0], "test Vexciter")
         self.assertEqual(series[0][2], [(1000.0, 0.4)])
         self.assertEqual(series[1][0], "test Vsense")
         self.assertEqual(series[1][2], [(1000.0, 0.1)])

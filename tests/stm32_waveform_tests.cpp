@@ -237,10 +237,11 @@ void test_decimated_impedance() {
     while (!complete) {
       for (auto& pair : input) {
         const double phase = tau * frequency * sample_index++ / sample_rate + 0.7;
-        const auto voltage = static_cast<std::uint32_t>(std::lround(2048 + 700 * std::cos(phase)));
-        const auto sense =
-            static_cast<std::uint32_t>(std::lround(2048 + 350 * std::cos(phase - 0.5)));
-        pair = voltage | (sense << 16);
+        const double dut = 700 * std::cos(phase);
+        const double sense = 350 * std::cos(phase - 0.5);
+        const auto exciter = static_cast<std::uint32_t>(std::lround(2048 + dut + sense));
+        const auto sense_counts = static_cast<std::uint32_t>(std::lround(2048 + sense));
+        pair = exciter | (sense_counts << 16);
       }
 
       complete = decimator.process(input);

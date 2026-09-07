@@ -78,7 +78,7 @@ void test_frontend_timing_and_ranges() {
 
   for (std::size_t index = 0; index < samples.size() / 2; ++index) {
     const auto carrier = std::polar(1.0, 2 * 3.14159265358979323846 * (index + 1) / 64);
-    const auto expected_v = std::lround(2048 + std::real(voltage * carrier) * 4095 / 3.3);
+    const auto expected_v = std::lround(2048 + std::real(0.5 * carrier) * 4095 / 3.3);
     const auto expected_sense = std::lround(2048 + std::real(sense * carrier) * 4095 / 3.3);
 
     assert(std::abs(static_cast<long>(samples[index * 2]) - expected_v) <= 1);

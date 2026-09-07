@@ -16,8 +16,6 @@ bool start(std::uint16_t* buffer, std::size_t count);
 std::size_t clean_data_count();
 bool finish();
 bool result(DemodulatedSignals& output);
-float voltage_power();
-float sense_power();
 bool active();
 bool valid();
 void calibrate();

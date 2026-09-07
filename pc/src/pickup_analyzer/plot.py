@@ -346,7 +346,7 @@ def voltage_series(sweep: Sweep, color: str) -> list[Series]:
 
     return [
         (
-            f"{sweep.name} Vdut",
+            f"{sweep.name} Vexciter",
             color,
             voltage_points,
         ),

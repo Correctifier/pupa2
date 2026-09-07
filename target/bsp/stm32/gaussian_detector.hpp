@@ -18,8 +18,6 @@ class GaussianDetector {
   void begin();
   bool process(std::span<const std::uint32_t> input);
   bool result(DemodulatedSignals& output) const;
-  float voltage_power() const;
-  float sense_power() const;
 
  private:
   float frequency_hz_{};
@@ -37,8 +35,6 @@ class GaussianDetector {
   float weight_ratio_{};
   float weight_ratio_step_{};
   float weight_sum_{};
-  float voltage_power_{};
-  float sense_power_{};
   std::uint16_t voltage_min_{4095};
   std::uint16_t voltage_max_{};
   std::uint16_t sense_min_{4095};

@@ -20,7 +20,8 @@ The persistent states are the capacitor/pickup voltage `v` and inductor current
 ```text
 dv/dt = (u - v) / (Rsense * C) - i / C
 di/dt = (v - DCR * i) / L
-Vdut = v
+Vexciter = u
+Vdut = u - Vsense = v
 Vsense = u - v
 ```
 
@@ -43,7 +44,7 @@ or delayed polling do not shorten those intervals.
 ## ADC and range behavior
 
 The simulator samples at 64 frames per generated period. Each frame contains
-Vdut then Vsense, quantized to a 12-bit ADC with a 3.3 V span and midpoint at
+Vexciter then Vsense, quantized to a 12-bit ADC with a 3.3 V span and midpoint at
 2048 counts. Noise is additive Gaussian input noise on each channel; the slider
 sets its standard deviation as a percentage of generator peak amplitude. It is
 independent of instantaneous phase and does not change the circuit state.

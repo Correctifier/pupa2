@@ -39,7 +39,11 @@ bool Frontend::acquisition_finished() const {
   const bool finished = acquisition::finish();
 
   if (was_active && finished && acquisition::valid()) {
-    ranges::observe(acquisition::voltage_power(), acquisition::sense_power());
+    DemodulatedSignals signals;
+
+    if (acquisition::result(signals)) {
+      ranges::observe(std::norm(signals.v - signals.vsense), std::norm(signals.vsense));
+    }
   }
 
   return finished;

@@ -34,8 +34,6 @@ void GaussianDetector::begin() {
   voltage_result_ = {};
   sense_result_ = {};
   weight_sum_ = 0.0F;
-  voltage_power_ = 0.0F;
-  sense_power_ = 0.0F;
   voltage_min_ = 4095;
   voltage_max_ = 0;
   sense_min_ = 4095;
@@ -72,8 +70,6 @@ bool GaussianDetector::process(std::span<const std::uint32_t> input) {
     voltage_max_ = std::max(voltage_max_, voltage);
     sense_min_ = std::min(sense_min_, sense);
     sense_max_ = std::max(sense_max_, sense);
-    voltage_power_ += centered_voltage * centered_voltage;
-    sense_power_ += centered_sense * centered_sense;
     voltage_result_ += weight_ * centered_voltage * oscillator_;
     sense_result_ += weight_ * centered_sense * oscillator_;
     weight_sum_ += weight_;
@@ -114,14 +110,6 @@ bool GaussianDetector::result(DemodulatedSignals& output) const {
   };
 
   return true;
-}
-
-float GaussianDetector::voltage_power() const {
-  return voltage_power_;
-}
-
-float GaussianDetector::sense_power() const {
-  return sense_power_;
 }
 
 }  // namespace pickup::bsp::stm32
