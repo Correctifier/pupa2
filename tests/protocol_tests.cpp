@@ -1,5 +1,7 @@
 #include <ArduinoJson.h>
 
+#include <algorithm>
+#include <array>
 #include <cassert>
 #include <cmath>
 #include <cstring>
@@ -12,6 +14,7 @@
 #include "protocol/device.hpp"
 #include "protocol/generator.hpp"
 #include "protocol/measurement.hpp"
+#include "protocol/profiler.hpp"
 #include "protocol/range.hpp"
 #include "protocol/sweep.hpp"
 
@@ -139,6 +142,85 @@ class Frontend final : public pickup::bsp::ImpedanceAnalyzer {
   void calibrate() override {
     ++calibration_calls;
   }
+};
+
+class Profiler final : public pickup::bsp::Profiler {
+ public:
+  std::span<const pickup::bsp::ProfileContext> contexts() const override {
+    return context_table;
+  }
+
+  std::span<pickup::bsp::ProfileStatistics> statistics(
+      std::span<pickup::bsp::ProfileStatistics> output
+  ) override {
+    const auto count = std::min(output.size(), context_table.size());
+
+    for (std::size_t index = 0; index < count; ++index) {
+      output[index] = {
+          static_cast<std::uint32_t>(index),
+          10 + index,
+          100.0 + index,
+          10.0 + index,
+          5.0 + index,
+          20.0 + index,
+          1.0 + index,
+      };
+    }
+
+    return output.first(count);
+  }
+
+  void reset() override {
+    ++reset_count;
+  }
+
+  std::size_t reset_count{};
+
+ private:
+  static constexpr std::array context_table{
+      pickup::bsp::ProfileContext{
+          0,
+          255,
+          pickup::bsp::ProfileContextType::task,
+          "main"
+      },
+      pickup::bsp::ProfileContext{
+          1,
+          0,
+          pickup::bsp::ProfileContextType::interrupt,
+          "uart"
+      },
+      pickup::bsp::ProfileContext{
+          2,
+          1,
+          pickup::bsp::ProfileContextType::interrupt,
+          "dac dma"
+      },
+      pickup::bsp::ProfileContext{
+          3,
+          1,
+          pickup::bsp::ProfileContextType::interrupt,
+          "adc dma"
+      },
+      pickup::bsp::ProfileContext{
+          4,
+          1,
+          pickup::bsp::ProfileContextType::interrupt,
+          "adc"
+      },
+      pickup::bsp::ProfileContext{
+          5,
+          1,
+          pickup::bsp::ProfileContextType::interrupt,
+          "timer dac"
+      },
+      pickup::bsp::ProfileContext{
+          6,
+          15,
+          pickup::bsp::ProfileContextType::interrupt,
+          "systick"
+      },
+  };
 };
 
 void test_sweep_event_destination() {
@@ -430,6 +512,7 @@ int main() {
   test_independent_measurement_subscription();
 
   Frontend frontend;
+  Profiler profiler;
   pickup::Application application({
       transport,
       frontend,
@@ -437,7 +520,8 @@ int main() {
           "target",
           "application",
           "1.2.3"
-      }
+      },
+      &profiler,
   });
   pickup::Analyzer analyzer(frontend);
   std::optional<std::uint32_t> destination;
@@ -451,7 +535,7 @@ int main() {
       analyzer,
       destination
   );
-  StaticJsonDocument<1024> reply;
+  StaticJsonDocument<4096> reply;
 
   const auto request = [&](std::string_view text) {
     const auto previous_count = transport.outgoing.size();
@@ -468,7 +552,22 @@ int main() {
   assert(reply["id"].as<std::uint64_t>() == UINT64_MAX);
   assert(reply["status"] == "ok");
   assert(reply["data"]["application_version"] == "1.2.3");
-  assert(reply["data"]["capabilities"].size() == 6);
+  assert(reply["data"]["capabilities"][6] == "profiler");
+
+  request(R"({"type":"request","object":"profiler","action":"threads","id":200})");
+  assert(reply["data"].size() == 7);
+  assert(reply["data"][0]["name"] == "main");
+  assert(reply["data"][1]["type"] == "interrupt");
+  assert(reply["data"][1]["priority"] == 0);
+
+  request(R"({"type":"request","object":"profiler","action":"data","id":201})");
+  assert(reply["data"].size() == 7);
+  assert(reply["data"][0]["count"] == 10);
+  assert(reply["data"][1]["avg_us"] == 11.0);
+  assert(reply["data"][1]["cpu_percent"] == 2.0);
+
+  request(R"({"type":"request","object":"profiler","action":"reset","id":202})");
+  assert(profiler.reset_count == 1);
 
   request(
       R"({"type":"request","object":"generator","action":"set","id":2,"params":{"frequency":1234,"amplitude":0.5}})"

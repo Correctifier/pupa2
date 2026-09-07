@@ -5,6 +5,7 @@
 #include "calibration.hpp"
 #include "device_information.hpp"
 #include "interfaces/impedance_analyzer.hpp"
+#include "interfaces/profiler.hpp"
 #include "interfaces/transport.hpp"
 
 namespace pickup {
@@ -13,6 +14,7 @@ struct ApplicationDependencies {
   bsp::Transport& transport;
   bsp::ImpedanceAnalyzer& analyzer;
   DeviceInformation device;
+  bsp::Profiler* profiler{};
 };
 
 class Application {

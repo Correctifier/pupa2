@@ -6,6 +6,7 @@ int main() {
 
   static pickup::bsp::stm32::SerialTransport transport;
   static pickup::bsp::stm32::Frontend frontend;
+  static pickup::bsp::stm32::PerformanceProfiler profiler;
   static pickup::Application app({
       transport,
       frontend,
@@ -14,13 +15,16 @@ int main() {
           "Guitar Pickup Impedance Analyzer",
           PICKUP_APPLICATION_VERSION
       },
+      &profiler,
   });
 
   frontend.set_control(1000.0F, 0.25F);
 
   while (true) {
+    pickup::bsp::stm32::profile::start(pickup::bsp::stm32::ProfileId::main_loop);
     app.tick();
     pickup::bsp::stm32::heartbeat();
+    pickup::bsp::stm32::profile::stop(pickup::bsp::stm32::ProfileId::main_loop);
     pickup::bsp::stm32::wait_for_interrupt();
   }
 }

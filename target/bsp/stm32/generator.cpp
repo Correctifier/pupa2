@@ -7,6 +7,7 @@
 
 #include "hal_support.hpp"
 #include "nco.hpp"
+#include "profiler.hpp"
 
 using pickup::bsp::stm32::detail::check;
 using pickup::bsp::stm32::detail::fail;
@@ -149,16 +150,21 @@ float sample_rate_hz() {
 }  // namespace pickup::bsp::stm32::generator
 
 extern "C" void DMA1_Channel1_IRQHandler() {
+  pickup::bsp::stm32::profile::start(pickup::bsp::stm32::ProfileId::dac_dma);
+
   if (__HAL_DMA_GET_FLAG(&dac_dma, __HAL_DMA_GET_HT_FLAG_INDEX(&dac_dma)) &&
       __HAL_DMA_GET_FLAG(&dac_dma, __HAL_DMA_GET_TC_FLAG_INDEX(&dac_dma))) {
     fail();
   }
 
   HAL_DMA_IRQHandler(&dac_dma);
+  pickup::bsp::stm32::profile::stop(pickup::bsp::stm32::ProfileId::dac_dma);
 }
 
 extern "C" void TIM6_DAC_IRQHandler() {
+  pickup::bsp::stm32::profile::start(pickup::bsp::stm32::ProfileId::timer_dac);
   HAL_DAC_IRQHandler(&dac);
+  pickup::bsp::stm32::profile::stop(pickup::bsp::stm32::ProfileId::timer_dac);
 }
 
 namespace {

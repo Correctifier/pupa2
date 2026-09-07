@@ -29,6 +29,7 @@ add_library(pickup_application
   target/source/protocol/range.cpp
   target/source/protocol/calibration.cpp
   target/source/protocol/measurement.cpp
+  target/source/protocol/profiler.cpp
   target/source/signal_processing.cpp
 )
 target_include_directories(pickup_application PUBLIC target/source)

@@ -1,6 +1,7 @@
 #include "serial_transport.hpp"
 
 #include "hal_support.hpp"
+#include "profiler.hpp"
 
 using pickup::bsp::stm32::detail::check;
 
@@ -119,6 +120,8 @@ void SerialTransport::send(std::uint32_t, std::string_view line) {
 }  // namespace pickup::bsp::stm32
 
 extern "C" void USART2_IRQHandler() {
+  pickup::bsp::stm32::profile::start(pickup::bsp::stm32::ProfileId::uart);
+
   const auto status = uart.Instance->ISR;
 
   if ((status & (USART_ISR_ORE | USART_ISR_FE | USART_ISR_NE)) != 0) {
@@ -140,4 +143,6 @@ extern "C" void USART2_IRQHandler() {
       receive_head = next;
     }
   }
+
+  pickup::bsp::stm32::profile::stop(pickup::bsp::stm32::ProfileId::uart);
 }

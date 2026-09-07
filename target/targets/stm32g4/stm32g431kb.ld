@@ -7,7 +7,7 @@ MEMORY
   CCM (rwx) : ORIGIN = 0x10000000, LENGTH = 10K
 }
 _estack = ORIGIN(RAM) + LENGTH(RAM);
-_Min_Stack_Size = 4K;
+_Min_Stack_Size = 8K;
 SECTIONS
 {
   .isr_vector : { KEEP(*(.isr_vector)) } > FLASH
@@ -72,6 +72,6 @@ SECTIONS
     _end = .;
     . += _Min_Stack_Size;
   } > RAM
-  ASSERT(_ebss <= _estack - _Min_Stack_Size, "SRAM does not leave 4 KiB for stack")
+  ASSERT(_ebss <= _estack - _Min_Stack_Size, "SRAM does not leave 8 KiB for stack")
   /DISCARD/ : { *(.note.GNU-stack) }
 }

@@ -8,6 +8,7 @@
 #include "protocol/device.hpp"
 #include "protocol/generator.hpp"
 #include "protocol/measurement.hpp"
+#include "protocol/profiler.hpp"
 #include "protocol/range.hpp"
 #include "protocol/sweep.hpp"
 
@@ -22,7 +23,8 @@ class ApplicationProtocol final : public protocol::Router {
       bsp::Transport& transport,
       DeviceInformation device,
       Analyzer& analyzer,
-      Calibration& calibration
+      Calibration& calibration,
+      bsp::Profiler& profiler = bsp::null_profiler()
   );
 
   ApplicationProtocol(const ApplicationProtocol&) = delete;
@@ -37,7 +39,8 @@ class ApplicationProtocol final : public protocol::Router {
   protocol::SweepModule sweep_;
   protocol::RangeModule range_;
   protocol::CalibrationModule calibration_;
-  std::array<protocol::Module*, 6> modules_;
+  protocol::ProfilerModule profiler_;
+  std::array<protocol::Module*, 7> modules_;
 };
 
 }  // namespace pickup

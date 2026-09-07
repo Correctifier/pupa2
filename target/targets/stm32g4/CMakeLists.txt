@@ -53,6 +53,7 @@ add_executable(pickup_stm32_target
   runtime.cpp
   ../../bsp/stm32/clock.cpp
   ../../bsp/stm32/board.cpp
+  ../../bsp/stm32/profiler.cpp
   ../../bsp/stm32/serial_transport.cpp
   ../../bsp/stm32/generator.cpp
   ../../bsp/stm32/nco.cpp

@@ -1,6 +1,11 @@
 #include "application.hpp"
 
 namespace pickup {
+namespace {
+bsp::Profiler& profiler_or_null(bsp::Profiler* profiler) {
+  return profiler == nullptr ? bsp::null_profiler() : *profiler;
+}
+}  // namespace
 
 Application::Application(ApplicationDependencies dependencies)
     : analyzer_(dependencies.analyzer),
@@ -9,7 +14,8 @@ Application::Application(ApplicationDependencies dependencies)
           dependencies.transport,
           dependencies.device,
           analyzer_,
-          calibration_
+          calibration_,
+          profiler_or_null(dependencies.profiler)
       ) {}
 
 void Application::tick() {

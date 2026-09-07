@@ -208,8 +208,9 @@ int main() {
   StaticJsonDocument<1024> document;
 
   assert(deserializeJson(document, transport.outgoing.back()) == DeserializationError::Ok);
-  assert(document["data"]["capabilities"].size() == 6);
+  assert(document["data"]["capabilities"].size() == 7);
   assert(document["data"]["capabilities"][5] == "single_point_sweep");
+  assert(document["data"]["capabilities"][6] == "profiler");
   transport.enqueue(
       R"({"type":"request","object":"sweep","action":"start","id":99,"params":{"f_start":1000,"f_stop":2000,"points":1}})"
   );

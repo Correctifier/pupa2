@@ -5,6 +5,7 @@
 
 #include "adc_decimator.hpp"
 #include "hal_support.hpp"
+#include "profiler.hpp"
 
 using pickup::bsp::stm32::detail::check;
 
@@ -245,16 +246,21 @@ void consume(std::size_t offset) {
 }  // namespace
 
 extern "C" void DMA1_Channel2_IRQHandler() {
+  pickup::bsp::stm32::profile::start(pickup::bsp::stm32::ProfileId::adc_dma);
+
   if (__HAL_DMA_GET_FLAG(&adc_dma, __HAL_DMA_GET_HT_FLAG_INDEX(&adc_dma)) &&
       __HAL_DMA_GET_FLAG(&adc_dma, __HAL_DMA_GET_TC_FLAG_INDEX(&adc_dma))) {
     stop_capture(true);
   }
 
   HAL_DMA_IRQHandler(&adc_dma);
+  pickup::bsp::stm32::profile::stop(pickup::bsp::stm32::ProfileId::adc_dma);
 }
 
 extern "C" void ADC1_2_IRQHandler() {
+  pickup::bsp::stm32::profile::start(pickup::bsp::stm32::ProfileId::adc);
   HAL_ADC_IRQHandler(&adc1);
+  pickup::bsp::stm32::profile::stop(pickup::bsp::stm32::ProfileId::adc);
 }
 
 extern "C" void HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef*) {

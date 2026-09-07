@@ -52,6 +52,17 @@ def main():
         info = client.device_info()
 
         assert info["target_name"] == "PC virtual target"
+        assert "profiler" in info["capabilities"]
+
+        contexts = client.profiler_threads()
+        statistics = client.profiler_data()
+
+        assert contexts
+        assert len(statistics) == len(contexts)
+        assert {row["id"] for row in statistics} == {row["id"] for row in contexts}
+        assert all(row["cpu_percent"] >= 0 for row in statistics)
+
+        client.reset_profiler()
         client.start_sweep(
             1000,
             2000,
@@ -87,7 +98,7 @@ def main():
         assert frequencies[0] < frequencies[1] < frequencies[2]
         assert frequencies[2] == 2000
         assert process.poll() is None
-        print("Headless smoke test passed: device info and three-point sweep")
+        print("Headless smoke test passed: device info, profiler, and three-point sweep")
     finally:
         if client is not None:
             client.close()

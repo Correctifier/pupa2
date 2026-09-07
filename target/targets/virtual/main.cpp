@@ -7,6 +7,7 @@
 #include "application.hpp"
 #include "posix_transport.hpp"
 #include "simulated_pickup.hpp"
+#include "synthetic_profiler.hpp"
 #include "virtual_gui.hpp"
 
 int main(int argc, char** argv) try {
@@ -27,6 +28,7 @@ int main(int argc, char** argv) try {
   pickup::bsp::pc::PosixTransport transport(port);
   pickup::bsp::pc::PickupParameters parameters;
   pickup::bsp::pc::SimulatedPickup frontend;
+  pickup::bsp::pc::SyntheticProfiler profiler;
 
   frontend.set_parameters(parameters);
 
@@ -38,6 +40,7 @@ int main(int argc, char** argv) try {
           "Guitar Pickup Impedance Analyzer",
           PICKUP_APPLICATION_VERSION
       },
+      &profiler,
   });
 
   std::cout << "TCP: 127.0.0.1:" << port << '\n';

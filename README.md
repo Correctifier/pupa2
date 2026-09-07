@@ -66,6 +66,10 @@ amplitude, and range, and controls DCR, inductance, parallel parasitic capacitan
 and measurement noise. Both targets start in **fixed 100 kΩ** range (index 2).
 Range indices 0–3 select 1 kΩ, 10 kΩ, 100 kΩ, and 1 MΩ, respectively, as defined
 in `target/source/range_selection.hpp`. Auto-ranging is opt-in.
+The PC app's Performance tab displays per-context execution counts, exclusive
+minimum/average/maximum time, accumulated time, and CPU load. STM32 data comes
+from its cycle-counter profiler; the virtual target supplies a synthetic signal
+for exercising the monitoring UI.
 
 The [simulator circuit model](docs/simulator.md) retains capacitor voltage,
 inductor current, and source phase across generator and range changes, including

@@ -4,6 +4,7 @@ import argparse
 import json
 import queue
 import threading
+import time
 import tkinter as tk
 from collections import deque
 from dataclasses import dataclass
@@ -46,6 +47,10 @@ class AnalyzerGui:
         self.console_line_count = 0
         self.stop_requested = threading.Event()
         self.worker: threading.Thread | None = None
+        self.profiler_worker: threading.Thread | None = None
+        self.profiler_available = False
+        self.profiler_contexts: list[dict] | None = None
+        self.next_profiler_refresh = 0.0
         self.current_sweep: Sweep | None = None
         self.sweep_entries: list[SweepEntry] = []
         self.active_entry: SweepEntry | None = None
@@ -112,6 +117,7 @@ class AnalyzerGui:
         self.magnitude_plot = self.plots[0]
 
         self._console_tab(notebook)
+        self._profiler_tab(notebook)
 
         self.status = tk.StringVar(value="Start the virtual target, then connect.")
 
@@ -575,6 +581,107 @@ class AnalyzerGui:
         container.rowconfigure(0, weight=1)
         container.columnconfigure(0, weight=1)
 
+    def _profiler_tab(self, notebook: ttk.Notebook) -> None:
+        frame = ttk.Frame(notebook, padding=6)
+
+        notebook.add(frame, text="Performance")
+
+        toolbar = ttk.Frame(frame)
+
+        toolbar.pack(fill="x", pady=(0, 5))
+
+        self.profiler_auto = tk.BooleanVar(value=True)
+        self.profiler_summary = tk.StringVar(value="Busy CPU: unavailable")
+
+        ttk.Checkbutton(
+            toolbar,
+            text="Refresh every second",
+            variable=self.profiler_auto,
+        ).pack(side="left")
+        ttk.Label(
+            toolbar,
+            textvariable=self.profiler_summary,
+        ).pack(side="left", padx=12)
+        ttk.Button(
+            toolbar,
+            text="Refresh",
+            command=self.refresh_profiler,
+        ).pack(side="right")
+        ttk.Button(
+            toolbar,
+            text="Reset",
+            command=lambda: self.refresh_profiler(reset=True),
+        ).pack(side="right", padx=5)
+
+        columns = (
+            "priority",
+            "type",
+            "count",
+            "minimum",
+            "average",
+            "maximum",
+            "total",
+            "load",
+        )
+        self.profiler_table = ttk.Treeview(
+            frame,
+            columns=columns,
+            show="tree headings",
+        )
+
+        self.profiler_table.heading("#0", text="Name")
+
+        headings = {
+            "priority": "Priority",
+            "type": "Type",
+            "count": "Executions",
+            "minimum": "Min (µs)",
+            "average": "Avg (µs)",
+            "maximum": "Max (µs)",
+            "total": "Total (ms)",
+            "load": "CPU (%)",
+        }
+
+        for column, heading in headings.items():
+            self.profiler_table.heading(column, text=heading)
+            self.profiler_table.column(
+                column,
+                width=95,
+                anchor="e",
+            )
+
+        self.profiler_table.column("#0", width=170)
+        self.profiler_table.column("type", anchor="w")
+        self.profiler_table.pack(fill="both", expand=True)
+
+    def refresh_profiler(self, reset: bool = False) -> None:
+        if (
+            not self.client
+            or not self.profiler_available
+            or (self.profiler_worker and self.profiler_worker.is_alive())
+        ):
+            return
+
+        def request_data() -> None:
+            try:
+                if reset:
+                    self.client.reset_profiler()
+
+                contexts = self.profiler_contexts
+
+                if contexts is None:
+                    contexts = self.client.profiler_threads()
+
+                statistics = self.client.profiler_data()
+
+                self.events.put(("profiler", (contexts, statistics)))
+            except Exception as error:
+                self.events.put(("profiler_error", error))
+
+        self.profiler_worker = threading.Thread(target=request_data, daemon=True)
+
+        self.profiler_worker.start()
+
     def clear_console(self) -> None:
         with self.console_lock:
             self.pending_console.clear()
@@ -663,6 +770,8 @@ class AnalyzerGui:
             self.client = AnalyzerClient(self.transport, self._log_message)
             info = self.client.device_info()
             capabilities = ", ".join(info.get("capabilities", []))
+            self.profiler_available = "profiler" in info.get("capabilities", [])
+            self.profiler_contexts = None
 
             self.device_info_text.set(
                 f"Target: {info.get('target_name', 'unknown')}\n"
@@ -673,6 +782,7 @@ class AnalyzerGui:
             )
             self.status.set(f"Connected via {self.mode.get()} to {self.endpoint.get()}")
             self.connect_button.configure(text="Reconnect")
+            self.refresh_profiler()
         except Exception as error:
             if self.client:
                 self.client.close()
@@ -838,6 +948,38 @@ class AnalyzerGui:
                     messagebox.showerror("Sweep failed", str(value))
                 elif event == "stopped":
                     self._set_running(False)
+                elif event == "profiler":
+                    contexts, statistics = value
+                    self.profiler_contexts = contexts
+                    data_by_id = {row["id"]: row for row in statistics}
+                    busy_cpu = sum(row.get("cpu_percent", 0) for row in statistics)
+
+                    self.profiler_summary.set(f"Busy CPU: {busy_cpu:.3f}%")
+
+                    self.profiler_table.delete(*self.profiler_table.get_children())
+
+                    for context in contexts:
+                        data = data_by_id.get(context["id"], {})
+
+                        self.profiler_table.insert(
+                            "",
+                            "end",
+                            text=context["name"],
+                            values=(
+                                context["priority"],
+                                context["type"],
+                                data.get("count", 0),
+                                f"{data.get('min_us', 0):.3f}",
+                                f"{data.get('avg_us', 0):.3f}",
+                                f"{data.get('max_us', 0):.3f}",
+                                f"{data.get('total_us', 0) / 1000:.3f}",
+                                f"{data.get('cpu_percent', 0):.3f}",
+                            ),
+                        )
+
+                    self.next_profiler_refresh = time.monotonic() + 1.0
+                elif event == "profiler_error":
+                    self.status.set(f"Profiler refresh failed: {value}")
         except queue.Empty:
             pass
 
@@ -903,6 +1045,16 @@ class AnalyzerGui:
             self.refresh_plots()
 
         self._flush_console()
+
+        if (
+            self.profiler_available
+            and self.profiler_auto.get()
+            and time.monotonic() >= self.next_profiler_refresh
+        ):
+            self.next_profiler_refresh = time.monotonic() + 1.0
+
+            self.refresh_profiler()
+
         self.root.after(50, self.poll_events)
 
     def _flush_console(self) -> None:

@@ -1,8 +1,9 @@
 # Target protocol modules
 
 `Application` owns an `Analyzer`, a `Calibration`, and an `ApplicationProtocol`.
-The protocol receives the transport, device information, and those two domain
-objects. It owns the wire modules and their registration array.
+The protocol receives the transport, device information, those two domain
+objects, and the BSP profiler. It owns the wire modules and their registration
+array.
 
 ## Request flow
 
@@ -29,6 +30,7 @@ All parameter validation completes before a module invokes domain behavior.
 | `target/source/protocol/range.*` | Automatic/manual range requests |
 | `target/source/protocol/calibration.*` | Calibration requests |
 | `target/source/protocol/measurement.*` | Measurement events and acquisition errors |
+| `target/source/protocol/profiler.*` | Profiling context metadata, statistics, and reset requests |
 | `target/source/analyzer.*` | Generator, range, sweep, acquisition buffer, and measurement processing |
 | `target/source/calibration.*` | Calibration placeholder delegating to the BSP |
 | `target/source/application.*` | Construct objects and tick the protocol and analyzer |
@@ -123,3 +125,25 @@ The mapping is shared by the STM32 and virtual BSPs in
 `{"mode":"auto"}` explicitly enables auto-ranging. Selection uses the completed
 capture and takes effect at the next generator setting, before settling.
 The measurement event's `range` and `rsense` fields identify its selected range.
+
+## Performance profiling
+
+The `profiler` capability provides three request actions:
+
+- `profiler/threads` returns stable `id`, `priority`, `type`, and `name` fields.
+- `profiler/data` returns `count`, `total_us`, `avg_us`, `min_us`, `max_us`, and
+  exclusive `cpu_percent` for every ID since the last reset.
+- `profiler/reset` clears accumulated statistics and begins a new load window.
+
+Priorities are target-native numeric priorities; on STM32, a lower interrupt
+priority number has greater urgency and the main loop uses 255. Context IDs are
+only meaningful for the connected target and should be joined with the current
+`threads` response. Times are microseconds. CPU percentages are relative to wall
+time since reset and may not sum to 100 because idle time is not a context.
+
+The STM32 implementation uses the Cortex-M4 DWT cycle counter. A nested context
+pauses the interrupted context, accumulates its own exclusive cycles, and resumes
+the prior context at exit. Start/stop calls briefly mask interrupts while updating
+the fixed-depth stack. They perform no allocation, formatting, division, or
+floating-point work. Protocol snapshots perform unit conversion outside the hot
+notification path.

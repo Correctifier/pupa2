@@ -1,5 +1,6 @@
 #include "clock.hpp"
 
+#include "profiler.hpp"
 #include "stm32g4xx_hal.h"
 
 namespace {
@@ -50,7 +51,9 @@ void configure_clock() {
 }  // namespace
 
 extern "C" void SysTick_Handler() {
+  pickup::bsp::stm32::profile::start(pickup::bsp::stm32::ProfileId::systick);
   HAL_IncTick();
+  pickup::bsp::stm32::profile::stop(pickup::bsp::stm32::ProfileId::systick);
 }
 
 namespace pickup::bsp::stm32 {

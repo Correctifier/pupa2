@@ -28,6 +28,7 @@ add_executable(pickup_virtual_target
   virtual_gui.cpp
   ../../bsp/pc/posix_transport.cpp
   ../../bsp/pc/simulated_pickup.cpp
+  ../../bsp/pc/synthetic_profiler.cpp
   ../../bsp/pc/pickup_circuit.cpp
 )
 target_include_directories(pickup_virtual_target PRIVATE ../../bsp/pc)

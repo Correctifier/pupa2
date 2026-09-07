@@ -29,6 +29,7 @@ EncodedMessage response(const RequestContext& request, const DeviceInformation& 
   capabilities.add("calibration");
   capabilities.add("measurement_events");
   capabilities.add("single_point_sweep");
+  capabilities.add("profiler");
 
   return encode(document);
 }

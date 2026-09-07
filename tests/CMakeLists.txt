@@ -33,3 +33,8 @@ target_include_directories(stm32_waveform_tests PRIVATE ../target/bsp/stm32)
 target_link_libraries(stm32_waveform_tests PRIVATE pickup_application)
 target_compile_options(stm32_waveform_tests PRIVATE -UNDEBUG -Wall -Wextra -Wpedantic)
 add_test(NAME stm32_waveform_tests COMMAND stm32_waveform_tests)
+
+add_executable(profiler_timing_tests profiler_timing_tests.cpp)
+target_link_libraries(profiler_timing_tests PRIVATE pickup_application)
+target_compile_options(profiler_timing_tests PRIVATE -UNDEBUG -Wall -Wextra -Wpedantic)
+add_test(NAME profiler_timing_tests COMMAND profiler_timing_tests)

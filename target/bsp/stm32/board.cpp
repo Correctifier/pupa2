@@ -6,6 +6,7 @@
 #include "clock.hpp"
 #include "generator.hpp"
 #include "hal_support.hpp"
+#include "profiler.hpp"
 #include "ranges.hpp"
 #include "serial_transport.hpp"
 
@@ -33,6 +34,7 @@ void check(HAL_StatusTypeDef result) {
 namespace pickup::bsp::stm32 {
 void initialize_board() {
   initialize_clock();
+  profile::initialize();
 
   __HAL_RCC_GPIOB_CLK_ENABLE();
 

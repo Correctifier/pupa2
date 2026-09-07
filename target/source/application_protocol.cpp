@@ -9,7 +9,8 @@ ApplicationProtocol::ApplicationProtocol(
     bsp::Transport& transport,
     DeviceInformation device,
     Analyzer& analyzer,
-    Calibration& calibration
+    Calibration& calibration,
+    bsp::Profiler& profiler
 )
     : Router(transport),
       device_(transport, device),
@@ -26,13 +27,15 @@ ApplicationProtocol::ApplicationProtocol(
       ),
       range_(transport, analyzer),
       calibration_(transport, calibration),
+      profiler_(transport, profiler),
       modules_{
           &device_,
           &generator_,
           &sweep_,
           &range_,
           &calibration_,
-          &measurement_
+          &measurement_,
+          &profiler_
       } {
   register_modules(modules_);
 }

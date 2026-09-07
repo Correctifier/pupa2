@@ -139,6 +139,15 @@ class AnalyzerClient:
             timeout=30.0,
         )
 
+    def profiler_threads(self):
+        return self.request("profiler", "threads").get("data", [])
+
+    def profiler_data(self):
+        return self.request("profiler", "data").get("data", [])
+
+    def reset_profiler(self):
+        self.request("profiler", "reset")
+
     def next_event(self, timeout=None):
         event = self._events.get(timeout=timeout)
 

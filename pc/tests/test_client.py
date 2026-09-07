@@ -78,6 +78,24 @@ class ClientTests(unittest.TestCase):
         self.assertEqual(result.z.re, 7000)
         client.close()
 
+    def test_profiler_requests(self):
+        transport = FakeTransport()
+        client = AnalyzerClient(transport)
+
+        self.assertEqual(client.profiler_threads(), [])
+        self.assertEqual(client.profiler_data(), [])
+        client.reset_profiler()
+
+        self.assertEqual(
+            [(message["object"], message["action"]) for message in transport.sent],
+            [
+                ("profiler", "threads"),
+                ("profiler", "data"),
+                ("profiler", "reset"),
+            ],
+        )
+        client.close()
+
 
 if __name__ == "__main__":
     unittest.main()

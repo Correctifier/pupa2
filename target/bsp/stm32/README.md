@@ -91,7 +91,7 @@ is not analog gain/phase or fixture calibration.
 
 Follow the cross-build commands in the root README. The ELF retains debug
 symbols and uses `-Og` when built with `-DCMAKE_BUILD_TYPE=Debug`; MinSizeRel minimizes code
-size. The linker provides 128 KiB Flash and 22 KiB regular SRAM, reserves 4 KiB
+size. The linker provides 128 KiB Flash and 22 KiB regular SRAM, reserves 8 KiB
 of stack, and leaves the separate 10 KiB CCM bank unused. Application and BSP
 state have static storage. C++ allocation/deallocation traps, and `_sbrk`
 refuses heap growth.
@@ -126,9 +126,18 @@ peripheral ownership:
 - `adc_decimator.hpp`: streaming ADC pair averaging and effective sample-rate selection.
 - `ranges.cpp`: range GPIO, resistor selection, and autorange decisions.
 - `frontend.cpp`: coordinates generator, acquisition, and ranges for the analyzer.
+- `profiler.cpp`: DWT cycle timing, nested-context accounting, and performance snapshots.
 
 Peripheral handles and interrupt state stay private to their owning source file.
 `hal_support.hpp` shares only HAL checking helpers.
+
+The profiler instruments the main loop, USART2, DAC DMA, ADC DMA, ADC, TIM6/DAC,
+and SysTick handlers. Reported execution times exclude time spent in nested,
+higher-priority interrupts. Idle `WFI` time is intentionally unassigned, so the
+sum of context loads is the measured busy CPU load. The PC app's Performance tab
+polls the table and statistics once per second and can reset the measurement
+window. The virtual target publishes deterministic, time-varying synthetic data
+through the same interface and protocol.
 
 ## References
 
