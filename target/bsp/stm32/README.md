@@ -51,19 +51,19 @@ the **87-microsecond** byte deadline. Transmission consumes each message synchro
 before returning.
 
 TIM6 TRGO drives the DAC and simultaneous ADC1/ADC2 conversions at a fixed
-**625 ksample/s** (170 MHz / 272), independent of generator frequency. A 32-bit
+**200 ksample/s** (170 MHz / 850), independent of generator frequency. A 32-bit
 NCO sets the tone frequency using a phase increment calculated from the actual
 timer rate. Its interpolated 1024-entry Q15 cosine table lives in Flash; DMA
 half/full callbacks refill a circular 512-sample DAC buffer using integer math.
 Phase continues across refills; setting a new frequency/amplitude restarts it.
-Each half gives approximately **410 microseconds** to refill. DAC underruns and
+Each half gives **1.28 milliseconds** to refill. DAC underruns and
 missed refill deadlines stop execution through the BSP fault handler.
 
 Supported generator settings remain 1–20000 Hz and greater than zero through
 1.5 V peak amplitude. Protocol requests outside these bounds return an error.
-NCO frequency rounding is at most 0.000073 Hz at the nominal clock rate;
+NCO frequency rounding is at most 0.000024 Hz at the nominal clock rate;
 HSI clock tolerance still affects both sample timing and generated frequency.
-The fixed update rate keeps DAC reconstruction images near 625 kHz and its
+The fixed update rate keeps DAC reconstruction images near 200 kHz and its
 multiples throughout the sweep, making a fixed analog reconstruction low-pass
 filter practical. It does not replace that external analog filter.
 
@@ -78,8 +78,9 @@ errors or missed DMA processing deadlines invalidate the capture.
 The analyzer receives the **effective, decimated rate**, while the physical
 ADC and DAC rates remain equal and fixed. Its fourth-order filter and 128-frame
 capture stay unchanged. Capture and pre-acquisition settling each span about
-two to four cycles, including at low frequencies; using 128 raw samples at
-625 ksample/s would fail to cover even one low-frequency period. Boxcar averaging
+four cycles through most of the sweep, increasing to 12.8 cycles at 20 kHz
+because decimation cannot go below one. Using 128 raw samples at 200 ksample/s
+would still fail to cover even one low-frequency period. Boxcar averaging
 has modest passband droop shared by both channels and limited stopband rejection;
 analog input filtering is still required. Reported ADC extrema now describe the
 averaged samples, so they do not reliably detect brief raw-input clipping.
@@ -104,7 +105,7 @@ STM32_Programmer_CLI -c port=SWD \
 
 On hardware, first check the LED heartbeat and a `device/info` request over VCP.
 Then scope A3 at the default 1 kHz / 0.25 V peak setting and at both frequency
-limits, verify that updates stay at 625 ksample/s and DMA refills meet their
+limits, verify that updates stay at 200 ksample/s and DMA refills meet their
 deadlines during simultaneous capture and VCP traffic, verify both conditioned
 ADC inputs and range outputs, and measure a known resistor before a pickup.
 Cross-build and host tests do not verify physical pin routing, analog settling,

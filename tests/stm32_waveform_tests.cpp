@@ -10,7 +10,7 @@
 #include "signal_processing.hpp"
 
 namespace {
-constexpr float sample_rate = 625000.0F;
+constexpr float sample_rate = 200000.0F;
 constexpr double tau = 6.28318530717958647692;
 
 using pickup::bsp::stm32::AdcDecimator;
@@ -142,7 +142,10 @@ void test_low_frequency_accumulation() {
   decimator.configure(1.0F, sample_rate);
   decimator.begin(output);
 
-  for (int block = 0; block < 76; ++block) {
+  constexpr std::size_t divisor = static_cast<std::size_t>(sample_rate / 32.0F);
+  const std::size_t incomplete_blocks = (divisor - 1) / input.size();
+
+  for (std::size_t block = 0; block < incomplete_blocks; ++block) {
     assert(!decimator.process(input));
   }
 
@@ -198,7 +201,7 @@ void test_decimated_impedance() {
     const auto settling =
         pickup::FourthOrderMovingAverage::settling_time_seconds(decimator.sample_rate_hz());
 
-    assert(settling * frequency >= 2.0F && settling * frequency < 4.2F);
+    assert(settling * frequency >= 2.0F && settling * frequency < 13.0F);
   }
 }
 }  // namespace

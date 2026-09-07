@@ -16,11 +16,11 @@ DAC_HandleTypeDef dac{};
 DMA_HandleTypeDef dac_dma{};
 TIM_HandleTypeDef timer{};
 constexpr std::size_t waveform_length = 512;
-// 170 MHz / 272 = 625 ksample/s for both DAC and ADC, at every tone frequency.
-constexpr std::uint32_t timer_ticks = 272;
+// 170 MHz / 850 = 200 ksample/s for both DAC and ADC, at every tone frequency.
+constexpr std::uint32_t timer_ticks = 850;
 pickup::bsp::stm32::Nco oscillator;
 alignas(4) std::array<std::uint16_t, waveform_length> waveform{};
-float sample_rate = 625000.0F;
+float sample_rate = 200000.0F;
 }  // namespace
 
 namespace pickup::bsp::stm32::generator {
