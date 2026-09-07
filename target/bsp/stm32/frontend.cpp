@@ -21,9 +21,8 @@ void Frontend::set_control(float frequency_hz, float amplitude_v) {
   }
 
   acquisition::invalidate();
-  generator::stop();
   ranges::apply_pending();
-  generator::start(frequency_hz, amplitude_v);
+  generator::set_control(frequency_hz, amplitude_v);
   acquisition::configure(frequency_hz, generator::sample_rate_hz());
 }
 
@@ -40,10 +39,18 @@ bool Frontend::acquisition_finished() const {
   const bool finished = acquisition::finish();
 
   if (was_active && finished && acquisition::valid()) {
-    ranges::observe(acquisition::samples());
+    ranges::observe(acquisition::voltage_power(), acquisition::sense_power());
   }
 
   return finished;
+}
+
+bool Frontend::streams_demodulation() const {
+  return true;
+}
+
+bool Frontend::read_demodulated(DemodulatedSignals& output) const {
+  return acquisition::result(output);
 }
 
 float Frontend::sample_rate_hz() const {

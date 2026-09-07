@@ -37,7 +37,15 @@ class FakeClient:
                 count,
             )
         ):
-            self.events.put({"object": "measurement", "data": {"f": f, "z": {"re": 100, "im": 0}}})
+            self.events.put({
+                "object": "measurement",
+                "data": {
+                    "f": f,
+                    "v": {"re": 0.3, "im": 0.4},
+                    "vsense": {"re": 0.0, "im": 0.2},
+                    "z": {"re": 100, "im": 0},
+                },
+            })
 
         self.events.put({
             "object": "sweep",
@@ -57,6 +65,20 @@ class FakeClient:
 
 
 class AcquisitionTests(unittest.TestCase):
+    def test_retains_channel_voltage_magnitudes(self):
+        client = FakeClient()
+        points = measure_sweep(
+            client,
+            20,
+            20000,
+            2,
+            threading.Event(),
+            lambda _point: None,
+        )
+
+        self.assertEqual(points[0].voltage_v, 0.5)
+        self.assertEqual(points[0].sense_voltage_v, 0.2)
+
     def test_coarse_then_single_points_and_sorted_output(self):
         client = FakeClient()
         observed = []

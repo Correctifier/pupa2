@@ -259,7 +259,7 @@ int main() {
       R"({"type":"request","object":"sweep","action":"start","id":3,"params":{"f_start":20,"f_stop":20000,"points":100}})"
   );
 
-  for (int tick = 0; tick < 4000; ++tick) {
+  for (int tick = 0; tick < 8000; ++tick) {
     app.tick();
 
     simulated_time += 0.001;

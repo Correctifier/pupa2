@@ -95,7 +95,8 @@ Auto-connect retries refused connections for about five seconds while the
 target starts. Without `--connect`, connection remains manual.
 
 Choose TCP and `127.0.0.1:8765`. For the pseudo-terminal, install with
-`sudo apt install python3-serial`, choose Serial, and enter the path printed by
+`sudo apt install python3-serial`, choose Serial, and select the port from the
+dropdown (or enter the path manually). The path is also printed by
 the virtual target. Alternatively, developers who already have Python virtual
 environment support can install the package with `pip install -e './pc[serial]'`.
 

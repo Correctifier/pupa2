@@ -1,5 +1,6 @@
 #pragma once
 #include <array>
+#include <memory>
 #include <optional>
 
 #include "interfaces/impedance_analyzer.hpp"
@@ -58,7 +59,7 @@ class Analyzer {
     bool acquisition_started{};
     std::size_t processed_count{};
     float current_frequency_hz{};
-    AcquisitionProcessor processor;
+    std::unique_ptr<AcquisitionProcessor> processor;
     SweepCallbacks callbacks;
   };
   bsp::ImpedanceAnalyzer& hardware_;

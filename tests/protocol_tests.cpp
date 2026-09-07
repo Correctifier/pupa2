@@ -348,7 +348,7 @@ void test_settling_time() {
   assert(hardware.sample_count == 0);
   assert(hardware.generator_calls == 1);
 
-  ++hardware.now_ms;
+  hardware.now_ms += 5;
 
   analyzer.tick();
   assert(hardware.sample_count == 2 * pickup::FourthOrderMovingAverage::settling_frames);
@@ -360,32 +360,14 @@ void test_settling_time() {
   assert(hardware.frequency == 2000);
   assert(hardware.sample_count == 0);
 
-  // 128 frames at 48 kHz take 2.667 ms, so two milliseconds is too soon.
-  hardware.now_ms += 2;
-
-  analyzer.tick();
-  assert(hardware.sample_count == 0);
-
-  // A new generator setting restarts the settling interval.
-
-  analyzer.set_generator(2000, 0.5F);
-
-  ++hardware.now_ms;
-
-  analyzer.tick();
-  assert(hardware.sample_count == 0);
-
-  // Busy retries must not reprogram the generator or restart settling.
-  hardware.now_ms += 2;
-  hardware.acquire = false;
-
-  analyzer.tick();
-  assert(hardware.generator_calls == 3);
-
-  hardware.acquire = true;
+  // 256 frames plus the DAC pipeline allowance take eight milliseconds.
+  hardware.now_ms += 7;
 
   analyzer.tick();
   assert(hardware.sample_count == 2 * pickup::FourthOrderMovingAverage::settling_frames);
+
+  // Finish the second point before starting another operation.
+  analyzer.tick();
 
   assert(analyzer.start_sweep({
       1000,

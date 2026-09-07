@@ -12,6 +12,12 @@ class Nco {
       float sample_rate_hz,
       float amplitude_v
   );
+  // Change waveform parameters without disturbing the accumulated phase.
+  void configure(
+      float frequency_hz,
+      float sample_rate_hz,
+      float amplitude_v
+  );
   std::uint16_t next();
   void fill(std::span<std::uint16_t> output);
 

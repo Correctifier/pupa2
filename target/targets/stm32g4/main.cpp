@@ -1,4 +1,5 @@
 #include "application.hpp"
+#include "generator.hpp"
 #include "nucleo_g431kb.hpp"
 
 int main() {
@@ -18,6 +19,7 @@ int main() {
       &profiler,
   });
 
+  pickup::bsp::stm32::generator::start(1000.0F, 0.25F);
   frontend.set_control(1000.0F, 0.25F);
 
   while (true) {

@@ -4,6 +4,15 @@ from abc import ABC, abstractmethod
 from typing import Any
 
 
+def available_serial_ports() -> list[str]:
+    try:
+        from serial.tools import list_ports
+    except ImportError:
+        return []
+
+    return sorted(port.device for port in list_ports.comports())
+
+
 class Transport(ABC):
     """NDJSON message transport with no analyzer protocol semantics."""
 

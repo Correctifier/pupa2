@@ -15,9 +15,16 @@ from .client import AnalyzerClient
 from .acquisition import SweepCancelled, adaptive_sweep, measure_sweep
 from .adaptive import AdaptiveSettings, STRATEGIES
 from .fitting import RlcFit, fit_rlc
-from .plot import SweepPlot, components_series, magnitude_series, nyquist_series, phase_series
+from .plot import (
+    SweepPlot,
+    components_series,
+    magnitude_series,
+    nyquist_series,
+    phase_series,
+    voltage_series,
+)
 from .sweep import Sweep, SweepPoint, load_sweeps, logarithmic_frequencies, save_sweeps
-from .transport import SerialTransport, TcpTransport, Transport
+from .transport import SerialTransport, TcpTransport, Transport, available_serial_ports
 
 
 @dataclass
@@ -113,6 +120,15 @@ class AnalyzerGui:
                 False,
                 equal_units=True,
             ),
+            self._plot(
+                notebook,
+                "Voltage",
+                "Channel voltage",
+                "Frequency (Hz)",
+                "Voltage magnitude (V)",
+                voltage_series,
+                True,
+            ),
         ]
         self.magnitude_plot = self.plots[0]
 
@@ -144,24 +160,29 @@ class AnalyzerGui:
 
         self.mode = tk.StringVar(value="TCP")
 
-        ttk.Combobox(
+        self.mode_selector = ttk.Combobox(
             frame,
             textvariable=self.mode,
             values=("TCP", "Serial"),
             width=7,
             state="readonly",
-        ).grid(
+        )
+
+        self.mode_selector.grid(
             row=0,
             column=0,
         )
 
         self.endpoint = tk.StringVar(value="127.0.0.1:8765")
 
-        ttk.Entry(
+        self.endpoint_selector = ttk.Combobox(
             frame,
             textvariable=self.endpoint,
             width=20,
-        ).grid(
+            postcommand=self.refresh_serial_ports,
+        )
+
+        self.endpoint_selector.grid(
             row=0,
             column=1,
             padx=5,
@@ -189,6 +210,37 @@ class AnalyzerGui:
             sticky="w",
             pady=(6, 0),
         )
+
+        self.connection_mode = "TCP"
+        self.tcp_endpoint = self.endpoint.get()
+        self.serial_endpoint = ""
+        self.mode_selector.bind("<<ComboboxSelected>>", self._connection_mode_changed)
+
+    def _connection_mode_changed(self, _event=None) -> None:
+        if self.connection_mode == "TCP":
+            self.tcp_endpoint = self.endpoint.get()
+        else:
+            self.serial_endpoint = self.endpoint.get()
+
+        self.connection_mode = self.mode.get()
+
+        if self.connection_mode == "Serial":
+            self.endpoint.set(self.serial_endpoint)
+            self.refresh_serial_ports()
+        else:
+            self.endpoint_selector.configure(values=())
+            self.endpoint.set(self.tcp_endpoint)
+
+    def refresh_serial_ports(self) -> None:
+        if self.mode.get() != "Serial":
+            return
+
+        ports = available_serial_ports()
+
+        self.endpoint_selector.configure(values=ports)
+
+        if not self.endpoint.get() and ports:
+            self.endpoint.set(ports[0])
 
     def _sweep_controls(self, parent: ttk.Frame) -> None:
         frame = ttk.LabelFrame(

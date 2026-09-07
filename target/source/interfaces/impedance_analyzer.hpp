@@ -1,8 +1,18 @@
 #pragma once
+#include <complex>
 #include <cstddef>
 #include <cstdint>
 
 namespace pickup::bsp {
+
+struct DemodulatedSignals {
+  std::complex<float> v{};
+  std::complex<float> vsense{};
+  std::uint16_t v_min{4095};
+  std::uint16_t v_max{};
+  std::uint16_t vsense_min{4095};
+  std::uint16_t vsense_max{};
+};
 
 class ImpedanceAnalyzer {
  public:
@@ -22,6 +32,12 @@ class ImpedanceAnalyzer {
   virtual std::size_t clean_data_count() const = 0;
   virtual bool acquisition_finished() const = 0;
   virtual float sample_rate_hz() const = 0;
+  virtual bool streams_demodulation() const {
+    return false;
+  }
+  virtual bool read_demodulated(DemodulatedSignals&) const {
+    return false;
+  }
 
   virtual void set_range_auto() = 0;
   virtual bool set_range_manual(std::uint32_t range_index) = 0;

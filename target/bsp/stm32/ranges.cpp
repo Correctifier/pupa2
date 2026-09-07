@@ -40,19 +40,9 @@ void apply_pending() {
   }
 }
 
-void observe(std::span<const std::uint16_t> samples) {
+void observe(float voltage_power, float sense_power) {
   if (!automatic_range) {
     return;
-  }
-
-  float voltage_power = 0.0F;
-  float sense_power = 0.0F;
-
-  for (std::size_t index = 0; index < samples.size(); index += 2) {
-    const float voltage = static_cast<float>(samples[index]) - 2048.0F;
-    const float sense = static_cast<float>(samples[index + 1]) - 2048.0F;
-    voltage_power += voltage * voltage;
-    sense_power += sense * sense;
   }
 
   if (sense_power > 0.0F && voltage_power > 0.0F) {

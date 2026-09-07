@@ -11,6 +11,8 @@ class SweepPoint:
     frequency_hz: float
     real_ohm: float
     imaginary_ohm: float
+    voltage_v: float | None = None
+    sense_voltage_v: float | None = None
 
     @property
     def magnitude_ohm(self) -> float:

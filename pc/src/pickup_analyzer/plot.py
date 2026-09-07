@@ -325,3 +325,34 @@ def nyquist_series(sweep: Sweep, color: str) -> list[Series]:
         color,
         [(p.real_ohm, p.imaginary_ohm) for p in sweep.points],
     )]
+
+
+def voltage_series(sweep: Sweep, color: str) -> list[Series]:
+    voltage_points = [
+        (point.frequency_hz, point.voltage_v)
+        for point in sweep.points
+        if point.voltage_v is not None
+    ]
+    sense_points = [
+        (point.frequency_hz, point.sense_voltage_v)
+        for point in sweep.points
+        if point.sense_voltage_v is not None
+    ]
+
+    if not voltage_points and not sense_points:
+        return []
+
+    alternate = SweepPlot.COLORS[(SweepPlot.COLORS.index(color) + 1) % len(SweepPlot.COLORS)]
+
+    return [
+        (
+            f"{sweep.name} Vdut",
+            color,
+            voltage_points,
+        ),
+        (
+            f"{sweep.name} Vsense",
+            alternate,
+            sense_points,
+        ),
+    ]

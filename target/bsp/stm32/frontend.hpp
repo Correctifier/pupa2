@@ -11,6 +11,8 @@ class Frontend final : public ImpedanceAnalyzer {
   std::size_t clean_data_count() const override;
   bool acquisition_finished() const override;
   float sample_rate_hz() const override;
+  bool streams_demodulation() const override;
+  bool read_demodulated(DemodulatedSignals& output) const override;
   void set_range_auto() override;
   bool set_range_manual(std::uint32_t index) override;
   std::uint32_t range_index() const override;

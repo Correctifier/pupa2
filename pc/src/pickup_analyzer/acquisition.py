@@ -66,6 +66,14 @@ def measure_sweep(
                 float(data["f"]),
                 float(data["z"]["re"]),
                 float(data["z"]["im"]),
+                math.hypot(
+                    float(data["v"]["re"]),
+                    float(data["v"]["im"]),
+                ),
+                math.hypot(
+                    float(data["vsense"]["re"]),
+                    float(data["vsense"]["im"]),
+                ),
             )
 
             validate_point(point)

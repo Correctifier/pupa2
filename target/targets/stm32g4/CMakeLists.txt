@@ -57,6 +57,7 @@ add_executable(pickup_stm32_target
   ../../bsp/stm32/serial_transport.cpp
   ../../bsp/stm32/generator.cpp
   ../../bsp/stm32/nco.cpp
+  ../../bsp/stm32/gaussian_detector.cpp
   ../../bsp/stm32/acquisition.cpp
   ../../bsp/stm32/ranges.cpp
   ../../bsp/stm32/frontend.cpp

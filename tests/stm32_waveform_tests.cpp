@@ -6,14 +6,16 @@
 #include <span>
 
 #include "adc_decimator.hpp"
+#include "gaussian_detector.hpp"
 #include "nco.hpp"
 #include "signal_processing.hpp"
 
 namespace {
-constexpr float sample_rate = 200000.0F;
+constexpr float sample_rate = 400000.0F;
 constexpr double tau = 6.28318530717958647692;
 
 using pickup::bsp::stm32::AdcDecimator;
+using pickup::bsp::stm32::GaussianDetector;
 using pickup::bsp::stm32::Nco;
 
 void test_nco_accuracy_and_wrap() {
@@ -84,12 +86,19 @@ void test_nco_refill_and_retune() {
     buffered.fill(consumed);
   }
 
-  buffered.reset(
+  buffered.configure(
       20.0F,
       sample_rate,
       0.25F
   );
-  continuous.reset(
+
+  // Samples queued before the retune still drain at the old frequency. The
+  // NCO is already positioned immediately after this buffered span.
+  for (const auto sample : dma) {
+    assert(sample == continuous.next());
+  }
+
+  continuous.configure(
       20.0F,
       sample_rate,
       0.25F
@@ -98,6 +107,56 @@ void test_nco_refill_and_retune() {
 
   for (const auto sample : dma) {
     assert(sample == continuous.next());
+  }
+}
+
+void test_gaussian_detector_phase_independence() {
+  constexpr float adc_scale = 3.3F / 4095.0F;
+
+  for (const float frequency : {
+      20.0F,
+      3126.0F,
+      4167.0F,
+      6251.0F,
+      20000.0F
+  }) {
+    for (const float phase_offset : {
+        0.0F,
+        0.7F,
+        2.1F
+    }) {
+      GaussianDetector detector;
+
+      detector.configure(frequency, sample_rate);
+      detector.begin();
+
+      std::array<std::uint32_t, 256> input{};
+      std::size_t sample_index = 0;
+      bool complete = false;
+
+      while (!complete) {
+        for (auto& pair : input) {
+          const float phase = static_cast<float>(tau) * frequency * sample_index++ / sample_rate +
+                              phase_offset;
+          const auto voltage = static_cast<std::uint32_t>(
+              std::lround(2048.0F + 500.0F * std::cos(phase))
+          );
+          const auto sense = static_cast<std::uint32_t>(
+              std::lround(2048.0F + 250.0F * std::cos(phase - 0.4F))
+          );
+          pair = voltage | (sense << 16);
+        }
+
+        complete = detector.process(input);
+      }
+
+      pickup::bsp::DemodulatedSignals result;
+
+      assert(detector.result(result));
+      assert(std::abs(std::abs(result.v) - 500.0F * adc_scale) < 0.003F);
+      assert(std::abs(std::abs(result.vsense) - 250.0F * adc_scale) < 0.003F);
+      assert(std::abs(result.v / result.vsense - std::polar(2.0F, 0.4F)) < 0.02F);
+    }
   }
 }
 
@@ -142,7 +201,9 @@ void test_low_frequency_accumulation() {
   decimator.configure(1.0F, sample_rate);
   decimator.begin(output);
 
-  constexpr std::size_t divisor = static_cast<std::size_t>(sample_rate / 32.0F);
+  constexpr std::size_t divisor = static_cast<std::size_t>(
+      sample_rate / pickup::FourthOrderMovingAverage::window_length
+  );
   const std::size_t incomplete_blocks = (divisor - 1) / input.size();
 
   for (std::size_t block = 0; block < incomplete_blocks; ++block) {
@@ -209,6 +270,7 @@ void test_decimated_impedance() {
 int main() {
   test_nco_accuracy_and_wrap();
   test_nco_refill_and_retune();
+  test_gaussian_detector_phase_independence();
   test_decimator_boundaries_and_reset();
   test_low_frequency_accumulation();
   test_decimated_impedance();

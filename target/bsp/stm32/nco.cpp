@@ -36,6 +36,19 @@ void Nco::reset(
     float amplitude_v
 ) {
   phase_ = 0;
+
+  configure(
+      frequency_hz,
+      sample_rate_hz,
+      amplitude_v
+  );
+}
+
+void Nco::configure(
+    float frequency_hz,
+    float sample_rate_hz,
+    float amplitude_v
+) {
   increment_ = static_cast<std::uint32_t>(
       std::llround(static_cast<double>(frequency_hz) / sample_rate_hz * 4294967296.0)
   );

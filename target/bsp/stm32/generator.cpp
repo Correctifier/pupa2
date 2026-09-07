@@ -17,11 +17,11 @@ DAC_HandleTypeDef dac{};
 DMA_HandleTypeDef dac_dma{};
 TIM_HandleTypeDef timer{};
 constexpr std::size_t waveform_length = 512;
-// 170 MHz / 850 = 200 ksample/s for both DAC and ADC, at every tone frequency.
-constexpr std::uint32_t timer_ticks = 850;
+// 170 MHz / 425 = 400 ksample/s for both DAC and ADC, at every tone frequency.
+constexpr std::uint32_t timer_ticks = 425;
 pickup::bsp::stm32::Nco oscillator;
 alignas(4) std::array<std::uint16_t, waveform_length> waveform{};
-float sample_rate = 200000.0F;
+float sample_rate = 400000.0F;
 }  // namespace
 
 namespace pickup::bsp::stm32::generator {
@@ -94,13 +94,6 @@ bool supports_control(float frequency_hz, float amplitude_v) {
          frequency_hz <= 20000.0F && amplitude_v > 0.0F && amplitude_v <= 1.5F;
 }
 
-void stop() {
-  if (timer.Instance != nullptr) {
-    check(HAL_TIM_Base_Stop(&timer));
-    check(HAL_DAC_Stop_DMA(&dac, DAC_CHANNEL_1));
-  }
-}
-
 void start(float frequency_hz, float amplitude_v) {
   const auto clock_multiplier = (RCC->CFGR & RCC_CFGR_PPRE1) == 0 ? 1U : 2U;
   const auto timer_clock = HAL_RCC_GetPCLK1Freq() * clock_multiplier;
@@ -144,6 +137,21 @@ void start(float frequency_hz, float amplitude_v) {
       DAC_ALIGN_12B_R
   ));
   check(HAL_TIM_Base_Start(&timer));
+}
+
+void set_control(float frequency_hz, float amplitude_v) {
+  const auto interrupt_mask = __get_PRIMASK();
+
+  __disable_irq();
+  oscillator.configure(
+      frequency_hz,
+      sample_rate,
+      amplitude_v
+  );
+
+  if (interrupt_mask == 0) {
+    __enable_irq();
+  }
 }
 
 float sample_rate_hz() {

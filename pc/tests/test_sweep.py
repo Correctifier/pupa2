@@ -46,6 +46,8 @@ class SweepTests(unittest.TestCase):
                     1000.0,
                     10.0,
                     20.0,
+                    0.4,
+                    0.1,
                 )
             ],
         )
@@ -56,6 +58,34 @@ class SweepTests(unittest.TestCase):
             save_sweeps(path, [sweep])
             self.assertEqual(load_sweeps(path), [sweep])
             self.assertEqual(json.loads(path.read_text())["version"], 1)
+
+    def test_loads_saved_sweeps_without_voltage_readings(self):
+        document = {
+            "format": "pickup-analyzer-sweeps",
+            "version": 1,
+            "sweeps": [
+                {
+                    "name": "old sweep",
+                    "points": [
+                        {
+                            "frequency_hz": 1000.0,
+                            "real_ohm": 10.0,
+                            "imaginary_ohm": 20.0,
+                        }
+                    ],
+                }
+            ],
+        }
+
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "sweep.json"
+
+            path.write_text(json.dumps(document))
+
+            point = load_sweeps(path)[0].points[0]
+
+            self.assertIsNone(point.voltage_v)
+            self.assertIsNone(point.sense_voltage_v)
 
 
 if __name__ == "__main__":

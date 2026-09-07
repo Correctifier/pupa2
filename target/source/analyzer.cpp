@@ -23,9 +23,14 @@ bool Analyzer::set_generator(float frequency_hz, float amplitude_v) {
   hardware_.set_control(frequency_hz, amplitude_v);
 
   control_set_at_ms_ = hardware_.milliseconds();
-  settling_time_ms_ = static_cast<std::uint32_t>(std::ceil(
-      1000.0F * FourthOrderMovingAverage::settling_time_seconds(hardware_.sample_rate_hz())
-  ));
+  // The continuously running STM32 DAC can have up to 512 previously generated
+  // samples queued. Two milliseconds covers that 1.28 ms pipeline at 400 ksample/s;
+  // other targets receive the same conservative allowance.
+  constexpr std::uint32_t control_pipeline_ms = 2;
+  constexpr float settling_cycles = 4.0F;
+  const auto filter_settling_ms =
+      static_cast<std::uint32_t>(std::ceil(1000.0F * settling_cycles / frequency_hz));
+  settling_time_ms_ = control_pipeline_ms + filter_settling_ms;
 
   return true;
 }
@@ -42,6 +47,10 @@ bool Analyzer::start_sweep(SweepParameters parameters, SweepCallbacks callbacks)
   sweep_->stop_hz = parameters.stop_hz;
   sweep_->points = parameters.points;
   sweep_->callbacks = callbacks;
+
+  if (!hardware_.streams_demodulation()) {
+    sweep_->processor = std::make_unique<AcquisitionProcessor>();
+  }
 
   return true;
 }
@@ -104,17 +113,25 @@ void Analyzer::tick() {
       return;
     }
 
-    sweep.processor.begin(sweep.current_frequency_hz, hardware_.sample_rate_hz());
+    if (!hardware_.streams_demodulation()) {
+      sweep.processor->begin(sweep.current_frequency_hz, hardware_.sample_rate_hz());
+    }
 
     sweep.processed_count = 0;
     sweep.acquisition_started = true;
   }
 
-  std::size_t clean_count = std::min(hardware_.clean_data_count(), acquisition_buffer_.size());
+  const bool streaming = hardware_.streams_demodulation();
+  std::size_t clean_count = streaming
+                                ? 0
+                                : std::min(
+                                      hardware_.clean_data_count(),
+                                      acquisition_buffer_.size()
+                                  );
   clean_count -= clean_count % 2;
 
   if (clean_count > sweep.processed_count) {
-    sweep.processor.process(
+    sweep.processor->process(
         acquisition_buffer_.data() + sweep.processed_count,
         clean_count - sweep.processed_count
     );
@@ -122,14 +139,34 @@ void Analyzer::tick() {
     sweep.processed_count = clean_count;
   }
 
-  const bool all_data_processed = sweep.processed_count == acquisition_buffer_.size();
+  const bool all_data_processed = streaming || sweep.processed_count == acquisition_buffer_.size();
 
   if (!hardware_.acquisition_finished() || !all_data_processed) {
     return;
   }
 
-  const auto result =
-      sweep.processor.finish(hardware_.range_index(), hardware_.sense_resistor_ohm());
+  std::optional<ProcessedMeasurement> result;
+
+  if (streaming) {
+    bsp::DemodulatedSignals signals;
+
+    if (hardware_.read_demodulated(signals) && std::abs(signals.vsense) >= 1e-15F) {
+      result = ProcessedMeasurement{
+          sweep.current_frequency_hz,
+          hardware_.range_index(),
+          hardware_.sense_resistor_ohm(),
+          signals.v,
+          signals.vsense,
+          signals.v_min,
+          signals.v_max,
+          signals.vsense_min,
+          signals.vsense_max,
+      };
+      result->impedance = result->sense_resistor_ohm * result->v / result->vsense;
+    }
+  } else {
+    result = sweep.processor->finish(hardware_.range_index(), hardware_.sense_resistor_ohm());
+  }
 
   const auto callbacks = sweep.callbacks;
   const auto measurement_callbacks = measurement_callbacks_;

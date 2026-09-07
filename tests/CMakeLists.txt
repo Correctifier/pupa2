@@ -28,6 +28,7 @@ add_test(NAME pickup_circuit_tests COMMAND pickup_circuit_tests)
 add_executable(stm32_waveform_tests
   stm32_waveform_tests.cpp
   ../target/bsp/stm32/nco.cpp
+  ../target/bsp/stm32/gaussian_detector.cpp
 )
 target_include_directories(stm32_waveform_tests PRIVATE ../target/bsp/stm32)
 target_link_libraries(stm32_waveform_tests PRIVATE pickup_application)

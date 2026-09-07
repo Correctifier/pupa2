@@ -51,39 +51,39 @@ the **87-microsecond** byte deadline. Transmission consumes each message synchro
 before returning.
 
 TIM6 TRGO drives the DAC and simultaneous ADC1/ADC2 conversions at a fixed
-**200 ksample/s** (170 MHz / 850), independent of generator frequency. A 32-bit
+**400 ksample/s** (170 MHz / 425), independent of generator frequency. A 32-bit
 NCO sets the tone frequency using a phase increment calculated from the actual
 timer rate. Its interpolated 1024-entry Q15 cosine table lives in Flash; DMA
 half/full callbacks refill a circular 512-sample DAC buffer using integer math.
-Phase continues across refills; setting a new frequency/amplitude restarts it.
-Each half gives **1.28 milliseconds** to refill. DAC underruns and
+Phase continues across refills and frequency/amplitude changes; retuning takes
+effect as the already-buffered samples drain without stopping the DAC stream.
+Each half gives **0.64 milliseconds** to refill. DAC underruns and
 missed refill deadlines stop execution through the BSP fault handler.
 
 Supported generator settings remain 1–20000 Hz and greater than zero through
 1.5 V peak amplitude. Protocol requests outside these bounds return an error.
 NCO frequency rounding is at most 0.000024 Hz at the nominal clock rate;
 HSI clock tolerance still affects both sample timing and generated frequency.
-The fixed update rate keeps DAC reconstruction images near 200 kHz and its
+The fixed update rate keeps DAC reconstruction images near 400 kHz and its
 multiples throughout the sweep, making a fixed analog reconstruction low-pass
 filter practical. It does not replace that external analog filter.
 
 ADC DMA packs ADC1 in the low halfword and ADC2 in the high halfword of an
-internal circular 512-frame buffer. Each completed half is boxcar averaged and
-decimated into the caller's `[Vdut, Vsense, ...]` buffer. The integer decimation
-factor is `max(1, floor(raw_rate / (filter_window_length * frequency)))`.
-Both channels use identical averaging windows and retain partial sums across
-DMA halves. Only a completed, stopped capture is exposed as clean data. ADC
-errors or missed DMA processing deadlines invalidate the capture.
+internal circular 512-frame buffer. Each completed half is processed in its DMA
+callback. Four adjacent frames are boxcar averaged, producing a 100 ksample/s
+stream. Each channel is multiplied by a recursive complex oscillator and accumulated
+through a Gaussian window spanning five generator cycles. The detector returns one
+complex value per channel and retains no capture or FIR-history buffer. Its reported
+magnitudes compensate for the known four-sample boxcar droop.
 
-The analyzer receives the **effective, decimated rate**, while the physical
-ADC and DAC rates remain equal and fixed. Its fourth-order filter and 128-frame
-capture stay unchanged. Capture and pre-acquisition settling each span about
-four cycles through most of the sweep, increasing to 12.8 cycles at 20 kHz
-because decimation cannot go below one. Using 128 raw samples at 200 ksample/s
-would still fail to cover even one low-frequency period. Boxcar averaging
-has modest passband droop shared by both channels and limited stopband rejection;
-analog input filtering is still required. Reported ADC extrema now describe the
-averaged samples, so they do not reliably detect brief raw-input clipping.
+The physical ADC and DAC rates remain equal and fixed at 400 ksample/s. The Gaussian
+window is truncated at approximately plus/minus five standard deviations, with a
+standard deviation of half a generator cycle. Oscillator normalization occurs once
+per DMA block; trigonometric and exponential setup occurs outside the ISR. ADC errors
+or missed DMA processing deadlines invalidate the capture. Reported ADC extrema
+describe four-sample averages, so they do not reliably detect brief raw-input clipping.
+Analog input filtering is still required. Pre-acquisition settling spans four cycles
+and includes two milliseconds for the continuously running DAC's queued samples.
 Calibration runs the ADCs' internal single-ended calibration when idle; this
 is not analog gain/phase or fixture calibration.
 
@@ -110,7 +110,7 @@ the required host GDB package.
 
 On hardware, first check the LED heartbeat and a `device/info` request over VCP.
 Then scope A3 at the default 1 kHz / 0.25 V peak setting and at both frequency
-limits, verify that updates stay at 200 ksample/s and DMA refills meet their
+limits, verify that updates stay at 400 ksample/s and DMA refills meet their
 deadlines during simultaneous capture and VCP traffic, verify both conditioned
 ADC inputs and range outputs, and measure a known resistor before a pickup.
 Cross-build and host tests do not verify physical pin routing, analog settling,
@@ -127,6 +127,7 @@ peripheral ownership:
 - `serial_transport.cpp`: ST-LINK UART transport, receive buffer, and UART IRQ.
 - `generator.cpp`: fixed-rate timer, DAC DMA, and its IRQ/callbacks.
 - `nco.cpp`: hardware-independent phase accumulator and interpolated waveform generation.
+- `gaussian_detector.cpp`: streaming decimation, complex mixing, and Gaussian accumulation.
 - `acquisition.cpp`: dual ADC capture, calibration, ADC DMA, and its IRQ/callbacks.
 - `adc_decimator.hpp`: streaming ADC pair averaging and effective sample-rate selection.
 - `ranges.cpp`: range GPIO, resistor selection, and autorange decisions.

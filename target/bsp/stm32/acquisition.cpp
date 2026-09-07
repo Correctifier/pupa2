@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <array>
 
-#include "adc_decimator.hpp"
+#include "gaussian_detector.hpp"
 #include "hal_support.hpp"
 #include "profiler.hpp"
 
@@ -13,9 +13,8 @@ namespace {
 ADC_HandleTypeDef adc1{}, adc2{};
 DMA_HandleTypeDef adc_dma{};
 std::array<std::uint32_t, 512> dma_buffer{};
-pickup::bsp::stm32::AdcDecimator decimator;
-std::uint16_t* acquisition_buffer{};
-std::size_t acquisition_count{};
+pickup::bsp::stm32::GaussianDetector detector;
+float detector_sample_rate{};
 bool acquisition_active{};
 volatile bool acquisition_done{};
 volatile bool acquisition_error{};
@@ -115,11 +114,12 @@ void initialize() {
 }
 
 void configure(float frequency_hz, float raw_sample_rate_hz) {
-  decimator.configure(frequency_hz, raw_sample_rate_hz);
+  detector.configure(frequency_hz, raw_sample_rate_hz);
+  detector_sample_rate = raw_sample_rate_hz / GaussianDetector::decimation;
 }
 
 float sample_rate_hz() {
-  return decimator.sample_rate_hz();
+  return detector_sample_rate;
 }
 
 void invalidate() {
@@ -132,18 +132,15 @@ void invalidate() {
 }
 
 bool start(std::uint16_t* buffer, std::size_t count) {
-  if (acquisition_active || buffer == nullptr || count < 2 || count % 2 != 0 ||
-      reinterpret_cast<std::uintptr_t>(buffer) % 4 != 0 || count / 2 > 65535) {
+  if (acquisition_active || buffer == nullptr || count < 2) {
     return false;
   }
 
-  acquisition_buffer = buffer;
-  acquisition_count = count;
   acquisition_done = false;
   acquisition_error = false;
   acquisition_active = true;
 
-  decimator.begin({buffer, count});
+  detector.begin();
 
   check(HAL_ADCEx_MultiModeStart_DMA(
       &adc1,
@@ -155,21 +152,7 @@ bool start(std::uint16_t* buffer, std::size_t count) {
 }
 
 std::size_t clean_data_count() {
-  if (!acquisition_done) {
-    return 0;
-  }
-
-  __DMB();
-
-  if (acquisition_error) {
-    std::fill_n(
-        acquisition_buffer,
-        acquisition_count,
-        2048
-    );
-  }
-
-  return acquisition_count;
+  return 0;
 }
 
 bool finish() {
@@ -186,17 +169,24 @@ bool finish() {
   return true;
 }
 
+bool result(DemodulatedSignals& output) {
+  return acquisition_done && !acquisition_error && detector.result(output);
+}
+
+float voltage_power() {
+  return detector.voltage_power();
+}
+
+float sense_power() {
+  return detector.sense_power();
+}
+
 bool active() {
   return acquisition_active;
 }
 
 bool valid() {
   return acquisition_done && !acquisition_error;
-}
-
-std::span<const std::uint16_t> samples() {
-  return valid() ? std::span<const std::uint16_t>(acquisition_buffer, acquisition_count)
-                 : std::span<const std::uint16_t>{};
 }
 
 void calibrate() {
@@ -235,7 +225,7 @@ void consume(std::size_t offset) {
   __DMB();
 
   const bool complete =
-      decimator.process(std::span(dma_buffer).subspan(offset, dma_buffer.size() / 2));
+      detector.process(std::span(dma_buffer).subspan(offset, dma_buffer.size() / 2));
 
   if ((__HAL_DMA_GET_COUNTER(&adc_dma) > dma_buffer.size() / 2) == (offset == 0)) {
     stop_capture(true);
